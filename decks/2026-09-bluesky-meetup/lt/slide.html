@@ -277,6 +277,12 @@
   }
   .toolbar button:hover { background: rgba(255,255,255,0.22); }
   .toolbar button.primary { background: var(--tc); }
+  /* left:50% 配置は狭い画面で利用可能幅が半分と計算されるので、折り返しを禁止する */
+  .toolbar, .toolbar button { white-space: nowrap; }
+  @media (max-width: 640px) {
+    .toolbar { bottom: 10px; padding: 6px 10px; gap: 8px; font-size: 12px; }
+    .toolbar button { padding: 6px 10px; font-size: 12px; }
+  }
   .toolbar .counter { min-width: 50px; text-align: center; font-variant-numeric: tabular-nums; }
 
   body.present { background: #111827; overflow: hidden; }
