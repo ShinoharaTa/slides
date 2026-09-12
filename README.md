@@ -10,10 +10,17 @@
 ├── template/                     # 雛形。ここを複製して新しいスライドを作る
 │   ├── slide.html
 │   └── images/placeholder.svg
-├── decks/                        # 発表済みのスライド（1発表 = 1ディレクトリ）
-│   └── 2026-06-bluesky-meetup/
-│       ├── slide.html
-│       └── images/
+├── decks/                        # 発表ごとのスライド
+│   ├── 2026-06-bluesky-meetup/   # 1発表なら直下に slide.html
+│   │   ├── slide.html
+│   │   └── images/
+│   └── 2026-09-bluesky-meetup/   # 1イベントで複数登壇するときは役割ごとに分ける
+│       ├── mc/                   # 司会進行
+│       │   ├── slide.html
+│       │   └── images/
+│       └── lt/
+│           ├── slide.html
+│           └── images/
 └── README.md
 ```
 
@@ -23,6 +30,16 @@
 
 ```sh
 cp -r template decks/2026-10-example-conf
+```
+
+同じイベントで複数のスライドを持つとき（司会と LT を兼ねる、など）は、イベントの
+ディレクトリを切ってその下に役割ごとのディレクトリを置く。`images/` は `slide.html`
+からの相対参照なので、一段深くなっても参照は壊れない。
+
+```sh
+mkdir decks/2026-10-example-conf
+cp -r template decks/2026-10-example-conf/mc
+cp -r template decks/2026-10-example-conf/lt
 ```
 
 あとは `decks/2026-10-example-conf/slide.html` を編集するだけ。編集ポイントには
