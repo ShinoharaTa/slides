@@ -129,6 +129,11 @@
     line-height: 1.9;
   }
 
+  /* SVG はアイコンや線・箱の図に使う。ただし SVG の <text> は Android Chrome の
+     文字自動拡大で巨大化することがあり、text-size-adjust でも止まらない。
+     図の中の文字は SVG ではなく HTML の要素として置くこと
+     （decks/2026-09-bluesky-meetup/lt/slide.html の .node / .line / .ahead が実例） */
+
   /* ---- 種別: cover（表紙） ---- */
   .slide.cover {
     justify-content: center;
