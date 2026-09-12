@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400" role="img" aria-label="placeholder">
-  <rect width="600" height="400" fill="#e5e7eb"/>
-  <path d="M0 400 L210 190 L330 300 L420 230 L600 400 Z" fill="#cbd5e1"/>
-  <circle cx="450" cy="110" r="46" fill="#cbd5e1"/>
-  <text x="300" y="215" font-family="sans-serif" font-size="34" font-weight="700"
-        fill="#94a3b8" text-anchor="middle">IMAGE</text>
-</svg>

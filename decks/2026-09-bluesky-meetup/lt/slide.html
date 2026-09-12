@@ -3,28 +3,21 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<!-- ▼差し替え: ブラウザのタブとPDFのファイル名になる -->
-<title>LT - Bluesky Meetup 2026-09</title>
+<title>記録する場所と、共有する場所を分ける - Bluesky Meetup 2026-09</title>
 <style>
   /* =========================================================
-     テーマ（ここだけ変えれば全体の配色が変わる）
+     テーマ: 白地・2色。Trailcast = 緑、Bluesky = 青
      ========================================================= */
   :root {
-    /* ▼差し替え: アクセントカラー。3つとも同系色で揃える */
-    --accent: #1083fe;        /* 見出し・アイコン・強調 */
-    --accent-dark: #0a6cd6;   /* ボタンのホバー */
-    --accent-soft: #e7f1ff;   /* 淡い背景 */
-
-    --ink: #0b1426;           /* 本文の濃い文字 */
-    --ink-soft: #4a5568;      /* 本文のやや薄い文字 */
+    --tc: #0f9d7a;           /* Trailcast */
+    --tc-soft: #e6f6f1;
+    --bs: #1083fe;           /* Bluesky */
+    --bs-soft: #e7f1ff;
+    --ink: #111827;
+    --ink-soft: #374151;
     --muted: #6b7280;
+    --line: #d1d5db;
     --bg: #ffffff;
-    --bg-grad: linear-gradient(135deg, #ffffff 0%, #f0f6ff 100%); /* スライドの地 */
-    --card-bg: #f8fafc;
-    --card-border: #e2e8f0;
-    --code-bg: #0f172a;
-    --code-ink: #e2e8f0;
-    --shadow: 0 10px 30px rgba(16, 131, 254, 0.08), 0 2px 6px rgba(0,0,0,0.04);
   }
 
   * { box-sizing: border-box; }
@@ -34,16 +27,12 @@
     padding: 0;
     font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     color: var(--ink);
-    background: #eef2f7;
+    background: #f3f4f6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* =========================================================
-     デッキのレイアウト
-     .slide は 16:9 の箱。container-type: inline-size により
-     文字サイズの cqi 指定がスライド幅に追従する（= 拡大縮小しても崩れない）
-     ========================================================= */
+  /* ---- デッキ ---- */
   .deck {
     display: flex;
     flex-direction: column;
@@ -51,450 +40,221 @@
     gap: 24px;
     padding: 32px 16px 100px;
   }
-
   .slide {
     width: min(1280px, 96vw);
     aspect-ratio: 16 / 9;
-    background: var(--bg-grad);
-    border-radius: 16px;
-    box-shadow: var(--shadow);
+    background: var(--bg);
+    border: 1px solid var(--line);
     position: relative;
     overflow: hidden;
-    padding: 6% 7%;
+    padding: 5.5% 7%;
     display: flex;
     flex-direction: column;
     container-type: inline-size;
   }
 
-  /* ---- 共通パーツ ---- */
-  h1.title {
-    font-size: clamp(28px, 5.2cqi, 72px);
-    font-weight: 900;
+  /* ---- 共通 ---- */
+  h2.head {
+    font-size: clamp(20px, 3.6cqi, 48px);
+    font-weight: 800;
+    line-height: 1.3;
+    margin: 0 0 3cqi;
     letter-spacing: -0.01em;
-    line-height: 1.2;
-    margin: 0 0 24px;
+  }
+  .tc { color: var(--tc); }
+  .bs { color: var(--bs); }
+  .fill { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+  .foot {
+    margin-top: auto;
+    padding-top: 2cqi;
+    font-size: clamp(11px, 1.45cqi, 19px);
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .foot.strong {
     color: var(--ink);
-  }
-  h1.title.center { text-align: center; }
-
-  h2.section-title {
-    font-size: clamp(20px, 3.3cqi, 44px);
-    font-weight: 900;
-    margin: 0 0 28px;
-    color: var(--ink);
-  }
-
-  .accent, .highlight { color: var(--accent); }
-  .highlight { font-weight: 800; }
-
-  .subtitle {
-    font-size: clamp(14px, 1.8cqi, 24px);
-    color: var(--ink-soft);
-    text-align: center;
-    font-weight: 700;
-  }
-
-  .divider {
-    width: 64px;
-    height: 4px;
-    background: var(--accent);
-    border-radius: 2px;
-    margin: 0 auto 28px;
-  }
-
-  .body {
-    font-size: clamp(14px, 1.7cqi, 22px);
-    color: var(--ink-soft);
-    line-height: 1.9;
-  }
-
-  /* ---- 種別: cover（表紙） ---- */
-  .slide.cover {
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-  .slide.cover h1.title {
-    font-size: clamp(40px, 8cqi, 116px);
-    margin-bottom: 28px;
-  }
-  .slide.cover .subtitle { font-size: clamp(18px, 2.6cqi, 36px); }
-
-  /* ---- 種別: statement（セクション扉／大きな問いかけ） ---- */
-  .slide.statement {
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-  .slide.statement .body { max-width: 70%; }
-
-  /* ---- 背景写真（cover / quote などに重ねる） ---- */
-  .slide.has-bg-photo > .bg-photo {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    z-index: 0;
-    pointer-events: none;
-  }
-  .slide.has-bg-photo > .bg-photo::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    /* 白いベールを重ねて文字を読めるようにする。濃さはここで調整 */
-    background: linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(240,246,255,0.55) 100%);
-  }
-  .slide.has-bg-photo > *:not(.bg-photo) {
-    position: relative;
-    z-index: 2;
-  }
-  .slide.has-bg-photo .bg-photo { opacity: 0.55; }
-  /* 写真の上でも文字が沈まないよう、白いハロを敷く */
-  .slide.has-bg-photo .title,
-  .slide.has-bg-photo .subtitle,
-  .slide.has-bg-photo .section-title,
-  .slide.has-bg-photo .quote-text,
-  .slide.has-bg-photo .quote-attribution {
-    text-shadow:
-      0 0 14px rgba(255,255,255,0.95),
-      0 0 28px rgba(255,255,255,0.75),
-      0 1px 2px rgba(0,0,0,0.05);
-  }
-
-  /* ---- 種別: 2カラム（本文 + 画像 / 箇条書き + 画像） ---- */
-  .two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5%;
-    flex: 1;
-    align-items: center;
-  }
-  .col-text h3 {
-    color: var(--accent);
-    font-size: clamp(16px, 2.1cqi, 28px);
     font-weight: 800;
-    margin: 0 0 18px;
+    font-size: clamp(14px, 2.2cqi, 30px);
   }
-  .col-text p {
-    font-size: clamp(13px, 1.55cqi, 20px);
-    line-height: 1.85;
-    color: var(--ink-soft);
-    margin: 0 0 14px;
+  .foot.center { text-align: center; }
+  .label {
+    font-size: clamp(11px, 1.5cqi, 20px);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    margin-bottom: 1.2cqi;
   }
-  /* スライドに置く画像の標準形。src を差し替えるだけで収まる */
-  .slide-img {
-    width: 100%;
-    aspect-ratio: 3 / 2;   /* 縦横比を固定し、はみ出しは cover で切り取る */
-    max-height: 36cqi;     /* スライドの高さを超えないための上限 */
-    object-fit: cover;
-    object-position: center;
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    display: block;
-  }
-  /* 画像がまだ無いとき用のグレーの箱 */
-  .img-placeholder {
-    background: #e5e7eb;
-    border-radius: 12px;
-    aspect-ratio: 3 / 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #9ca3af;
-    font-size: clamp(20px, 4cqi, 52px);
-    font-weight: 700;
-  }
+  svg { display: block; width: 100%; height: auto; font-family: inherit; }
+  svg text { font-family: inherit; }
 
-  /* ---- 種別: 箇条書き ---- */
-  .bullets {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-  .bullets li {
-    display: grid;
-    grid-template-columns: 16px 1fr;
-    gap: 16px;
-    align-items: start;
-    font-size: clamp(12px, 1.5cqi, 19px);
-    line-height: 1.8;
-    color: var(--ink-soft);
-  }
-  .bullets li::before {
-    content: "";
-    display: block;
-    width: 14px;
-    height: 14px;
-    background: var(--accent);
-    border-radius: 2px;
-    margin-top: 0.4em;
-  }
-
-  /* ---- 種別: 目次（番号つき） ---- */
-  .agenda {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 20px;
-    counter-reset: agenda;
-  }
-  .agenda li {
-    counter-increment: agenda;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 22px;
-    align-items: baseline;
-    font-size: clamp(14px, 2cqi, 28px);
-    font-weight: 700;
-    color: var(--ink);
-    border-bottom: 1px solid var(--card-border);
-    padding-bottom: 16px;
-  }
-  .agenda li::before {
-    content: counter(agenda, decimal-leading-zero);
-    color: var(--accent);
+  /* ---- 1. 表紙 ---- */
+  .slide.cover { justify-content: center; align-items: center; text-align: center; }
+  .slide.cover h1 {
+    font-size: clamp(30px, 6.2cqi, 84px);
     font-weight: 900;
+    line-height: 1.25;
+    margin: 0 0 2.4cqi;
+    letter-spacing: -0.015em;
+  }
+  .slide.cover .sub {
+    font-size: clamp(14px, 2.2cqi, 30px);
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .slide.cover .foot { position: absolute; left: 7%; right: 7%; bottom: 6%; text-align: center; margin: 0; }
+
+  /* ---- 2. タイムライン ---- */
+  .timeline {
+    width: min(70%, 780px);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .tl-item {
+    display: grid;
+    grid-template-columns: 7.5cqi 2.2cqi 1fr;
+    align-items: stretch;
+    column-gap: 1.6cqi;
+  }
+  .tl-time {
     font-variant-numeric: tabular-nums;
-  }
-  .agenda li .note {
-    display: block;
-    font-size: 0.62em;
-    font-weight: 600;
-    color: var(--muted);
-    margin-top: 6px;
-  }
-
-  /* ---- 種別: カード（3枚 / 2枚） ---- */
-  .cards-3 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 28px;
-    flex: 1;
-    align-content: center;
-  }
-  .cards-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    flex: 1;
-    align-content: center;
-  }
-  .card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 14px;
-    padding: 28px 26px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .card .icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: 900;
-  }
-  .card .icon.outline {
-    background: transparent;
-    color: var(--accent);
-  }
-  .card h3 {
-    font-size: clamp(14px, 1.9cqi, 24px);
-    margin: 0;
-    color: var(--ink);
     font-weight: 800;
-  }
-  .card p {
-    font-size: clamp(11px, 1.35cqi, 17px);
+    font-size: clamp(13px, 1.9cqi, 26px);
     color: var(--ink-soft);
-    line-height: 1.8;
-    margin: 0;
+    padding-top: 0.1em;
   }
-  /* 比較スライド用: 上辺にアクセントの線 */
-  .card.bordered-top {
-    border-top: 4px solid var(--accent);
-    padding-top: 28px;
-  }
-  .card.bordered-top h3 {
-    color: var(--accent);
-    margin-bottom: 14px;
-  }
-
-  /* ---- 種別: 引用 ---- */
-  .slide.quote-slide { justify-content: flex-start; }
-  .quote-block {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 0 8%;
-  }
-  .quote-wrap {
-    position: relative;
-    display: inline-block;
-    padding: 0 6cqi;
-    margin-bottom: 24px;
-  }
-  .quote-text {
-    font-size: clamp(20px, 3.5cqi, 46px);
-    font-weight: 800;
-    line-height: 1.55;
-    margin: 0;
-    color: var(--ink);
-  }
-  .quote-mark {
-    color: var(--accent);
-    font-size: clamp(36px, 6cqi, 80px);
-    line-height: 1;
-    opacity: 0.55;
-    font-family: Georgia, serif;
+  .tl-axis { position: relative; }
+  .tl-axis::before {           /* 縦線 */
+    content: "";
     position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--line);
+    transform: translateX(-50%);
   }
-  .quote-mark.open { top: -0.2em; left: 0; }
-  .quote-mark.close { bottom: -0.55em; right: 0; }
-  .quote-attribution {
-    color: var(--accent);
-    font-weight: 700;
-    font-size: clamp(13px, 1.65cqi, 22px);
+  .tl-item:first-child .tl-axis::before { top: 0.7em; }
+  .tl-item:last-child .tl-axis::before { bottom: auto; height: 0.7em; }
+  .tl-axis::after {            /* 点 */
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0.45em;
+    width: 1.3cqi;
+    height: 1.3cqi;
+    border-radius: 50%;
+    background: var(--tc);
+    transform: translate(-50%, 0);
   }
-
-  /* ---- 種別: コード ---- */
-  .code-block {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 0;
+  .tl-body { padding-bottom: 3.2cqi; }
+  .tl-place {
+    font-size: clamp(15px, 2.3cqi, 32px);
+    font-weight: 800;
+    line-height: 1.2;
   }
-  .code-block pre {
-    background: var(--code-bg);
-    color: var(--code-ink);
-    border-radius: 12px;
-    padding: 3.2cqi 3.6cqi;
-    margin: 0;
-    overflow: auto;
-    box-shadow: var(--shadow);
-    max-height: 100%;
-  }
-  .code-block code {
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-    font-size: clamp(10px, 1.45cqi, 19px);
-    line-height: 1.75;
-    white-space: pre;
-    tab-size: 2;
-  }
-  .code-caption {
-    font-size: clamp(11px, 1.3cqi, 17px);
+  .tl-meta {
+    margin-top: 0.5cqi;
+    font-size: clamp(10px, 1.3cqi, 17px);
     color: var(--muted);
-    margin: 14px 0 0;
-  }
-  /* インラインのコード片 */
-  code.inline {
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-    background: var(--accent-soft);
-    color: var(--accent-dark);
-    border-radius: 5px;
-    padding: 0.1em 0.4em;
-    font-size: 0.92em;
+    display: flex;
+    gap: 1.4cqi;
   }
 
-  /* ---- 種別: 額縁メッセージ ---- */
-  .frame-card {
-    flex: 1;
-    align-self: center;
-    width: 92%;
-    margin: auto;
-    background: #ffffff;
-    border-radius: 18px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    padding: 6% 7%;
-    text-align: center;
-  }
-  .frame-card h2 {
-    font-size: clamp(22px, 3.7cqi, 48px);
-    font-weight: 900;
-    margin: 0 0 22px;
-  }
-  .frame-card p {
-    font-size: clamp(12px, 1.55cqi, 20px);
-    line-height: 1.9;
-    margin: 10px 0;
-    color: var(--ink-soft);
-  }
-
-  /* ---- 種別: 大きな一言 + 補足 ---- */
-  .split-hero {
+  /* ---- 3 / 6 / 8. 左右比較 ---- */
+  .compare {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 5%;
-    flex: 1;
-    align-items: center;
-    padding: 0 2%;
+    gap: 6cqi;
+    align-items: start;
   }
-  .split-hero .hero-left {
+  .compare.divided { gap: 0; }
+  .compare.divided > * { padding: 0 4cqi; }
+  .compare.divided > *:first-child { border-right: 1px solid var(--line); }
+  .stack { display: flex; flex-direction: column; gap: 0.9cqi; }
+  .row {
+    border: 1px solid var(--line);
+    padding: 0.9cqi 1.6cqi;
+    font-size: clamp(11px, 1.5cqi, 20px);
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .row.mine { border-color: var(--tc); color: var(--tc); font-weight: 800; }
+  .row.mine.mixed { border-color: var(--bs); color: var(--bs); }
+
+  /* 縦のフロー（箱 ↓ 箱） */
+  .flow { display: flex; flex-direction: column; align-items: center; gap: 0.6cqi; }
+  .flow .box {
+    width: 100%;
+    border: 1px solid var(--ink);
+    padding: 1.1cqi 1.6cqi;
     text-align: center;
-    border-right: 2px solid #d1d5db;
-    padding-right: 5%;
+    font-size: clamp(11px, 1.55cqi, 21px);
+    font-weight: 700;
+    line-height: 1.5;
   }
-  .hero-word {
-    font-size: clamp(48px, 9cqi, 140px);
-    font-weight: 900;
-    color: var(--accent);
-    line-height: 0.95;
-    letter-spacing: -0.02em;
-  }
-  .hero-sub {
-    font-size: clamp(16px, 2.3cqi, 30px);
-    font-weight: 800;
-    margin-top: 12px;
-    color: var(--ink);
-  }
-  .split-hero .hero-right h3 {
-    color: var(--accent);
-    font-weight: 800;
-    font-size: clamp(15px, 2cqi, 26px);
-    margin: 0 0 16px;
-  }
-  .split-hero .hero-right p {
-    font-size: clamp(12px, 1.5cqi, 19px);
-    line-height: 1.85;
-    color: var(--ink-soft);
-    margin: 0 0 12px;
+  .flow .box.multi { color: var(--muted); border-color: var(--line); font-weight: 600; }
+  .flow .box.tc { border-color: var(--tc); color: var(--tc); }
+  .flow .box.bad { border-color: var(--muted); color: var(--muted); }
+  .flow .arrow {
+    font-size: clamp(14px, 2cqi, 28px);
+    color: var(--muted);
+    line-height: 1;
   }
 
-  /* ---- 種別: 締め ---- */
-  .slide.final {
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+  /* 箇条書き（分離スライド） */
+  .plain {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4cqi;
   }
-  .slide.final .body { font-weight: 700; line-height: 2.1; }
+  .plain li {
+    font-size: clamp(15px, 2.3cqi, 32px);
+    font-weight: 700;
+    line-height: 1.3;
+    padding-left: 1.4em;
+    position: relative;
+  }
+  .plain li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 0.5em;
+    height: 0.5em;
+    background: currentColor;
+  }
+
+  /* ---- 9. 終了 ---- */
+  .slide.final { justify-content: center; align-items: center; text-align: center; }
+  .slide.final h1 {
+    font-size: clamp(26px, 5.2cqi, 72px);
+    font-weight: 900;
+    line-height: 1.3;
+    margin: 0 0 2.4cqi;
+    letter-spacing: -0.015em;
+  }
+  .slide.final .sub {
+    font-size: clamp(15px, 2.4cqi, 32px);
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .slide.final .foot { position: absolute; left: 7%; right: 7%; bottom: 6%; text-align: center; margin: 0; }
 
   /* =========================================================
-     ツールバー（印刷時は消える）
+     ツールバー・プレゼンモード・印刷（template と同じ）
      ========================================================= */
   .toolbar {
     position: fixed;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(11, 20, 38, 0.92);
+    background: rgba(17, 24, 39, 0.92);
     backdrop-filter: blur(10px);
     color: white;
     padding: 10px 16px;
@@ -502,7 +262,6 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
     z-index: 100;
     font-size: 14px;
   }
@@ -515,55 +274,31 @@
     cursor: pointer;
     font-size: 13px;
     font-family: inherit;
-    transition: background 0.15s;
   }
   .toolbar button:hover { background: rgba(255,255,255,0.22); }
-  .toolbar button.primary { background: var(--accent); }
-  .toolbar button.primary:hover { background: var(--accent-dark); }
-  .toolbar .counter {
-    min-width: 50px;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-  }
+  .toolbar button.primary { background: var(--tc); }
+  .toolbar .counter { min-width: 50px; text-align: center; font-variant-numeric: tabular-nums; }
 
-  /* プレゼンモード（1枚ずつ全画面表示） */
-  body.present {
-    background: #0b1426;
-    overflow: hidden;
-  }
-  body.present .deck {
-    padding: 0;
-    height: 100vh;
-    justify-content: center;
-  }
+  body.present { background: #111827; overflow: hidden; }
+  body.present .deck { padding: 0; height: 100vh; justify-content: center; }
   body.present .slide {
     display: none;
     width: min(100vw, calc(100vh * 16 / 9));
     height: min(100vh, calc(100vw * 9 / 16));
-    border-radius: 0;
+    border: none;
   }
   body.present .slide.active { display: flex; }
 
-  /* =========================================================
-     印刷（= PDF出力）。1スライド = 1ページ
-     ========================================================= */
   @media print {
-    @page {
-      size: landscape;
-      margin: 0;
-    }
+    @page { size: landscape; margin: 0; }
     html, body { background: #fff; }
     .toolbar { display: none !important; }
-    .deck {
-      padding: 0;
-      gap: 0;
-    }
+    .deck { padding: 0; gap: 0; }
     .slide {
       width: 1280px;
       height: 720px;
       aspect-ratio: auto;
-      border-radius: 0;
-      box-shadow: none;
+      border: none;
       page-break-after: always;
       break-after: page;
       margin: 0;
@@ -574,201 +309,226 @@
 </head>
 <body>
 
-<!-- =============================================================
-     スライド本体
-     ・1枚 = <section class="slide" data-slide="N">
-     ・順番は書いた順。data-slide は目印なので通し番号を振り直すだけでよい
-       （枚数のカウントは JS が自動でやるので total を直す必要はない）
-     ・不要な種別のスライドはセクションごと削除してよい
-     ・「▼差し替え」と書いてある箇所が編集ポイント
-     ============================================================= -->
 <div class="deck" id="deck">
 
-  <!-- ========== 1. 表紙 ==========
-       背景に写真を敷きたいときは class に has-bg-photo を足し、
-       直下の div.bg-photo のコメントを外して画像パスを書く -->
+  <!-- ========== 1. タイトル ========== -->
   <section class="slide cover" data-slide="1">
-    <!-- <div class="bg-photo" style="background-image: url('images/placeholder.svg');"></div> -->
-    <!-- ▼差し替え: 発表タイトル -->
-    <h1 class="title center">発表<span class="accent">タイトル</span></h1>
-    <!-- ▼差し替え: サブタイトル / イベント名・日付・発表者 -->
-    <p class="subtitle">Bluesky Meetup / 2026-09-12 / 発表者名</p>
+    <h1>記録する場所と、<br>共有する場所を分ける</h1>
+    <p class="sub">Trailcast / AT Protocol / PDS</p>
+    <!-- ▼差し替え: 登壇者名 -->
+    <p class="foot">shino3 &nbsp;·&nbsp; github.com/ShinoharaTa/trailcast</p>
   </section>
 
-  <!-- ========== 2. 目次 ========== -->
+  <!-- ========== 2. Trailcast とは ========== -->
   <section class="slide" data-slide="2">
-    <h2 class="section-title">今日話すこと</h2>
-    <ol class="agenda">
-      <!-- ▼差し替え: li を増減させる。.note は任意（省略可） -->
-      <li>最初のトピック<span class="note">この項目で伝えたいことの一行説明</span></li>
-      <li>次のトピック<span class="note">この項目で伝えたいことの一行説明</span></li>
-      <li>まとめ</li>
-    </ol>
-  </section>
-
-  <!-- ========== 3. セクション扉 / 問いかけ ========== -->
-  <section class="slide statement" data-slide="3">
-    <!-- ▼差し替え: 場面転換の一言 -->
-    <h1 class="title center">ここで問いかけを一言</h1>
-    <div class="divider"></div>
-    <p class="body">
-      補足の説明を1〜3行で。<br />
-      強調したい語は <span class="accent">アクセント色</span> にする。
-    </p>
-  </section>
-
-  <!-- ========== 4. 本文 + 画像（2カラム） ========== -->
-  <section class="slide" data-slide="4">
-    <h2 class="section-title">見出しを書く</h2>
-    <div class="two-col">
-      <div class="col-text">
-        <!-- ▼差し替え: 小見出しと本文。p は増やしてよい -->
-        <h3>小見出し</h3>
-        <p>本文の段落。1カラムに 2〜3 段落までが読みやすい上限。</p>
-        <p>さらに補足したいことがあればもう一段落。</p>
-      </div>
-      <!-- ▼差し替え: images/ に置いた画像のファイル名にする -->
-      <img class="slide-img" src="images/placeholder.svg" alt="画像の説明">
-    </div>
-  </section>
-
-  <!-- ========== 5. 箇条書き + 画像 ==========
-       画像がまだ無いときは <img> を
-       <div class="img-placeholder">IMAGE</div> に置き換える -->
-  <section class="slide" data-slide="5">
-    <h2 class="section-title">箇条書きで並べる</h2>
-    <div class="two-col">
-      <ul class="bullets">
-        <!-- ▼差し替え: li を増減させる。4項目くらいまでが収まりやすい -->
-        <li>ひとつめの項目。1項目あたり 1〜2 行に収めると読みやすい。</li>
-        <li>ふたつめの項目。</li>
-        <li>みっつめの項目。</li>
-      </ul>
-      <img class="slide-img" src="images/placeholder.svg" alt="画像の説明">
-    </div>
-  </section>
-
-  <!-- ========== 6. カード3枚 ==========
-       .icon の中身は SVG でも絵文字でも1文字でもよい。
-       塗りつぶしを外したいときは class="icon outline" -->
-  <section class="slide" data-slide="6">
-    <h2 class="section-title">3つのポイント</h2>
-    <div class="cards-3">
-      <div class="card">
-        <div class="icon" aria-hidden="true">1</div>
-        <!-- ▼差し替え -->
-        <h3>ポイントの名前</h3>
-        <p>説明を2〜3行で。カードは3枚とも同じくらいの文量にすると揃って見える。</p>
-      </div>
-      <div class="card">
-        <div class="icon" aria-hidden="true">2</div>
-        <h3>ポイントの名前</h3>
-        <p>説明を2〜3行で。</p>
-      </div>
-      <div class="card">
-        <div class="icon outline" aria-hidden="true">
-          <!-- SVG アイコンを使う例（currentColor でアクセント色が乗る） -->
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/></svg>
+    <h2 class="head"><span class="tc">Trailcast</span> は、自分の体験を時系列で残すアプリ</h2>
+    <div class="fill">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-time">09:30</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">長崎駅</div><div class="tl-meta"><span>写真</span><span>場所</span></div></div>
         </div>
-        <h3>ポイントの名前</h3>
-        <p>説明を2〜3行で。</p>
+        <div class="tl-item">
+          <div class="tl-time">12:10</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">新地中華街</div><div class="tl-meta"><span>写真</span><span>コメント</span></div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">14:30</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">軍艦島</div><div class="tl-meta"><span>写真</span><span>場所</span><span>コメント</span></div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">18:40</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">稲佐山</div><div class="tl-meta"><span>写真</span><span>場所</span></div></div>
+        </div>
       </div>
+    </div>
+    <p class="foot center">旅行 / 開発記録 / 謎解き参加 などに利用</p>
+  </section>
+
+  <!-- ========== 3. SNS のタイムラインとの違い ========== -->
+  <section class="slide" data-slide="3">
+    <h2 class="head">タイムラインは、記録には向いていない</h2>
+    <div class="fill">
+      <div class="compare">
+        <div>
+          <div class="label bs">Bluesky / SNS</div>
+          <div class="stack">
+            <div class="row mine mixed">自分の投稿</div>
+            <div class="row">他人の投稿</div>
+            <div class="row">おすすめ</div>
+            <div class="row">返信</div>
+            <div class="row">リポスト</div>
+            <div class="row mine mixed">自分の投稿</div>
+            <div class="row">ニュース</div>
+          </div>
+        </div>
+        <div>
+          <div class="label tc">Trailcast</div>
+          <div class="stack">
+            <div class="row mine">09:30 &nbsp;自分の記録</div>
+            <div class="row mine">12:10 &nbsp;自分の記録</div>
+            <div class="row mine">14:30 &nbsp;自分の記録</div>
+            <div class="row mine">18:40 &nbsp;自分の記録</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="foot">SNS は共有には強い。でも、自分の履歴を辿る用途とは性質が違う。</p>
+  </section>
+
+  <!-- ========== 4. 記録は PDS へ ========== -->
+  <section class="slide" data-slide="4">
+    <h2 class="head">記録は、自分の PDS に保存する</h2>
+    <div class="fill">
+      <svg viewBox="0 0 1000 440" aria-label="自分のPDSからTrailcastとBlueskyに分岐する構成図">
+        <defs>
+          <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#6b7280"/>
+          </marker>
+        </defs>
+        <!-- PDS -->
+        <rect x="340" y="20" width="320" height="90" fill="#fff" stroke="#111827" stroke-width="3"/>
+        <text x="500" y="76" text-anchor="middle" font-size="38" font-weight="800" fill="#111827">自分の PDS</text>
+        <!-- 分岐線 -->
+        <line x1="500" y1="110" x2="500" y2="190" stroke="#6b7280" stroke-width="3"/>
+        <line x1="250" y1="190" x2="750" y2="190" stroke="#6b7280" stroke-width="3"/>
+        <line x1="250" y1="190" x2="250" y2="280" stroke="#6b7280" stroke-width="3" marker-end="url(#ar4)"/>
+        <line x1="750" y1="190" x2="750" y2="280" stroke="#6b7280" stroke-width="3" marker-end="url(#ar4)"/>
+        <!-- Trailcast -->
+        <rect x="90" y="290" width="320" height="90" fill="#fff" stroke="#0f9d7a" stroke-width="3"/>
+        <text x="250" y="346" text-anchor="middle" font-size="38" font-weight="800" fill="#0f9d7a">Trailcast</text>
+        <text x="250" y="425" text-anchor="middle" font-size="26" font-weight="700" fill="#374151">記録する / 振り返る</text>
+        <!-- Bluesky -->
+        <rect x="590" y="290" width="320" height="90" fill="#fff" stroke="#1083fe" stroke-width="3"/>
+        <text x="750" y="346" text-anchor="middle" font-size="38" font-weight="800" fill="#1083fe">Bluesky</text>
+        <text x="750" y="425" text-anchor="middle" font-size="26" font-weight="700" fill="#374151">共有する / 会話する</text>
+      </svg>
     </div>
   </section>
 
-  <!-- ========== 7. 比較（カード2枚） ========== -->
+  <!-- ========== 5. AppView を作らない（中心） ========== -->
+  <section class="slide" data-slide="5">
+    <h2 class="head">Trailcast には「みんなの Trailcast」がない</h2>
+    <div class="fill">
+      <svg viewBox="0 0 1000 300" aria-label="3つのPDSがそれぞれ独立してTrailcastデータを持ち、束ねるビューが無い図">
+        <!-- PDS A -->
+        <rect x="40" y="40" width="280" height="220" fill="#fff" stroke="#111827" stroke-width="3"/>
+        <text x="180" y="92" text-anchor="middle" font-size="34" font-weight="800" fill="#111827">PDS A</text>
+        <rect x="80" y="130" width="200" height="90" fill="#e6f6f1" stroke="#0f9d7a" stroke-width="3"/>
+        <text x="180" y="185" text-anchor="middle" font-size="26" font-weight="800" fill="#0f9d7a">Trailcast データ</text>
+        <!-- PDS B -->
+        <rect x="360" y="40" width="280" height="220" fill="#fff" stroke="#111827" stroke-width="3"/>
+        <text x="500" y="92" text-anchor="middle" font-size="34" font-weight="800" fill="#111827">PDS B</text>
+        <rect x="400" y="130" width="200" height="90" fill="#e6f6f1" stroke="#0f9d7a" stroke-width="3"/>
+        <text x="500" y="185" text-anchor="middle" font-size="26" font-weight="800" fill="#0f9d7a">Trailcast データ</text>
+        <!-- PDS C -->
+        <rect x="680" y="40" width="280" height="220" fill="#fff" stroke="#111827" stroke-width="3"/>
+        <text x="820" y="92" text-anchor="middle" font-size="34" font-weight="800" fill="#111827">PDS C</text>
+        <rect x="720" y="130" width="200" height="90" fill="#e6f6f1" stroke="#0f9d7a" stroke-width="3"/>
+        <text x="820" y="185" text-anchor="middle" font-size="26" font-weight="800" fill="#0f9d7a">Trailcast データ</text>
+      </svg>
+    </div>
+    <p class="foot strong center">全ユーザーの記録を集約するビューを持たない</p>
+    <p class="foot center" style="padding-top: 0.6cqi;">検索ランキング / おすすめ / 人気投稿 / 全体フィード を作らない</p>
+  </section>
+
+  <!-- ========== 6. AppView がないことで起こること ========== -->
+  <section class="slide" data-slide="6">
+    <h2 class="head">コミュニティが、記録の構造を壊さない</h2>
+    <div class="fill">
+      <div class="compare">
+        <div>
+          <div class="label" style="color: var(--muted);">コミュニティ型サービス</div>
+          <div class="flow">
+            <div class="box multi">全ユーザーの投稿</div>
+            <div class="arrow">↓</div>
+            <div class="box multi">ランキング / おすすめ / トレンド / 人気投稿</div>
+            <div class="arrow">↓</div>
+            <div class="box bad">自分の体験が埋もれる</div>
+          </div>
+        </div>
+        <div>
+          <div class="label tc">Trailcast</div>
+          <div class="flow">
+            <div class="box">自分の PDS</div>
+            <div class="arrow">↓</div>
+            <div class="box tc">自分の記録</div>
+            <div class="arrow">↓</div>
+            <div class="box tc">そのまま残る</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="foot strong">記録空間は、他人の活動によって変形しない。</p>
+  </section>
+
+  <!-- ========== 7. 共有したいときだけ Bluesky へ ========== -->
   <section class="slide" data-slide="7">
-    <h2 class="section-title">Before / After で比べる</h2>
-    <div class="cards-2">
-      <div class="card bordered-top">
-        <!-- ▼差し替え -->
-        <h3>これまで</h3>
-        <p>現状や課題を書く。</p>
-      </div>
-      <div class="card bordered-top">
-        <h3>これから</h3>
-        <p>変化や提案を書く。</p>
-      </div>
+    <h2 class="head">共有は捨てない</h2>
+    <div class="fill">
+      <svg viewBox="0 0 1000 400" aria-label="Trailcastの記録がクロスポストでBlueskyへ届き、同時にPDSにそのまま残る図">
+        <defs>
+          <marker id="ar7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#6b7280"/>
+          </marker>
+        </defs>
+        <!-- Trailcast で記録 -->
+        <rect x="30" y="60" width="260" height="90" fill="#fff" stroke="#0f9d7a" stroke-width="3"/>
+        <text x="160" y="116" text-anchor="middle" font-size="32" font-weight="800" fill="#0f9d7a">Trailcast で記録</text>
+        <!-- → クロスポスト → Bluesky -->
+        <line x1="290" y1="105" x2="520" y2="105" stroke="#6b7280" stroke-width="3" marker-end="url(#ar7)"/>
+        <text x="405" y="88" text-anchor="middle" font-size="24" font-weight="700" fill="#374151">クロスポストする</text>
+        <rect x="530" y="60" width="200" height="90" fill="#fff" stroke="#1083fe" stroke-width="3"/>
+        <text x="630" y="116" text-anchor="middle" font-size="32" font-weight="800" fill="#1083fe">Bluesky</text>
+        <!-- → フォロワー等 -->
+        <line x1="730" y1="105" x2="800" y2="105" stroke="#6b7280" stroke-width="3" marker-end="url(#ar7)"/>
+        <text x="900" y="82" text-anchor="middle" font-size="26" font-weight="700" fill="#1083fe">フォロワー</text>
+        <text x="900" y="116" text-anchor="middle" font-size="26" font-weight="700" fill="#1083fe">リプライ</text>
+        <text x="900" y="150" text-anchor="middle" font-size="26" font-weight="700" fill="#1083fe">リアクション</text>
+        <!-- ↓ そのまま残る → PDS -->
+        <line x1="160" y1="150" x2="160" y2="270" stroke="#6b7280" stroke-width="3" marker-end="url(#ar7)"/>
+        <text x="185" y="220" font-size="24" font-weight="700" fill="#374151">そのまま残る</text>
+        <rect x="30" y="280" width="260" height="90" fill="#fff" stroke="#111827" stroke-width="3"/>
+        <text x="160" y="336" text-anchor="middle" font-size="32" font-weight="800" fill="#111827">自分の PDS</text>
+        <!-- 右側の注記 -->
+        <text x="530" y="330" font-size="26" font-weight="700" fill="#374151">共有しても、Trailcast 側の記録構造は変わらない</text>
+      </svg>
     </div>
   </section>
 
-  <!-- ========== 8. コード ==========
-       ・pre/code の中はインデントもそのまま出る。行頭を詰めて書く
-       ・< > & は &lt; &gt; &amp; に書き換える
-       ・目安 15行 / 80桁。超えるならスライドを分ける -->
+  <!-- ========== 8. 記録と共有を分離する ========== -->
   <section class="slide" data-slide="8">
-    <h2 class="section-title">コードを見せる</h2>
-    <div class="code-block">
-<pre><code>// ▼差し替え: ここにコードを貼る
-export function greet(name) {
-  return `Hello, ${name}!`;
-}
-
-greet("world");
-</code></pre>
-      <!-- ▼差し替え: 不要なら削除 -->
-      <p class="code-caption">補足: 文中でコードに触れるときは <code class="inline">code.inline</code> を使う。</p>
-    </div>
-  </section>
-
-  <!-- ========== 9. 引用 ==========
-       背景写真が不要なら class から has-bg-photo を外し、
-       div.bg-photo の行ごと削除する -->
-  <section class="slide quote-slide has-bg-photo" data-slide="9">
-    <div class="bg-photo" style="background-image: url('images/placeholder.svg');"></div>
-    <h2 class="section-title">引用・印象に残った言葉</h2>
-    <div class="quote-block">
-      <div class="quote-wrap">
-        <span class="quote-mark open">"</span>
-        <!-- ▼差し替え: 改行したい位置に <br> を入れる -->
-        <p class="quote-text">
-          引用したい言葉を<br>
-          ここに書く
-        </p>
-        <span class="quote-mark close">"</span>
-      </div>
-      <!-- ▼差し替え: 出典 -->
-      <p class="quote-attribution">― 出典・発言者</p>
-    </div>
-  </section>
-
-  <!-- ========== 10. 額縁メッセージ（1枚で言い切る） ========== -->
-  <section class="slide" data-slide="10">
-    <div class="frame-card">
-      <!-- ▼差し替え -->
-      <h2>いちばん言いたいこと</h2>
-      <p>前置きを1行。</p>
-      <p class="highlight">強調したい一文。</p>
-      <p>締めを1行。</p>
-    </div>
-  </section>
-
-  <!-- ========== 11. 大きな一言 + 補足 ========== -->
-  <section class="slide" data-slide="11">
-    <h2 class="section-title">持ち帰ってほしいこと</h2>
-    <div class="split-hero">
-      <div class="hero-left">
-        <!-- ▼差し替え: 短い語ほど映える -->
-        <div class="hero-word">KEY</div>
-        <div class="hero-sub">ひとことで言うと</div>
-      </div>
-      <div class="hero-right">
-        <h3>その心は</h3>
-        <p>左の語を補足する説明を2〜3行で。</p>
-        <p>必要ならもう一段落。</p>
+    <h2 class="head">記録する空間と、共有する空間を分ける</h2>
+    <div class="fill">
+      <div class="compare divided">
+        <div>
+          <div class="label tc">Trailcast</div>
+          <ul class="plain tc">
+            <li>自分の記録</li>
+            <li>時系列</li>
+            <li>PDS</li>
+            <li>振り返る</li>
+          </ul>
+        </div>
+        <div>
+          <div class="label bs">Bluesky</div>
+          <ul class="plain bs">
+            <li>他人とつながる</li>
+            <li>フィード</li>
+            <li>会話</li>
+            <li>共有</li>
+          </ul>
+        </div>
       </div>
     </div>
+    <p class="foot strong center">PDS は使う。コミュニティ空間は作らない。</p>
   </section>
 
-  <!-- ========== 12. 締め ========== -->
-  <section class="slide final" data-slide="12">
-    <!-- ▼差し替え -->
-    <h1 class="title center">ありがとうございました</h1>
-    <div class="divider"></div>
-    <p class="body">
-      連絡先やリンクがあればここに。<br>
-      <span class="highlight">@your_handle</span>
-    </p>
+  <!-- ========== 9. 終了 ========== -->
+  <section class="slide final" data-slide="9">
+    <h1><span class="tc">Trailcast</span> は、自分の記録を<br>自分の領域に残す。</h1>
+    <p class="sub">共有したいものだけ、<span class="bs">Bluesky</span> へ。</p>
+    <p class="foot">github.com/ShinoharaTa/trailcast</p>
   </section>
 
 </div>
@@ -782,7 +542,6 @@ greet("world");
 </div>
 
 <script>
-  // スライドの枚数は DOM から数えるので、ページを増減しても手直し不要
   const slides = document.querySelectorAll('.slide');
   const total = slides.length;
   document.getElementById('total').textContent = total;
@@ -800,7 +559,6 @@ greet("world");
     currEl.textContent = current + 1;
   }
 
-  // 現在ビューポートの中心にいちばん近いスライドの index
   function nearestSlide() {
     const mid = window.scrollY + window.innerHeight / 2;
     let best = 0;
@@ -816,7 +574,6 @@ greet("world");
 
   function go(delta) {
     current = Math.max(0, Math.min(total - 1, current + delta));
-    // スクロールモードのときは該当スライドまで送る
     if (!present) {
       slides[current].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -826,12 +583,10 @@ greet("world");
   function togglePresent() {
     present = !present;
     body.classList.toggle('present', present);
-    // スクロールモードから入るときは、いま見ているスライドを開始位置にする
     if (present) current = nearestSlide();
     render();
   }
 
-  // スクロールモードでは、スクロールに追従してカウンタを更新する
   window.addEventListener('scroll', () => {
     if (present) return;
     const best = nearestSlide();
