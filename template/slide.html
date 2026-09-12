@@ -10,6 +10,7 @@
      テーマ（ここだけ変えれば全体の配色が変わる）
      ========================================================= */
   :root {
+    --s: 1;                   /* スライドの表示倍率。JS が上書きする */
     /* ▼差し替え: アクセントカラー。3つとも同系色で揃える */
     --accent: #1083fe;        /* 見出し・アイコン・強調 */
     --accent-dark: #0a6cd6;   /* ボタンのホバー */
@@ -33,6 +34,8 @@
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;   /* iOS の文字自動拡大を止める */
+    text-size-adjust: 100%;
     font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     color: var(--ink);
     background: #eef2f7;
@@ -58,9 +61,10 @@
        文字サイズが端末の最小フォント設定や自動拡大に左右されないための方式 */
     width: 1280px;
     height: 720px;
-    /* 倍率は CSS だけで決める。tan(atan2(a, b)) は長さ同士の除算を数値にする書き方。
-       JS で innerWidth を測る方式は、初回描画のはみ出しでビューポートが広がると狂う */
-    --s: min(1, tan(atan2(100vw - 32px, 1280px)));
+    /* 倍率 --s は :root に既定値 1 があり、末尾の JS（fitScale）が画面幅から上書きする。
+       ここ（.slide 自身）に --s を書くと JS の値より優先されてしまうので書かないこと。
+       html, body の overflow-x: hidden が前提: これが無いと初回描画のはみ出しで
+       モバイルブラウザがレイアウトビューポートを広げ、計測値が狂う */
     transform: scale(var(--s));
     transform-origin: top left;
     margin: 0 calc(1280px * (var(--s) - 1)) calc(720px * (var(--s) - 1)) 0;
@@ -553,7 +557,6 @@
   }
   body.present .slide {
     display: none;
-    --s: min(tan(atan2(100vw, 1280px)), tan(atan2(100vh, 720px)));
     border-radius: 0;
   }
   body.present .slide.active { display: flex; }
@@ -841,6 +844,7 @@ greet("world");
   function togglePresent() {
     present = !present;
     body.classList.toggle('present', present);
+    fitScale();
     // スクロールモードから入るときは、いま見ているスライドを開始位置にする
     if (present) current = nearestSlide();
     render();
@@ -873,6 +877,18 @@ greet("world");
     }
   });
 
+  // 画面に収まるようスライドの倍率を決める（プレゼンモードは高さも見る）。
+  // innerWidth ではなく clientWidth を使う: スクロールバー分を除いた実際の描画幅
+  function fitScale() {
+    const w = document.documentElement.clientWidth;
+    const h = document.documentElement.clientHeight;
+    const s = present ? Math.min(w / 1280, h / 720) : Math.min(1, (w - 32) / 1280);
+    document.documentElement.style.setProperty('--s', s);
+  }
+  window.addEventListener('resize', fitScale);
+  window.addEventListener('orientationchange', fitScale);
+
+  fitScale();
   render();
 </script>
 
