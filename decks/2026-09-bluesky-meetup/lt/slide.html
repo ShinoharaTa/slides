@@ -44,21 +44,29 @@
     gap: 24px;
     padding: 32px 16px 100px;
   }
+  /* .frame は JS が各 .slide を包む普通のブロック。幅は画面に合わせて縮み、
+     中の .slide は 1280x720 のまま .frame の幅に合わせて transform で縮小される。
+     位置決めは .frame（通常のレイアウト）に任せるのでズレる余地がない */
+  .frame {
+    width: min(1280px, 100%);
+    aspect-ratio: 16 / 9;
+    position: relative;
+    flex: none;
+  }
   .slide {
     /* 常に 1280x720 でレイアウトし、画面に収まるよう丸ごと縮小する。
        文字サイズが端末の最小フォント設定や自動拡大に左右されないための方式 */
     width: 1280px;
     height: 720px;
-    /* 倍率 --s は :root に既定値 1 があり、末尾の JS（fitScale）が画面幅から上書きする。
-       ここ（.slide 自身）に --s を書くと JS の値より優先されてしまうので書かないこと。
-       html, body の overflow-x: hidden が前提: これが無いと初回描画のはみ出しで
-       モバイルブラウザがレイアウトビューポートを広げ、計測値が狂う */
+    /* 倍率 --s は :root に既定値 1 があり、末尾の JS（fitScale）が .frame の実測幅から
+       上書きする。ここ（.slide 自身）に --s を書くと JS の値より優先されるので書かないこと */
     transform: scale(var(--s));
     transform-origin: top left;
-    margin: 0 calc(1280px * (var(--s) - 1)) calc(720px * (var(--s) - 1)) 0;
     background: var(--bg);
     border: 1px solid var(--line);
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
     overflow: hidden;
     padding: 5.5% 7%;
     display: flex;
@@ -304,11 +312,14 @@
 
   body.present { background: #111827; overflow: hidden; }
   body.present .deck { padding: 0; height: 100vh; justify-content: center; }
-  body.present .slide {
+  body.present .frame {
     display: none;
+    width: min(100vw, calc(100vh * 16 / 9));
+  }
+  body.present .frame.active { display: block; }
+  body.present .slide {
     border: none;
   }
-  body.present .slide.active { display: flex; }
   body.present .toolbar { opacity: 0.12; transition: opacity 0.2s; }
   body.present .toolbar:hover { opacity: 1; }
 
@@ -317,11 +328,16 @@
     html, body { background: #fff; }
     .toolbar { display: none !important; }
     .deck { padding: 0; gap: 0; }
-    .slide {
+    .frame {
       width: 1280px;
       height: 720px;
+      aspect-ratio: auto;
+      page-break-after: always;
+      break-after: page;
+    }
+    .frame:last-child { page-break-after: auto; }
+    .slide {
       transform: none;
-      margin: 0;
       border: none;
       page-break-after: always;
       break-after: page;
@@ -583,6 +599,14 @@
 
 <script>
   const slides = document.querySelectorAll('.slide');
+  // 各 .slide を .frame で包む（HTML 側は section を並べるだけでよい）
+  slides.forEach((s) => {
+    const f = document.createElement('div');
+    f.className = 'frame';
+    s.parentNode.insertBefore(f, s);
+    f.appendChild(s);
+  });
+  const frames = document.querySelectorAll('.frame');
   const total = slides.length;
   document.getElementById('total').textContent = total;
 
@@ -594,8 +618,9 @@
 
   function render() {
     if (present) {
-      slides.forEach((s, i) => s.classList.toggle('active', i === current));
+      frames.forEach((f, i) => f.classList.toggle('active', i === current));
     }
+    fitScale();
     currEl.textContent = current + 1;
   }
 
@@ -615,7 +640,7 @@
   function go(delta) {
     current = Math.max(0, Math.min(total - 1, current + delta));
     if (!present) {
-      slides[current].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      frames[current].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     render();
   }
@@ -623,7 +648,6 @@
   function togglePresent() {
     present = !present;
     body.classList.toggle('present', present);
-    fitScale();
     if (present) current = nearestSlide();
     render();
   }
@@ -654,16 +678,14 @@
     }
   });
 
-  // 画面に収まるようスライドの倍率を決める（プレゼンモードは高さも見る）。
-  // innerWidth ではなく clientWidth を使う: スクロールバー分を除いた実際の描画幅
+  // .frame の実測幅から倍率を決める。ビューポートの幅は一切見ない
   function fitScale() {
-    const w = document.documentElement.clientWidth;
-    const h = document.documentElement.clientHeight;
-    const s = present ? Math.min(w / 1280, h / 720) : Math.min(1, (w - 32) / 1280);
-    document.documentElement.style.setProperty('--s', s);
+    const f = present ? frames[current] : frames[0];
+    const w = f.clientWidth;
+    if (w > 0) document.documentElement.style.setProperty('--s', w / 1280);
   }
   window.addEventListener('resize', fitScale);
-  window.addEventListener('orientationchange', fitScale);
+  if (window.ResizeObserver) new ResizeObserver(fitScale).observe(frames[0]);
 
   fitScale();
   render();
