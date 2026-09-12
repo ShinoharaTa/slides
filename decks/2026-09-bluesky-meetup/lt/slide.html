@@ -187,6 +187,76 @@
     gap: 1.4cqi;
   }
 
+  /* ---- 概念図: HTML の箱と CSS の線で描く ----
+     SVG の <text> は Android Chrome の文字自動拡大で巨大化することがあり、
+     text-size-adjust では止まらない。図の文字は必ず HTML 側に置くこと。
+     スライドは常に 1280x720 でレイアウトされるので、図の寸法は px で書いてよい */
+  .node {
+    border: 3px solid var(--ink);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: 800;
+    font-size: 34px;
+    line-height: 1.3;
+    padding: 20px 16px;
+  }
+  .node.tc { border-color: var(--tc); color: var(--tc); }
+  .node.bs { border-color: var(--bs); color: var(--bs); }
+  .node-cap {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 14px 0 0;
+  }
+  /* 線と矢印の先端 */
+  .line { position: absolute; background: var(--muted); }
+  .line.v { width: 3px; margin-left: -1.5px; }
+  .line.h { height: 3px; margin-top: -1.5px; }
+  .ahead { position: absolute; width: 0; height: 0; }
+  .ahead.down {
+    margin-left: -9px;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-top: 13px solid var(--muted);
+  }
+  .ahead.right {
+    margin-top: -9px;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-left: 13px solid var(--muted);
+  }
+  .edge-label { position: absolute; font-size: 24px; font-weight: 700; color: var(--ink-soft); }
+
+  /* 4. PDS から 2 つに分岐 */
+  .d-branch { display: flex; flex-direction: column; align-items: center; }
+  .d-branch .root { width: 320px; }
+  .d-branch .branch { position: relative; width: 700px; height: 105px; }
+  .d-branch .leaves { display: grid; grid-template-columns: 320px 320px; gap: 60px; }
+
+  /* 5. 独立した PDS が 3 つ */
+  .pds-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+  .pds { border: 3px solid var(--ink); padding: 22px 20px 26px; text-align: center; }
+  .pds-name { font-size: 34px; font-weight: 800; }
+  .pds-data {
+    margin-top: 22px;
+    border: 3px solid var(--tc);
+    background: var(--tc-soft);
+    color: var(--tc);
+    font-weight: 800;
+    font-size: 24px;
+    padding: 20px 8px;
+  }
+
+  /* 7. 記録 → クロスポスト → Bluesky、記録はそのまま PDS に残る */
+  .d-flow { position: relative; width: 1080px; height: 360px; margin: 0 auto; }
+  .d-flow .node { position: absolute; white-space: nowrap; font-size: 30px; }
+  .d-flow .fanout { position: absolute; font-size: 26px; font-weight: 700; color: var(--bs); line-height: 1.45; }
+  .d-flow .note { position: absolute; font-size: 24px; font-weight: 700; color: var(--ink-soft); line-height: 1.5; }
+
   /* ---- 3 / 6 / 8. 左右比較 ---- */
   .compare {
     display: grid;
@@ -434,53 +504,49 @@
   <section class="slide" data-slide="4">
     <h2 class="head">記録は、自分の PDS に保存する</h2>
     <div class="fill">
-      <svg viewBox="0 0 1000 440" aria-label="自分のPDSからTrailcastとBlueskyに分岐する構成図">
-        <defs>
-          <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-            <path d="M0 0 L10 5 L0 10 z" fill="#6b7280"/>
-          </marker>
-        </defs>
-        <!-- PDS -->
-        <rect x="340" y="20" width="320" height="90" fill="#fff" stroke="#111827" stroke-width="3"/>
-        <text x="500" y="76" text-anchor="middle" font-size="38" font-weight="800" fill="#111827">自分の PDS</text>
-        <!-- 分岐線 -->
-        <line x1="500" y1="110" x2="500" y2="190" stroke="#6b7280" stroke-width="3"/>
-        <line x1="250" y1="190" x2="750" y2="190" stroke="#6b7280" stroke-width="3"/>
-        <line x1="250" y1="190" x2="250" y2="280" stroke="#6b7280" stroke-width="3" marker-end="url(#ar4)"/>
-        <line x1="750" y1="190" x2="750" y2="280" stroke="#6b7280" stroke-width="3" marker-end="url(#ar4)"/>
-        <!-- Trailcast -->
-        <rect x="90" y="290" width="320" height="90" fill="#fff" stroke="#0f9d7a" stroke-width="3"/>
-        <text x="250" y="346" text-anchor="middle" font-size="38" font-weight="800" fill="#0f9d7a">Trailcast</text>
-        <text x="250" y="425" text-anchor="middle" font-size="26" font-weight="700" fill="#374151">記録する / 振り返る</text>
-        <!-- Bluesky -->
-        <rect x="590" y="290" width="320" height="90" fill="#fff" stroke="#1083fe" stroke-width="3"/>
-        <text x="750" y="346" text-anchor="middle" font-size="38" font-weight="800" fill="#1083fe">Bluesky</text>
-        <text x="750" y="425" text-anchor="middle" font-size="26" font-weight="700" fill="#374151">共有する / 会話する</text>
-      </svg>
+      <div class="d-branch">
+        <div class="node root">自分の PDS</div>
+        <div class="branch">
+          <span class="line v" style="left: 350px; top: 0; height: 40px;"></span>
+          <span class="line h" style="left: 160px; width: 380px; top: 40px;"></span>
+          <span class="line v" style="left: 160px; top: 40px; height: 48px;"></span>
+          <span class="line v" style="left: 540px; top: 40px; height: 48px;"></span>
+          <span class="ahead down" style="left: 160px; top: 88px;"></span>
+          <span class="ahead down" style="left: 540px; top: 88px;"></span>
+        </div>
+        <div class="leaves">
+          <div>
+            <div class="node tc">Trailcast</div>
+            <p class="node-cap">記録する / 振り返る</p>
+          </div>
+          <div>
+            <div class="node bs">Bluesky</div>
+            <p class="node-cap">共有する / 会話する</p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- ========== 5. AppView を作らない（中心） ========== -->
+  <!-- ========== 5. AppView を作らない（中心） ==========
+       3 つの PDS を束ねる線を一本も引かないことが、この図の主張 -->
   <section class="slide" data-slide="5">
     <h2 class="head">Trailcast には「みんなの Trailcast」がない</h2>
     <div class="fill">
-      <svg viewBox="0 0 1000 300" aria-label="3つのPDSがそれぞれ独立してTrailcastデータを持ち、束ねるビューが無い図">
-        <!-- PDS A -->
-        <rect x="40" y="40" width="280" height="220" fill="#fff" stroke="#111827" stroke-width="3"/>
-        <text x="180" y="92" text-anchor="middle" font-size="34" font-weight="800" fill="#111827">PDS A</text>
-        <rect x="60" y="130" width="240" height="90" fill="#e6f6f1" stroke="#0f9d7a" stroke-width="3"/>
-        <text x="180" y="184" text-anchor="middle" font-size="24" font-weight="800" fill="#0f9d7a">Trailcast データ</text>
-        <!-- PDS B -->
-        <rect x="360" y="40" width="280" height="220" fill="#fff" stroke="#111827" stroke-width="3"/>
-        <text x="500" y="92" text-anchor="middle" font-size="34" font-weight="800" fill="#111827">PDS B</text>
-        <rect x="380" y="130" width="240" height="90" fill="#e6f6f1" stroke="#0f9d7a" stroke-width="3"/>
-        <text x="500" y="184" text-anchor="middle" font-size="24" font-weight="800" fill="#0f9d7a">Trailcast データ</text>
-        <!-- PDS C -->
-        <rect x="680" y="40" width="280" height="220" fill="#fff" stroke="#111827" stroke-width="3"/>
-        <text x="820" y="92" text-anchor="middle" font-size="34" font-weight="800" fill="#111827">PDS C</text>
-        <rect x="700" y="130" width="240" height="90" fill="#e6f6f1" stroke="#0f9d7a" stroke-width="3"/>
-        <text x="820" y="184" text-anchor="middle" font-size="24" font-weight="800" fill="#0f9d7a">Trailcast データ</text>
-      </svg>
+      <div class="pds-row">
+        <div class="pds">
+          <div class="pds-name">PDS A</div>
+          <div class="pds-data">Trailcast データ</div>
+        </div>
+        <div class="pds">
+          <div class="pds-name">PDS B</div>
+          <div class="pds-data">Trailcast データ</div>
+        </div>
+        <div class="pds">
+          <div class="pds-name">PDS C</div>
+          <div class="pds-data">Trailcast データ</div>
+        </div>
+      </div>
     </div>
     <p class="foot strong center">全ユーザーの記録を集約するビューを持たない</p>
     <p class="foot center" style="padding-top: 0.6cqi;">検索ランキング / おすすめ / 人気投稿 / 全体フィード を作らない</p>
@@ -520,34 +586,27 @@
   <section class="slide" data-slide="7">
     <h2 class="head">共有は捨てない</h2>
     <div class="fill">
-      <svg viewBox="0 0 1000 400" aria-label="Trailcastの記録がクロスポストでBlueskyへ届き、同時にPDSにそのまま残る図">
-        <defs>
-          <marker id="ar7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-            <path d="M0 0 L10 5 L0 10 z" fill="#6b7280"/>
-          </marker>
-        </defs>
-        <!-- Trailcast で記録 -->
-        <rect x="20" y="60" width="320" height="90" fill="#fff" stroke="#0f9d7a" stroke-width="3"/>
-        <text x="180" y="116" text-anchor="middle" font-size="30" font-weight="800" fill="#0f9d7a">Trailcast で記録</text>
-        <!-- → クロスポスト → Bluesky -->
-        <line x1="340" y1="105" x2="550" y2="105" stroke="#6b7280" stroke-width="3" marker-end="url(#ar7)"/>
-        <text x="445" y="88" text-anchor="middle" font-size="24" font-weight="700" fill="#374151">クロスポストする</text>
-        <rect x="560" y="60" width="200" height="90" fill="#fff" stroke="#1083fe" stroke-width="3"/>
-        <text x="660" y="116" text-anchor="middle" font-size="32" font-weight="800" fill="#1083fe">Bluesky</text>
-        <!-- → フォロワー等 -->
-        <line x1="760" y1="105" x2="830" y2="105" stroke="#6b7280" stroke-width="3" marker-end="url(#ar7)"/>
-        <text x="920" y="82" text-anchor="middle" font-size="26" font-weight="700" fill="#1083fe">フォロワー</text>
-        <text x="920" y="116" text-anchor="middle" font-size="26" font-weight="700" fill="#1083fe">リプライ</text>
-        <text x="920" y="150" text-anchor="middle" font-size="26" font-weight="700" fill="#1083fe">リアクション</text>
-        <!-- ↓ そのまま残る → PDS -->
-        <line x1="180" y1="150" x2="180" y2="270" stroke="#6b7280" stroke-width="3" marker-end="url(#ar7)"/>
-        <text x="205" y="220" font-size="24" font-weight="700" fill="#374151">そのまま残る</text>
-        <rect x="20" y="280" width="320" height="90" fill="#fff" stroke="#111827" stroke-width="3"/>
-        <text x="180" y="336" text-anchor="middle" font-size="32" font-weight="800" fill="#111827">自分の PDS</text>
-        <!-- 右側の注記（2行） -->
-        <text x="520" y="312" font-size="24" font-weight="700" fill="#374151">共有しても、</text>
-        <text x="520" y="348" font-size="24" font-weight="700" fill="#374151">Trailcast 側の記録構造は変わらない</text>
-      </svg>
+      <div class="d-flow">
+        <div class="node tc" style="left: 0; top: 30px; width: 340px; height: 88px;">Trailcast で記録</div>
+
+        <span class="edge-label" style="left: 354px; top: 42px; font-size: 22px;">クロスポストする</span>
+        <span class="line h" style="left: 340px; width: 188px; top: 74px;"></span>
+        <span class="ahead right" style="left: 528px; top: 74px;"></span>
+
+        <div class="node bs" style="left: 560px; top: 30px; width: 200px; height: 88px;">Bluesky</div>
+
+        <span class="line h" style="left: 760px; width: 48px; top: 74px;"></span>
+        <span class="ahead right" style="left: 808px; top: 74px;"></span>
+        <div class="fanout" style="left: 836px; top: 33px;">フォロワー<br>リプライ<br>リアクション</div>
+
+        <span class="line v" style="left: 170px; top: 118px; height: 110px;"></span>
+        <span class="ahead down" style="left: 170px; top: 228px;"></span>
+        <span class="edge-label" style="left: 192px; top: 152px;">そのまま残る</span>
+
+        <div class="node" style="left: 0; top: 248px; width: 340px; height: 88px;">自分の PDS</div>
+
+        <div class="note" style="left: 560px; top: 256px;">共有しても、<br>Trailcast 側の記録構造は変わらない</div>
+      </div>
     </div>
     <p class="foot">「2026-09 九州」の 19 件はすべて Bluesky へクロスポスト済み。PDS 上の記録が持つのは Bluesky 投稿への参照 1 つだけ。</p>
   </section>
