@@ -68,7 +68,7 @@
 
   /* ---- 共通パーツ ---- */
   h1.title {
-    font-size: clamp(28px, 5.2cqi, 72px);
+    font-size: min(5.2cqi, 72px);
     font-weight: 900;
     letter-spacing: -0.01em;
     line-height: 1.2;
@@ -78,7 +78,7 @@
   h1.title.center { text-align: center; }
 
   h2.section-title {
-    font-size: clamp(20px, 3.3cqi, 44px);
+    font-size: min(3.3cqi, 44px);
     font-weight: 900;
     margin: 0 0 28px;
     color: var(--ink);
@@ -88,7 +88,7 @@
   .highlight { font-weight: 800; }
 
   .subtitle {
-    font-size: clamp(14px, 1.8cqi, 24px);
+    font-size: min(1.8cqi, 24px);
     color: var(--ink-soft);
     text-align: center;
     font-weight: 700;
@@ -103,7 +103,7 @@
   }
 
   .body {
-    font-size: clamp(14px, 1.7cqi, 22px);
+    font-size: min(1.7cqi, 22px);
     color: var(--ink-soft);
     line-height: 1.9;
   }
@@ -115,10 +115,10 @@
     text-align: center;
   }
   .slide.cover h1.title {
-    font-size: clamp(40px, 8cqi, 116px);
+    font-size: min(8cqi, 116px);
     margin-bottom: 28px;
   }
-  .slide.cover .subtitle { font-size: clamp(18px, 2.6cqi, 36px); }
+  .slide.cover .subtitle { font-size: min(2.6cqi, 36px); }
 
   /* ---- 種別: statement（セクション扉／大きな問いかけ） ---- */
   .slide.statement {
@@ -172,12 +172,12 @@
   }
   .col-text h3 {
     color: var(--accent);
-    font-size: clamp(16px, 2.1cqi, 28px);
+    font-size: min(2.1cqi, 28px);
     font-weight: 800;
     margin: 0 0 18px;
   }
   .col-text p {
-    font-size: clamp(13px, 1.55cqi, 20px);
+    font-size: min(1.55cqi, 20px);
     line-height: 1.85;
     color: var(--ink-soft);
     margin: 0 0 14px;
@@ -202,7 +202,7 @@
     align-items: center;
     justify-content: center;
     color: #9ca3af;
-    font-size: clamp(20px, 4cqi, 52px);
+    font-size: min(4cqi, 52px);
     font-weight: 700;
   }
 
@@ -220,7 +220,7 @@
     grid-template-columns: 16px 1fr;
     gap: 16px;
     align-items: start;
-    font-size: clamp(12px, 1.5cqi, 19px);
+    font-size: min(1.5cqi, 19px);
     line-height: 1.8;
     color: var(--ink-soft);
   }
@@ -252,7 +252,7 @@
     grid-template-columns: auto 1fr;
     gap: 22px;
     align-items: baseline;
-    font-size: clamp(14px, 2cqi, 28px);
+    font-size: min(2cqi, 28px);
     font-weight: 700;
     color: var(--ink);
     border-bottom: 1px solid var(--card-border);
@@ -313,13 +313,13 @@
     color: var(--accent);
   }
   .card h3 {
-    font-size: clamp(14px, 1.9cqi, 24px);
+    font-size: min(1.9cqi, 24px);
     margin: 0;
     color: var(--ink);
     font-weight: 800;
   }
   .card p {
-    font-size: clamp(11px, 1.35cqi, 17px);
+    font-size: min(1.35cqi, 17px);
     color: var(--ink-soft);
     line-height: 1.8;
     margin: 0;
@@ -352,7 +352,7 @@
     margin-bottom: 24px;
   }
   .quote-text {
-    font-size: clamp(20px, 3.5cqi, 46px);
+    font-size: min(3.5cqi, 46px);
     font-weight: 800;
     line-height: 1.55;
     margin: 0;
@@ -360,7 +360,7 @@
   }
   .quote-mark {
     color: var(--accent);
-    font-size: clamp(36px, 6cqi, 80px);
+    font-size: min(6cqi, 80px);
     line-height: 1;
     opacity: 0.55;
     font-family: Georgia, serif;
@@ -371,7 +371,7 @@
   .quote-attribution {
     color: var(--accent);
     font-weight: 700;
-    font-size: clamp(13px, 1.65cqi, 22px);
+    font-size: min(1.65cqi, 22px);
   }
 
   /* ---- 種別: コード ---- */
@@ -394,13 +394,13 @@
   }
   .code-block code {
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-    font-size: clamp(10px, 1.45cqi, 19px);
+    font-size: min(1.45cqi, 19px);
     line-height: 1.75;
     white-space: pre;
     tab-size: 2;
   }
   .code-caption {
-    font-size: clamp(11px, 1.3cqi, 17px);
+    font-size: min(1.3cqi, 17px);
     color: var(--muted);
     margin: 14px 0 0;
   }
@@ -427,12 +427,12 @@
     text-align: center;
   }
   .frame-card h2 {
-    font-size: clamp(22px, 3.7cqi, 48px);
+    font-size: min(3.7cqi, 48px);
     font-weight: 900;
     margin: 0 0 22px;
   }
   .frame-card p {
-    font-size: clamp(12px, 1.55cqi, 20px);
+    font-size: min(1.55cqi, 20px);
     line-height: 1.9;
     margin: 10px 0;
     color: var(--ink-soft);
@@ -453,14 +453,14 @@
     padding-right: 5%;
   }
   .hero-word {
-    font-size: clamp(48px, 9cqi, 140px);
+    font-size: min(9cqi, 140px);
     font-weight: 900;
     color: var(--accent);
     line-height: 0.95;
     letter-spacing: -0.02em;
   }
   .hero-sub {
-    font-size: clamp(16px, 2.3cqi, 30px);
+    font-size: min(2.3cqi, 30px);
     font-weight: 800;
     margin-top: 12px;
     color: var(--ink);
@@ -468,11 +468,11 @@
   .split-hero .hero-right h3 {
     color: var(--accent);
     font-weight: 800;
-    font-size: clamp(15px, 2cqi, 26px);
+    font-size: min(2cqi, 26px);
     margin: 0 0 16px;
   }
   .split-hero .hero-right p {
-    font-size: clamp(12px, 1.5cqi, 19px);
+    font-size: min(1.5cqi, 19px);
     line-height: 1.85;
     color: var(--ink-soft);
     margin: 0 0 12px;
@@ -520,6 +520,12 @@
   .toolbar button:hover { background: rgba(255,255,255,0.22); }
   .toolbar button.primary { background: var(--accent); }
   .toolbar button.primary:hover { background: var(--accent-dark); }
+  /* left:50% 配置は狭い画面で利用可能幅が半分と計算されるので、折り返しを禁止する */
+  .toolbar, .toolbar button { white-space: nowrap; }
+  @media (max-width: 640px) {
+    .toolbar { bottom: 10px; padding: 6px 10px; gap: 8px; font-size: 12px; }
+    .toolbar button { padding: 6px 10px; font-size: 12px; }
+  }
   .toolbar .counter {
     min-width: 50px;
     text-align: center;
