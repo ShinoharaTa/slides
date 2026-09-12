@@ -10,6 +10,7 @@
      テーマ（ここだけ変えれば全体の配色が変わる）
      ========================================================= */
   :root {
+    --s: 1;                   /* スライドの表示倍率。JS が画面幅から決める */
     /* ▼差し替え: アクセントカラー。3つとも同系色で揃える */
     --accent: #1083fe;        /* 見出し・アイコン・強調 */
     --accent-dark: #0a6cd6;   /* ボタンのホバー */
@@ -53,8 +54,13 @@
   }
 
   .slide {
-    width: min(1280px, 96vw);
-    aspect-ratio: 16 / 9;
+    /* 常に 1280x720 でレイアウトし、画面に収まるよう丸ごと縮小する。
+       文字サイズが端末の最小フォント設定や自動拡大に左右されないための方式 */
+    width: 1280px;
+    height: 720px;
+    transform: scale(var(--s));
+    transform-origin: top left;
+    margin: 0 calc(1280px * (var(--s) - 1)) calc(720px * (var(--s) - 1)) 0;
     background: var(--bg-grad);
     border-radius: 16px;
     box-shadow: var(--shadow);
@@ -544,8 +550,6 @@
   }
   body.present .slide {
     display: none;
-    width: min(100vw, calc(100vh * 16 / 9));
-    height: min(100vh, calc(100vw * 9 / 16));
     border-radius: 0;
   }
   body.present .slide.active { display: flex; }
@@ -567,7 +571,8 @@
     .slide {
       width: 1280px;
       height: 720px;
-      aspect-ratio: auto;
+      transform: none;
+      margin: 0;
       border-radius: 0;
       box-shadow: none;
       page-break-after: always;
@@ -832,6 +837,7 @@ greet("world");
   function togglePresent() {
     present = !present;
     body.classList.toggle('present', present);
+    fitScale();
     // スクロールモードから入るときは、いま見ているスライドを開始位置にする
     if (present) current = nearestSlide();
     render();
@@ -864,6 +870,16 @@ greet("world");
     }
   });
 
+  // 画面幅に合わせてスライドの倍率を決める（プレゼンモードは高さも見る）
+  function fitScale() {
+    const s = present
+      ? Math.min(window.innerWidth / 1280, window.innerHeight / 720)
+      : Math.min(1, (window.innerWidth - 32) / 1280);
+    document.documentElement.style.setProperty('--s', s);
+  }
+  window.addEventListener('resize', fitScale);
+
+  fitScale();
   render();
 </script>
 
