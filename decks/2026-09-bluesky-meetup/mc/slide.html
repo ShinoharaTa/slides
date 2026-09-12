@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <!-- ▼差し替え: ブラウザのタブとPDFのファイル名になる -->
-<title>司会進行 - Bluesky Meetup 2026-09</title>
+<title>司会進行 - Bluesky Meetup in Fukuoka vol.3</title>
 <style>
   /* =========================================================
      テーマ（ここだけ変えれば全体の配色が変わる）
@@ -236,23 +236,25 @@
     flex-direction: column;
     gap: 18px;
   }
+  /* li を grid にすると <strong> や <code> などのインライン要素が
+     それぞれ別のグリッドアイテムになって列が壊れる。
+     マーカーは ::before の絶対配置で置き、li 自体は通常のブロックにする */
   .bullets li {
-    display: grid;
-    grid-template-columns: 16px 1fr;
-    gap: 16px;
-    align-items: start;
+    position: relative;
+    padding-left: 30px;
     font-size: min(1.5cqi, 19px);
     line-height: 1.8;
     color: var(--ink-soft);
   }
   .bullets li::before {
     content: "";
-    display: block;
+    position: absolute;
+    left: 0;
+    top: 0.55em;
     width: 14px;
     height: 14px;
     background: var(--accent);
     border-radius: 2px;
-    margin-top: 0.4em;
   }
 
   /* ---- 種別: 目次（番号つき） ---- */
@@ -269,10 +271,8 @@
   }
   .agenda li {
     counter-increment: agenda;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 22px;
-    align-items: baseline;
+    position: relative;
+    padding-left: 4.2cqi;
     font-size: min(2cqi, 28px);
     font-weight: 700;
     color: var(--ink);
@@ -281,6 +281,9 @@
   }
   .agenda li::before {
     content: counter(agenda, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 0;
     color: var(--accent);
     font-weight: 900;
     font-variant-numeric: tabular-nums;
@@ -292,6 +295,41 @@
     color: var(--muted);
     margin-top: 6px;
   }
+
+  /* ---- 種別: タイムテーブル ---- */
+  .timetable {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 5cqi;
+    align-content: center;
+  }
+  .tt-col { display: flex; flex-direction: column; gap: 1.1cqi; }
+  .tt-row {
+    display: grid;
+    grid-template-columns: 8cqi 1fr;
+    gap: 1.4cqi;
+    align-items: baseline;
+    padding-bottom: 1.1cqi;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .tt-row:last-child { border-bottom: none; }
+  .tt-time {
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    font-size: min(1.75cqi, 23px);
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .tt-title { font-size: min(1.75cqi, 23px); font-weight: 700; line-height: 1.35; }
+  .tt-who {
+    display: block;
+    font-size: 0.82em;
+    font-weight: 600;
+    color: var(--muted);
+    margin-top: 0.35em;
+  }
+  .tt-row.break .tt-time, .tt-row.break .tt-title { color: var(--muted); }
 
   /* ---- 種別: カード（3枚 / 2枚） ---- */
   .cards-3 {
@@ -620,11 +658,8 @@
 
   <!-- ========== 1. 表紙（開場中はこれを出しておく） ========== -->
   <section class="slide cover" data-slide="1">
-    <!-- 会場写真を敷くなら class に has-bg-photo を足して下の行を有効化 -->
-    <!-- <div class="bg-photo" style="background-image: url('images/venue.jpg');"></div> -->
-    <h1 class="title center">Bluesky <span class="accent">Meetup</span></h1>
-    <!-- ▼差し替え: 会場名を入れる -->
-    <p class="subtitle">2026-09-12 / 会場名</p>
+    <h1 class="title center">Bluesky Meetup<br>in <span class="accent">Fukuoka</span> vol.3</h1>
+    <p class="subtitle">2026-09-13 (日) &nbsp;·&nbsp; おおはしラボ 6F メイン</p>
   </section>
 
   <!-- ========== 2. 開会のあいさつ ========== -->
@@ -632,23 +667,75 @@
     <h1 class="title center">ようこそ</h1>
     <div class="divider"></div>
     <p class="body">
-      <!-- ▼差し替え: 自己紹介と、今日の位置づけを一言 -->
-      本日の司会を務めます <span class="accent">@ハンドル</span> です。<br />
+      ついに 3 回目の福岡ミートアップです。<br />
+      本日の司会を務めます <span class="accent">しのさん @shino3.net</span> です。<br />
       今日はよろしくお願いします。
     </p>
   </section>
 
-  <!-- ========== 3. タイムテーブル ========== -->
+  <!-- ========== 3. タイムテーブル ==========
+       ▼要確認: connpass の次第では 15:10 が 2 つある（おかんボット と Nobuhide_Tsuda）。
+       正しい時刻が決まったら .tt-time を直す -->
   <section class="slide" data-slide="3">
     <h2 class="section-title">本日のながれ</h2>
-    <ol class="agenda">
-      <!-- ▼差し替え: li を増減させる。.note に時刻を入れると読みやすい -->
-      <li>オープニング<span class="note">00:00 - 00:00</span></li>
-      <li>LT セッション<span class="note">00:00 - 00:00</span></li>
-      <li>休憩<span class="note">00:00 - 00:00</span></li>
-      <li>懇親・フリータイム<span class="note">00:00 - 00:00</span></li>
-      <li>クロージング<span class="note">00:00 - 00:00</span></li>
-    </ol>
+    <div class="timetable">
+      <div class="tt-col">
+        <div class="tt-row break">
+          <div class="tt-time">13:40</div>
+          <div class="tt-title">開場 〜 雑談＆懇親タイム</div>
+        </div>
+        <div class="tt-row">
+          <div class="tt-time">14:00</div>
+          <div class="tt-title">開催挨拶<span class="tt-who">しのさん @shino3.net</span></div>
+        </div>
+        <div class="tt-row">
+          <div class="tt-time">14:05</div>
+          <div class="tt-title">Bluesky 社からのビデオレター<span class="tt-who">高野直子 @naoko.cc</span></div>
+        </div>
+        <div class="tt-row">
+          <div class="tt-time">14:15</div>
+          <div class="tt-title">東京、大阪ミートアップ報告<span class="tt-who">しのさん @shino3.net</span></div>
+        </div>
+        <div class="tt-row">
+          <div class="tt-time">14:25</div>
+          <div class="tt-title">東京ハッカソン報告<span class="tt-who">こじら @kojira.io</span></div>
+        </div>
+        <div class="tt-row">
+          <div class="tt-time">14:40</div>
+          <div class="tt-title">ねこファースト<span class="tt-who">@nekofirst.life</span></div>
+        </div>
+        <div class="tt-row">
+          <div class="tt-time">14:50</div>
+          <div class="tt-title">あおぞらクエスト<span class="tt-who">こじら</span></div>
+        </div>
+      </div>
+      <div class="tt-col">
+        <div class="tt-row break">
+          <div class="tt-time">15:00</div>
+          <div class="tt-title">休憩</div>
+        </div>
+        <div class="tt-row">
+          <div class="tt-time">15:10</div>
+          <div class="tt-title">おかんボット3年目の失敗<span class="tt-who">うかわ</span></div>
+        </div>
+        <div class="tt-row">
+          <div class="tt-time">15:15</div>
+          <div class="tt-title">なにか面白い事<span class="tt-who">しのさん @shino3.net</span></div>
+        </div>
+        <div class="tt-row">
+          <div class="tt-time">15:10</div>
+          <div class="tt-title">Nobuhide_Tsuda<span class="tt-who">@vivisuke.bsky.social</span></div>
+        </div>
+        <div class="tt-row">
+          <div class="tt-time">15:20</div>
+          <div class="tt-title">マサラキッチン店長みつじ<span class="tt-who">@mitsuji.masalakitchen.jp</span></div>
+        </div>
+        <div class="tt-row break">
+          <div class="tt-time">15:50〜</div>
+          <div class="tt-title">懇親会</div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ========== 4. 会場のご案内 ========== -->
@@ -656,15 +743,17 @@
     <h2 class="section-title">会場のご案内</h2>
     <div class="two-col">
       <ul class="bullets">
-        <!-- ▼差し替え: 会場に合わせて書き換える。不要な行は消す -->
-        <li>お手洗いは〇〇にあります。</li>
+        <li>おおはしラボ 6F メイン。西鉄大橋駅を降りてすぐです。</li>
+        <li><strong>バリアフリー・授乳室あり。</strong>必要な方は運営スタッフまで。</li>
+        <li>お手洗いは<span class="accent">〇〇</span>にあります。</li>
         <li>Wi-Fi は SSID <code class="inline">SSID</code> / パスワード <code class="inline">password</code>。</li>
-        <li>非常口は〇〇です。</li>
-        <li>飲食は〇〇でお願いします。ゴミは〇〇へ。</li>
       </ul>
-      <!-- 会場マップや案内図があれば images/ に置いて差し替える -->
-      <div class="img-placeholder">MAP</div>
+      <div class="col-text">
+        <h3>おおはしラボ</h3>
+        <p>〒815-0033<br>福岡県福岡市南区大橋 1-3-3<br>3OHASHI HILL 6F</p>
+      </div>
     </div>
+    <!-- ▼差し替え: お手洗い・Wi-Fi は当日に確認して埋める。地図があれば images/ に置いて右側と差し替え -->
   </section>
 
   <!-- ========== 5. お願いごと ========== -->
@@ -674,80 +763,189 @@
       <div class="card">
         <div class="icon" aria-hidden="true">#</div>
         <h3>ハッシュタグ</h3>
-        <!-- ▼差し替え: 当日のタグ -->
+        <!-- ▼要確認: connpass に記載が無いため未確定。決まったら差し替え -->
         <p>実況・感想は <strong>#ハッシュタグ</strong> でどうぞ。盛り上げていきましょう。</p>
       </div>
       <div class="card">
         <div class="icon outline" aria-hidden="true">
           <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h3l2-2h8l2 2h3v12H3z"/><circle cx="12" cy="13" r="3.5"/></svg>
         </div>
-        <h3>写真・撮影</h3>
-        <p>会場の様子は撮影OKです。人が写る場合はひと声かけてください。</p>
+        <h3>配信しています</h3>
+        <p>YouTube（四谷ラボ） / Chillm / Bluecast で配信中です。映り込みが気になる方は席の移動をどうぞ。</p>
       </div>
       <div class="card">
         <div class="icon outline" aria-hidden="true">
           <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.2 2.4c-.6.2-.7.6-.7 1.1v.5"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
         <h3>困ったら</h3>
-        <p>スタッフまで気軽に声をかけてください。体調が悪くなったら無理せずどうぞ。</p>
+        <p>運営スタッフまで気軽に声をかけてください。体調が悪くなったら無理せずどうぞ。</p>
       </div>
     </div>
   </section>
 
-  <!-- ========== 6. 登壇者紹介 ==========
-       このセクションを人数分コピーして並べる。
-       LTの合間に出すので、順番はタイムテーブル通りにしておく -->
+  <!-- ========== 6. 次の登壇者 ========== -->
   <section class="slide" data-slide="6">
-    <h2 class="section-title">LT #1</h2>
+    <h2 class="section-title">次の発表</h2>
     <div class="split-hero">
       <div class="hero-left">
-        <!-- ▼差し替え: 登壇者のハンドル -->
-        <div class="hero-word" style="font-size: min(4.4cqi, 64px);">@handle</div>
-        <div class="hero-sub">登壇者名</div>
+        <div class="hero-word" style="font-size: min(5.4cqi, 76px);">14:05</div>
       </div>
       <div class="hero-right">
-        <!-- ▼差し替え: 発表タイトルと一言紹介 -->
-        <h3>発表タイトル</h3>
-        <p>紹介を1〜2行で。</p>
+        <h3>Bluesky 社からのビデオレター</h3>
+        <p style="font-weight: 800; color: var(--ink);">高野直子 @naoko.cc</p>
       </div>
     </div>
   </section>
 
-  <!-- ========== 7. 休憩（時刻を大きく出す） ========== -->
-  <section class="slide statement" data-slide="7">
+  <!-- ========== 7. 次の登壇者 ========== -->
+  <section class="slide" data-slide="7">
+    <h2 class="section-title">次の発表</h2>
+    <div class="split-hero">
+      <div class="hero-left">
+        <div class="hero-word" style="font-size: min(5.4cqi, 76px);">14:15</div>
+      </div>
+      <div class="hero-right">
+        <h3>東京、大阪ミートアップ報告</h3>
+        <p style="font-weight: 800; color: var(--ink);">しのさん @shino3.net</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 8. 次の登壇者 ========== -->
+  <section class="slide" data-slide="8">
+    <h2 class="section-title">次の発表</h2>
+    <div class="split-hero">
+      <div class="hero-left">
+        <div class="hero-word" style="font-size: min(5.4cqi, 76px);">14:25</div>
+      </div>
+      <div class="hero-right">
+        <h3>東京ハッカソン報告</h3>
+        <p style="font-weight: 800; color: var(--ink);">こじら @kojira.io</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 9. 次の登壇者 ========== -->
+  <section class="slide" data-slide="9">
+    <h2 class="section-title">次の発表</h2>
+    <div class="split-hero">
+      <div class="hero-left">
+        <div class="hero-word" style="font-size: min(5.4cqi, 76px);">14:40</div>
+      </div>
+      <div class="hero-right">
+        <h3>ねこファースト</h3>
+        <p style="font-weight: 800; color: var(--ink);">@nekofirst.life</p>
+        <p><!-- ▼要確認: 発表タイトルが connpass に無い --></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 10. 次の登壇者 ========== -->
+  <section class="slide" data-slide="10">
+    <h2 class="section-title">次の発表</h2>
+    <div class="split-hero">
+      <div class="hero-left">
+        <div class="hero-word" style="font-size: min(5.4cqi, 76px);">14:50</div>
+      </div>
+      <div class="hero-right">
+        <h3>あおぞらクエスト</h3>
+        <p style="font-weight: 800; color: var(--ink);">こじら @kojira.io</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 11. 休憩 ========== -->
+  <section class="slide statement" data-slide="11">
     <h1 class="title center">休憩</h1>
     <div class="divider"></div>
     <p class="body">
-      <!-- ▼差し替え: 再開時刻 -->
-      <span class="accent">00:00</span> に再開します。<br />
+      <span class="accent">15:10</span> に再開します。<br />
       お手洗い・水分補給をどうぞ。
     </p>
   </section>
 
-  <!-- ========== 8. 告知 ========== -->
-  <section class="slide" data-slide="8">
-    <h2 class="section-title">おしらせ</h2>
-    <div class="cards-2">
-      <div class="card bordered-top">
-        <!-- ▼差し替え: 不要なら section ごと削除 -->
-        <h3>次回のご案内</h3>
-        <p>日程・場所が決まっていれば書く。未定なら「決まり次第お知らせします」。</p>
+  <!-- ========== 12. 次の登壇者 ========== -->
+  <section class="slide" data-slide="12">
+    <h2 class="section-title">次の発表</h2>
+    <div class="split-hero">
+      <div class="hero-left">
+        <div class="hero-word" style="font-size: min(5.4cqi, 76px);">15:10</div>
       </div>
-      <div class="card bordered-top">
-        <h3>アンケート</h3>
-        <p>フォームのURLやQRコードを置く場所。</p>
+      <div class="hero-right">
+        <h3>おかんボット3年目の失敗</h3>
+        <p style="font-weight: 800; color: var(--ink);">うかわ</p>
       </div>
     </div>
   </section>
 
-  <!-- ========== 9. クロージング ========== -->
-  <section class="slide final" data-slide="9">
+  <!-- ========== 13. 次の登壇者 ========== -->
+  <section class="slide" data-slide="13">
+    <h2 class="section-title">次の発表</h2>
+    <div class="split-hero">
+      <div class="hero-left">
+        <div class="hero-word" style="font-size: min(5.4cqi, 76px);">15:15</div>
+      </div>
+      <div class="hero-right">
+        <h3>なにか面白い事</h3>
+        <p style="font-weight: 800; color: var(--ink);">しのさん @shino3.net</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 14. 次の登壇者 ========== -->
+  <section class="slide" data-slide="14">
+    <h2 class="section-title">次の発表</h2>
+    <div class="split-hero">
+      <div class="hero-left">
+        <div class="hero-word" style="font-size: min(5.4cqi, 76px);">15:10</div>
+      </div>
+      <div class="hero-right">
+        <h3>Nobuhide_Tsuda</h3>
+        <p style="font-weight: 800; color: var(--ink);">@vivisuke.bsky.social</p>
+        <p><!-- ▼要確認: 次第で 15:10 が重複。タイトルも未記載 --></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 15. 次の登壇者 ========== -->
+  <section class="slide" data-slide="15">
+    <h2 class="section-title">次の発表</h2>
+    <div class="split-hero">
+      <div class="hero-left">
+        <div class="hero-word" style="font-size: min(5.4cqi, 76px);">15:20</div>
+      </div>
+      <div class="hero-right">
+        <h3>マサラキッチン店長みつじ</h3>
+        <p style="font-weight: 800; color: var(--ink);">@mitsuji.masalakitchen.jp</p>
+        <p><!-- ▼要確認: 発表タイトルが connpass に無い --></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 16. 懇親会のご案内 ========== -->
+  <section class="slide" data-slide="16">
+    <h2 class="section-title">このあとは懇親会です</h2>
+    <div class="cards-2">
+      <div class="card bordered-top">
+        <h3>15:50 頃 〜 懇親会</h3>
+        <p>熊本の <strong>ASO SPICE CURRY マサラキッチン</strong> さんのカレーをご用意しています。おなかを空かせてきた方、お待たせしました。</p>
+      </div>
+      <div class="card bordered-top">
+        <h3>2次会</h3>
+        <!-- ▼差し替え: connpass のサブイベント。場所と時間が決まったら埋める -->
+        <p>connpass のサブイベントとして受付しています。詳細は運営スタッフまで。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 17. クロージング ========== -->
+  <section class="slide final" data-slide="17">
     <h1 class="title center">ありがとうございました</h1>
     <div class="divider"></div>
     <p class="body">
       本日はご参加いただきありがとうございました。<br>
-      <!-- ▼差し替え -->
-      感想は <span class="highlight">#ハッシュタグ</span> で。
+      次回もぜひお会いしましょう。<br>
+      <span class="highlight">Bluesky Meetup in Fukuoka</span>
     </p>
   </section>
 

@@ -241,23 +241,25 @@
     flex-direction: column;
     gap: 18px;
   }
+  /* li を grid にすると <strong> や <code> などのインライン要素が
+     それぞれ別のグリッドアイテムになって列が壊れる。
+     マーカーは ::before の絶対配置で置き、li 自体は通常のブロックにする */
   .bullets li {
-    display: grid;
-    grid-template-columns: 16px 1fr;
-    gap: 16px;
-    align-items: start;
+    position: relative;
+    padding-left: 30px;
     font-size: min(1.5cqi, 19px);
     line-height: 1.8;
     color: var(--ink-soft);
   }
   .bullets li::before {
     content: "";
-    display: block;
+    position: absolute;
+    left: 0;
+    top: 0.55em;
     width: 14px;
     height: 14px;
     background: var(--accent);
     border-radius: 2px;
-    margin-top: 0.4em;
   }
 
   /* ---- 種別: 目次（番号つき） ---- */
@@ -274,10 +276,8 @@
   }
   .agenda li {
     counter-increment: agenda;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 22px;
-    align-items: baseline;
+    position: relative;
+    padding-left: 4.2cqi;
     font-size: min(2cqi, 28px);
     font-weight: 700;
     color: var(--ink);
@@ -286,6 +286,9 @@
   }
   .agenda li::before {
     content: counter(agenda, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 0;
     color: var(--accent);
     font-weight: 900;
     font-variant-numeric: tabular-nums;
