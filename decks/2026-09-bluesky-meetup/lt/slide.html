@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>記録する場所と、共有する場所を分ける - Bluesky Meetup 2026-09</title>
+<style>
+  /* =========================================================
+     テーマ: 白地・2色。Trailcast = 緑、Bluesky = 青
+     ========================================================= */
+  :root {
+    --s: 1;                   /* スライドの表示倍率。JS が上書きする */
+    --tc: #0f9d7a;           /* Trailcast */
+    --tc-soft: #e6f6f1;
+    --bs: #1083fe;           /* Bluesky */
+    --bs-soft: #e7f1ff;
+    --ink: #111827;
+    --ink-soft: #374151;
+    --muted: #6b7280;
+    --line: #d1d5db;
+    --bg: #ffffff;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;   /* iOS の文字自動拡大を止める */
+    text-size-adjust: 100%;
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: #f3f4f6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ---- デッキ ---- */
+  .deck {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 32px 16px 100px;
+  }
+  /* .frame は JS が各 .slide を包む普通のブロック。幅は画面に合わせて縮み、
+     中の .slide は 1280x720 のまま .frame の幅に合わせて transform で縮小される。
+     位置決めは .frame（通常のレイアウト）に任せるのでズレる余地がない */
+  .frame {
+    width: min(1280px, 100%);
+    aspect-ratio: 16 / 9;
+    position: relative;
+    flex: none;
+  }
+  .slide {
+    /* 常に 1280x720 でレイアウトし、画面に収まるよう丸ごと縮小する。
+       文字サイズが端末の最小フォント設定や自動拡大に左右されないための方式 */
+    width: 1280px;
+    height: 720px;
+    /* 倍率 --s は :root に既定値 1 があり、末尾の JS（fitScale）が .frame の実測幅から
+       上書きする。ここ（.slide 自身）に --s を書くと JS の値より優先されるので書かないこと */
+    transform: scale(var(--s));
+    transform-origin: top left;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    padding: 5.5% 7%;
+    display: flex;
+    flex-direction: column;
+    container-type: inline-size;
+  }
+
+  /* ---- 共通 ---- */
+  h2.head {
+    font-size: min(3.6cqi, 48px);
+    font-weight: 800;
+    line-height: 1.3;
+    margin: 0 0 3cqi;
+    letter-spacing: -0.01em;
+  }
+  .tc { color: var(--tc); }
+  .bs { color: var(--bs); }
+  .fill { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+  .foot {
+    margin-top: auto;
+    padding-top: 2cqi;
+    font-size: min(1.45cqi, 19px);
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .foot.strong {
+    color: var(--ink);
+    font-weight: 800;
+    font-size: min(2.2cqi, 30px);
+  }
+  .foot.center { text-align: center; }
+  .label {
+    font-size: min(1.5cqi, 20px);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    margin-bottom: 1.2cqi;
+  }
+  svg { display: block; width: 100%; height: auto; font-family: inherit; }
+  svg text { font-family: inherit; }
+
+  /* ---- 1. 表紙 ---- */
+  .slide.cover { justify-content: center; align-items: center; text-align: center; }
+  .slide.cover h1 {
+    font-size: min(6.2cqi, 84px);
+    font-weight: 900;
+    line-height: 1.25;
+    margin: 0 0 2.4cqi;
+    letter-spacing: -0.015em;
+  }
+  .slide.cover .sub {
+    font-size: min(2.2cqi, 30px);
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .slide.cover .foot { position: absolute; left: 7%; right: 7%; bottom: 6%; text-align: center; margin: 0; }
+
+  /* ---- 2. タイムライン ---- */
+  .tl-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 5cqi;
+    align-items: center;
+  }
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .tl-item {
+    display: grid;
+    grid-template-columns: 10.5cqi 2.2cqi 1fr;
+    align-items: stretch;
+    column-gap: 1.2cqi;
+  }
+  .tl-time {
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    font-size: min(1.7cqi, 23px);
+    color: var(--ink-soft);
+    padding-top: 0.2em;
+    white-space: nowrap;
+  }
+  .tl-time small { font-weight: 600; color: var(--muted); font-size: 0.8em; margin-right: 0.4em; }
+  .photo { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; border: 1px solid var(--line); }
+  .photo-cap { margin: 0.8cqi 0 0; font-size: min(1.3cqi, 17px); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .tl-axis { position: relative; }
+  .tl-axis::before {           /* 縦線 */
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--line);
+    transform: translateX(-50%);
+  }
+  .tl-item:first-child .tl-axis::before { top: 0.7em; }
+  .tl-item:last-child .tl-axis::before { bottom: auto; height: 0.7em; }
+  .tl-axis::after {            /* 点 */
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0.45em;
+    width: 1.3cqi;
+    height: 1.3cqi;
+    border-radius: 50%;
+    background: var(--tc);
+    transform: translate(-50%, 0);
+  }
+  .tl-body { padding-bottom: 2.2cqi; }
+  .tl-place {
+    font-size: min(2.1cqi, 30px);
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  .tl-meta {
+    margin-top: 0.5cqi;
+    font-size: min(1.3cqi, 17px);
+    color: var(--muted);
+    display: flex;
+    gap: 1.4cqi;
+  }
+
+  /* ---- 概念図: HTML の箱と CSS の線で描く ----
+     SVG の <text> は Android Chrome の文字自動拡大で巨大化することがあり、
+     text-size-adjust では止まらない。図の文字は必ず HTML 側に置くこと。
+     スライドは常に 1280x720 でレイアウトされるので、図の寸法は px で書いてよい */
+  .node {
+    border: 3px solid var(--ink);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: 800;
+    font-size: 34px;
+    line-height: 1.3;
+    padding: 20px 16px;
+  }
+  .node.tc { border-color: var(--tc); color: var(--tc); }
+  .node.bs { border-color: var(--bs); color: var(--bs); }
+  .node-cap {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 14px 0 0;
+  }
+  /* 線と矢印の先端 */
+  .line { position: absolute; background: var(--muted); }
+  .line.v { width: 3px; margin-left: -1.5px; }
+  .line.h { height: 3px; margin-top: -1.5px; }
+  .ahead { position: absolute; width: 0; height: 0; }
+  .ahead.down {
+    margin-left: -9px;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-top: 13px solid var(--muted);
+  }
+  .ahead.right {
+    margin-top: -9px;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-left: 13px solid var(--muted);
+  }
+  .edge-label { position: absolute; font-size: 24px; font-weight: 700; color: var(--ink-soft); }
+
+  /* 4. PDS から 2 つに分岐 */
+  .d-branch { display: flex; flex-direction: column; align-items: center; }
+  .d-branch .root { width: 320px; }
+  .d-branch .branch { position: relative; width: 700px; height: 105px; }
+  .d-branch .leaves { display: grid; grid-template-columns: 320px 320px; gap: 60px; }
+
+  /* 5. 独立した PDS が 3 つ */
+  .pds-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+  .pds { border: 3px solid var(--ink); padding: 22px 20px 26px; text-align: center; }
+  .pds-name { font-size: 34px; font-weight: 800; }
+  .pds-data {
+    margin-top: 22px;
+    border: 3px solid var(--tc);
+    background: var(--tc-soft);
+    color: var(--tc);
+    font-weight: 800;
+    font-size: 24px;
+    padding: 20px 8px;
+  }
+
+  /* 7. 記録 → クロスポスト → Bluesky、記録はそのまま PDS に残る */
+  .d-flow { position: relative; width: 1080px; height: 360px; margin: 0 auto; }
+  .d-flow .node { position: absolute; white-space: nowrap; font-size: 30px; }
+  .d-flow .fanout { position: absolute; font-size: 26px; font-weight: 700; color: var(--bs); line-height: 1.45; }
+  .d-flow .note { position: absolute; font-size: 24px; font-weight: 700; color: var(--ink-soft); line-height: 1.5; }
+
+  /* ---- 3 / 6 / 8. 左右比較 ---- */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6cqi;
+    align-items: start;
+  }
+  .compare.divided { gap: 0; }
+  .compare.divided > * { padding: 0 4cqi; }
+  .compare.divided > *:first-child { border-right: 1px solid var(--line); }
+  .stack { display: flex; flex-direction: column; gap: 0.9cqi; }
+  .row {
+    border: 1px solid var(--line);
+    padding: 0.9cqi 1.6cqi;
+    font-size: min(1.5cqi, 20px);
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .row.mine { border-color: var(--tc); color: var(--tc); font-weight: 800; }
+  .row.mine.mixed { border-color: var(--bs); color: var(--bs); }
+
+  /* 縦のフロー（箱 ↓ 箱） */
+  .flow { display: flex; flex-direction: column; align-items: center; gap: 0.6cqi; }
+  .flow .box {
+    width: 100%;
+    border: 1px solid var(--ink);
+    padding: 1.1cqi 1.6cqi;
+    text-align: center;
+    font-size: min(1.55cqi, 21px);
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  .flow .box.multi { color: var(--muted); border-color: var(--line); font-weight: 600; }
+  .flow .box.tc { border-color: var(--tc); color: var(--tc); }
+  .flow .box.bad { border-color: var(--muted); color: var(--muted); }
+  .flow .arrow {
+    font-size: min(2cqi, 28px);
+    color: var(--muted);
+    line-height: 1;
+  }
+
+  /* 箇条書き（分離スライド） */
+  .plain {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4cqi;
+  }
+  .plain li {
+    font-size: min(2.3cqi, 32px);
+    font-weight: 700;
+    line-height: 1.3;
+    padding-left: 1.4em;
+    position: relative;
+  }
+  .plain li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 0.5em;
+    height: 0.5em;
+    background: currentColor;
+  }
+
+  /* ---- 9. 終了 ---- */
+  .slide.final { justify-content: center; align-items: center; text-align: center; }
+  .slide.final h1 {
+    font-size: min(5.2cqi, 72px);
+    font-weight: 900;
+    line-height: 1.3;
+    margin: 0 0 2.4cqi;
+    letter-spacing: -0.015em;
+  }
+  .slide.final .sub {
+    font-size: min(2.4cqi, 32px);
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .slide.final .foot { position: absolute; left: 7%; right: 7%; bottom: 6%; text-align: center; margin: 0; }
+
+  /* =========================================================
+     ツールバー・プレゼンモード・印刷（template と同じ）
+     ========================================================= */
+  .toolbar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(17, 24, 39, 0.92);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 100;
+    font-size: 14px;
+  }
+  .toolbar button {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .toolbar button:hover { background: rgba(255,255,255,0.22); }
+  .toolbar button.primary { background: var(--tc); }
+  /* left:50% 配置は狭い画面で利用可能幅が半分と計算されるので、折り返しを禁止する */
+  .toolbar, .toolbar button { white-space: nowrap; }
+  @media (max-width: 640px) {
+    .toolbar { bottom: 10px; padding: 6px 10px; gap: 8px; font-size: 12px; }
+    .toolbar button { padding: 6px 10px; font-size: 12px; }
+  }
+  .toolbar .counter { min-width: 50px; text-align: center; font-variant-numeric: tabular-nums; }
+
+  body.present { background: #111827; overflow: hidden; }
+  body.present .deck { padding: 0; height: 100vh; justify-content: center; }
+  body.present .frame {
+    display: none;
+    width: min(100vw, calc(100vh * 16 / 9));
+  }
+  body.present .frame.active { display: block; }
+  body.present .slide {
+    border: none;
+  }
+  body.present .toolbar { opacity: 0.12; transition: opacity 0.2s; }
+  body.present .toolbar:hover { opacity: 1; }
+
+  @media print {
+    @page { size: landscape; margin: 0; }
+    html, body { background: #fff; }
+    .toolbar { display: none !important; }
+    .deck { padding: 0; gap: 0; }
+    .frame {
+      width: 1280px;
+      height: 720px;
+      aspect-ratio: auto;
+      page-break-after: always;
+      break-after: page;
+    }
+    .frame:last-child { page-break-after: auto; }
+    .slide {
+      transform: none;
+      border: none;
+      page-break-after: always;
+      break-after: page;
+      margin: 0;
+    }
+    .slide:last-child { page-break-after: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ========== 1. タイトル ========== -->
+  <section class="slide cover" data-slide="1">
+    <h1>記録する場所と、<br>共有する場所を分ける</h1>
+    <p class="sub">Trailcast / AT Protocol / PDS</p>
+    <!-- ▼差し替え: 登壇者名 -->
+    <p class="foot">@shino3.net &nbsp;·&nbsp; github.com/ShinoharaTa/trailcast</p>
+  </section>
+
+  <!-- ========== 2. Trailcast とは（実際のスレッド「2026-09 九州」から抜粋） ========== -->
+  <section class="slide" data-slide="2">
+    <h2 class="head"><span class="tc">Trailcast</span> は、自分の体験を時系列で残すアプリ</h2>
+    <div class="fill">
+      <div class="tl-grid">
+        <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-time"><small>9/10</small>15:42</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">成田空港</div><div class="tl-meta"><span>写真 1枚</span><span>コメント</span></div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time"><small>9/10</small>21:05</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">西九州新幹線</div><div class="tl-meta"><span>写真 3枚</span><span>コメント</span></div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time"><small>9/10</small>21:39</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">長崎駅</div><div class="tl-meta"><span>写真 4枚</span><span>コメント</span></div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time"><small>9/11</small>10:06</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">出島</div><div class="tl-meta"><span>写真 4枚</span><span>コメント</span></div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time"><small>9/11</small>16:09</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">佐世保</div><div class="tl-meta"><span>写真 3枚</span><span>コメント</span></div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time"><small>9/11</small>19:33</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">嬉野温泉</div><div class="tl-meta"><span>写真 3枚</span><span>コメント</span></div></div>
+        </div>
+        </div>
+        <div>
+          <img class="photo" src="images/sasebo.jpg" alt="佐世保駅の外観">
+          <p class="photo-cap">9/11 16:09 &nbsp;佐世保ついた！港！！</p>
+        </div>
+      </div>
+    </div>
+    <p class="foot center">実際の記録「2026-09 九州」全 19 チェックポイントから抜粋 &nbsp;·&nbsp; 旅行 / 開発記録 / 謎解き参加 などに利用</p>
+  </section>
+
+  <!-- ========== 3. SNS のタイムラインとの違い ========== -->
+  <section class="slide" data-slide="3">
+    <h2 class="head">タイムラインは、記録には向いていない</h2>
+    <div class="fill">
+      <div class="compare">
+        <div>
+          <div class="label bs">Bluesky / SNS</div>
+          <div class="stack">
+            <div class="row mine mixed">自分の投稿</div>
+            <div class="row">他人の投稿</div>
+            <div class="row">おすすめ</div>
+            <div class="row">返信</div>
+            <div class="row">リポスト</div>
+            <div class="row mine mixed">自分の投稿</div>
+            <div class="row">ニュース</div>
+          </div>
+        </div>
+        <div>
+          <div class="label tc">Trailcast</div>
+          <div class="stack">
+            <div class="row mine">15:42 &nbsp;成田空港</div>
+            <div class="row mine">21:05 &nbsp;西九州新幹線</div>
+            <div class="row mine">21:39 &nbsp;長崎駅</div>
+            <div class="row mine">22:25 &nbsp;宿へ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="foot">SNS は共有には強い。でも、自分の履歴を辿る用途とは性質が違う。</p>
+  </section>
+
+  <!-- ========== 4. 記録は PDS へ ========== -->
+  <section class="slide" data-slide="4">
+    <h2 class="head">記録は、自分の PDS に保存する</h2>
+    <div class="fill">
+      <div class="d-branch">
+        <div class="node root">自分の PDS</div>
+        <div class="branch">
+          <span class="line v" style="left: 350px; top: 0; height: 40px;"></span>
+          <span class="line h" style="left: 160px; width: 380px; top: 40px;"></span>
+          <span class="line v" style="left: 160px; top: 40px; height: 48px;"></span>
+          <span class="line v" style="left: 540px; top: 40px; height: 48px;"></span>
+          <span class="ahead down" style="left: 160px; top: 88px;"></span>
+          <span class="ahead down" style="left: 540px; top: 88px;"></span>
+        </div>
+        <div class="leaves">
+          <div>
+            <div class="node tc">Trailcast</div>
+            <p class="node-cap">記録する / 振り返る</p>
+          </div>
+          <div>
+            <div class="node bs">Bluesky</div>
+            <p class="node-cap">共有する / 会話する</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 5. AppView を作らない（中心） ==========
+       3 つの PDS を束ねる線を一本も引かないことが、この図の主張 -->
+  <section class="slide" data-slide="5">
+    <h2 class="head">Trailcast には「みんなの Trailcast」がない</h2>
+    <div class="fill">
+      <div class="pds-row">
+        <div class="pds">
+          <div class="pds-name">PDS A</div>
+          <div class="pds-data">Trailcast データ</div>
+        </div>
+        <div class="pds">
+          <div class="pds-name">PDS B</div>
+          <div class="pds-data">Trailcast データ</div>
+        </div>
+        <div class="pds">
+          <div class="pds-name">PDS C</div>
+          <div class="pds-data">Trailcast データ</div>
+        </div>
+      </div>
+    </div>
+    <p class="foot strong center">全ユーザーの記録を集約するビューを持たない</p>
+    <p class="foot center" style="padding-top: 0.6cqi;">検索ランキング / おすすめ / 人気投稿 / 全体フィード を作らない</p>
+  </section>
+
+  <!-- ========== 6. AppView がないことで起こること ========== -->
+  <section class="slide" data-slide="6">
+    <h2 class="head">コミュニティが、記録の構造を壊さない</h2>
+    <div class="fill">
+      <div class="compare">
+        <div>
+          <div class="label" style="color: var(--muted);">コミュニティ型サービス</div>
+          <div class="flow">
+            <div class="box multi">全ユーザーの投稿</div>
+            <div class="arrow">↓</div>
+            <div class="box multi">ランキング / おすすめ / トレンド / 人気投稿</div>
+            <div class="arrow">↓</div>
+            <div class="box bad">自分の体験が埋もれる</div>
+          </div>
+        </div>
+        <div>
+          <div class="label tc">Trailcast</div>
+          <div class="flow">
+            <div class="box">自分の PDS</div>
+            <div class="arrow">↓</div>
+            <div class="box tc">自分の記録</div>
+            <div class="arrow">↓</div>
+            <div class="box tc">そのまま残る</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="foot strong">記録空間は、他人の活動によって変形しない。</p>
+  </section>
+
+  <!-- ========== 7. 共有したいときだけ Bluesky へ ========== -->
+  <section class="slide" data-slide="7">
+    <h2 class="head">共有は捨てない</h2>
+    <div class="fill">
+      <div class="d-flow">
+        <div class="node tc" style="left: 0; top: 30px; width: 340px; height: 88px;">Trailcast で記録</div>
+
+        <span class="edge-label" style="left: 354px; top: 42px; font-size: 22px;">クロスポストする</span>
+        <span class="line h" style="left: 340px; width: 188px; top: 74px;"></span>
+        <span class="ahead right" style="left: 528px; top: 74px;"></span>
+
+        <div class="node bs" style="left: 560px; top: 30px; width: 200px; height: 88px;">Bluesky</div>
+
+        <span class="line h" style="left: 760px; width: 48px; top: 74px;"></span>
+        <span class="ahead right" style="left: 808px; top: 74px;"></span>
+        <div class="fanout" style="left: 836px; top: 33px;">フォロワー<br>リプライ<br>リアクション</div>
+
+        <span class="line v" style="left: 170px; top: 118px; height: 110px;"></span>
+        <span class="ahead down" style="left: 170px; top: 228px;"></span>
+        <span class="edge-label" style="left: 192px; top: 152px;">そのまま残る</span>
+
+        <div class="node" style="left: 0; top: 248px; width: 340px; height: 88px;">自分の PDS</div>
+
+        <div class="note" style="left: 560px; top: 256px;">共有しても、<br>Trailcast 側の記録構造は変わらない</div>
+      </div>
+    </div>
+    <p class="foot">「2026-09 九州」の 19 件はすべて Bluesky へクロスポスト済み。PDS 上の記録が持つのは Bluesky 投稿への参照 1 つだけ。</p>
+  </section>
+
+  <!-- ========== 8. 記録と共有を分離する ========== -->
+  <section class="slide" data-slide="8">
+    <h2 class="head">記録する空間と、共有する空間を分ける</h2>
+    <div class="fill">
+      <div class="compare divided">
+        <div>
+          <div class="label tc">Trailcast</div>
+          <ul class="plain tc">
+            <li>自分の記録</li>
+            <li>時系列</li>
+            <li>PDS</li>
+            <li>振り返る</li>
+          </ul>
+        </div>
+        <div>
+          <div class="label bs">Bluesky</div>
+          <ul class="plain bs">
+            <li>他人とつながる</li>
+            <li>フィード</li>
+            <li>会話</li>
+            <li>共有</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <p class="foot strong center">PDS は使う。コミュニティ空間は作らない。</p>
+  </section>
+
+  <!-- ========== 9. 終了 ========== -->
+  <section class="slide final" data-slide="9">
+    <h1><span class="tc">Trailcast</span> は、自分の記録を<br>自分の領域に残す。</h1>
+    <p class="sub">共有したいものだけ、<span class="bs">Bluesky</span> へ。</p>
+    <p class="foot">github.com/ShinoharaTa/trailcast</p>
+  </section>
+
+</div>
+
+<div class="toolbar" id="toolbar">
+  <button id="prevBtn" title="前のスライド (←)">←</button>
+  <span class="counter"><span id="curr">1</span> / <span id="total">1</span></span>
+  <button id="nextBtn" title="次のスライド (→)">→</button>
+  <button id="presentBtn" title="プレゼンモード切替 (F)">プレゼン</button>
+  <button id="printBtn" class="primary" title="PDF出力 (Ctrl/Cmd+P)">PDF出力</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  // 各 .slide を .frame で包む（HTML 側は section を並べるだけでよい）
+  slides.forEach((s) => {
+    const f = document.createElement('div');
+    f.className = 'frame';
+    s.parentNode.insertBefore(f, s);
+    f.appendChild(s);
+  });
+  const frames = document.querySelectorAll('.frame');
+  const total = slides.length;
+  document.getElementById('total').textContent = total;
+
+  let current = 0;
+  let present = false;
+
+  const currEl = document.getElementById('curr');
+  const body = document.body;
+
+  function render() {
+    if (present) {
+      frames.forEach((f, i) => f.classList.toggle('active', i === current));
+    }
+    fitScale();
+    currEl.textContent = current + 1;
+  }
+
+  function nearestSlide() {
+    const mid = window.scrollY + window.innerHeight / 2;
+    let best = 0;
+    let bestDist = Infinity;
+    slides.forEach((s, i) => {
+      const rect = s.getBoundingClientRect();
+      const center = rect.top + window.scrollY + rect.height / 2;
+      const dist = Math.abs(center - mid);
+      if (dist < bestDist) { bestDist = dist; best = i; }
+    });
+    return best;
+  }
+
+  function go(delta) {
+    current = Math.max(0, Math.min(total - 1, current + delta));
+    if (!present) {
+      frames[current].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    render();
+  }
+
+  function togglePresent() {
+    present = !present;
+    body.classList.toggle('present', present);
+    if (present) current = nearestSlide();
+    render();
+  }
+
+  window.addEventListener('scroll', () => {
+    if (present) return;
+    const best = nearestSlide();
+    if (best !== current) {
+      current = best;
+      currEl.textContent = current + 1;
+    }
+  }, { passive: true });
+
+  document.getElementById('prevBtn').addEventListener('click', () => go(-1));
+  document.getElementById('nextBtn').addEventListener('click', () => go(1));
+  document.getElementById('presentBtn').addEventListener('click', togglePresent);
+  document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault(); go(1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault(); go(-1);
+    } else if (e.key === 'f' || e.key === 'F') {
+      togglePresent();
+    } else if (e.key === 'Escape' && present) {
+      togglePresent();
+    }
+  });
+
+  // .frame の実測幅から倍率を決める。ビューポートの幅は一切見ない
+  function fitScale() {
+    const f = present ? frames[current] : frames[0];
+    const w = f.clientWidth;
+    if (w > 0) document.documentElement.style.setProperty('--s', w / 1280);
+  }
+  window.addEventListener('resize', fitScale);
+  if (window.ResizeObserver) new ResizeObserver(fitScale).observe(frames[0]);
+
+  fitScale();
+  render();
+</script>
+
+</body>
+</html>
