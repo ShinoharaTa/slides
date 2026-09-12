@@ -104,26 +104,30 @@
   .slide.cover .foot { position: absolute; left: 7%; right: 7%; bottom: 6%; text-align: center; margin: 0; }
 
   /* ---- 2. タイムライン ---- */
-  .timeline {
-    width: min(70%, 780px);
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
+  .tl-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 5cqi;
+    align-items: center;
   }
+  .timeline { display: flex; flex-direction: column; gap: 0; }
   .tl-item {
     display: grid;
-    grid-template-columns: 7.5cqi 2.2cqi 1fr;
+    grid-template-columns: 10.5cqi 2.2cqi 1fr;
     align-items: stretch;
-    column-gap: 1.6cqi;
+    column-gap: 1.2cqi;
   }
   .tl-time {
     font-variant-numeric: tabular-nums;
     font-weight: 800;
-    font-size: min(1.9cqi, 26px);
+    font-size: min(1.7cqi, 23px);
     color: var(--ink-soft);
-    padding-top: 0.1em;
+    padding-top: 0.2em;
+    white-space: nowrap;
   }
+  .tl-time small { font-weight: 600; color: var(--muted); font-size: 0.8em; margin-right: 0.4em; }
+  .photo { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; border: 1px solid var(--line); }
+  .photo-cap { margin: 0.8cqi 0 0; font-size: min(1.3cqi, 17px); color: var(--muted); font-variant-numeric: tabular-nums; }
   .tl-axis { position: relative; }
   .tl-axis::before {           /* 縦線 */
     content: "";
@@ -148,9 +152,9 @@
     background: var(--tc);
     transform: translate(-50%, 0);
   }
-  .tl-body { padding-bottom: 3.2cqi; }
+  .tl-body { padding-bottom: 2.2cqi; }
   .tl-place {
-    font-size: min(2.3cqi, 32px);
+    font-size: min(2.1cqi, 30px);
     font-weight: 800;
     line-height: 1.2;
   }
@@ -324,33 +328,47 @@
     <h1>記録する場所と、<br>共有する場所を分ける</h1>
     <p class="sub">Trailcast / AT Protocol / PDS</p>
     <!-- ▼差し替え: 登壇者名 -->
-    <p class="foot">shino3 &nbsp;·&nbsp; github.com/ShinoharaTa/trailcast</p>
+    <p class="foot">@shino3.net &nbsp;·&nbsp; github.com/ShinoharaTa/trailcast</p>
   </section>
 
-  <!-- ========== 2. Trailcast とは ========== -->
+  <!-- ========== 2. Trailcast とは（実際のスレッド「2026-09 九州」から抜粋） ========== -->
   <section class="slide" data-slide="2">
     <h2 class="head"><span class="tc">Trailcast</span> は、自分の体験を時系列で残すアプリ</h2>
     <div class="fill">
-      <div class="timeline">
+      <div class="tl-grid">
+        <div class="timeline">
         <div class="tl-item">
-          <div class="tl-time">09:30</div><div class="tl-axis"></div>
-          <div class="tl-body"><div class="tl-place">長崎駅</div><div class="tl-meta"><span>写真</span><span>場所</span></div></div>
+          <div class="tl-time"><small>9/10</small>15:42</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">成田空港</div><div class="tl-meta"><span>写真 1枚</span><span>コメント</span></div></div>
         </div>
         <div class="tl-item">
-          <div class="tl-time">12:10</div><div class="tl-axis"></div>
-          <div class="tl-body"><div class="tl-place">新地中華街</div><div class="tl-meta"><span>写真</span><span>コメント</span></div></div>
+          <div class="tl-time"><small>9/10</small>21:05</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">西九州新幹線</div><div class="tl-meta"><span>写真 3枚</span><span>コメント</span></div></div>
         </div>
         <div class="tl-item">
-          <div class="tl-time">14:30</div><div class="tl-axis"></div>
-          <div class="tl-body"><div class="tl-place">軍艦島</div><div class="tl-meta"><span>写真</span><span>場所</span><span>コメント</span></div></div>
+          <div class="tl-time"><small>9/10</small>21:39</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">長崎駅</div><div class="tl-meta"><span>写真 4枚</span><span>コメント</span></div></div>
         </div>
         <div class="tl-item">
-          <div class="tl-time">18:40</div><div class="tl-axis"></div>
-          <div class="tl-body"><div class="tl-place">稲佐山</div><div class="tl-meta"><span>写真</span><span>場所</span></div></div>
+          <div class="tl-time"><small>9/11</small>10:06</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">出島</div><div class="tl-meta"><span>写真 4枚</span><span>コメント</span></div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time"><small>9/11</small>16:09</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">佐世保</div><div class="tl-meta"><span>写真 3枚</span><span>コメント</span></div></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time"><small>9/11</small>19:33</div><div class="tl-axis"></div>
+          <div class="tl-body"><div class="tl-place">嬉野温泉</div><div class="tl-meta"><span>写真 3枚</span><span>コメント</span></div></div>
+        </div>
+        </div>
+        <div>
+          <img class="photo" src="images/sasebo.jpg" alt="佐世保駅の外観">
+          <p class="photo-cap">9/11 16:09 &nbsp;佐世保ついた！港！！</p>
         </div>
       </div>
     </div>
-    <p class="foot center">旅行 / 開発記録 / 謎解き参加 などに利用</p>
+    <p class="foot center">実際の記録「2026-09 九州」全 19 チェックポイントから抜粋 &nbsp;·&nbsp; 旅行 / 開発記録 / 謎解き参加 などに利用</p>
   </section>
 
   <!-- ========== 3. SNS のタイムラインとの違い ========== -->
@@ -373,10 +391,10 @@
         <div>
           <div class="label tc">Trailcast</div>
           <div class="stack">
-            <div class="row mine">09:30 &nbsp;自分の記録</div>
-            <div class="row mine">12:10 &nbsp;自分の記録</div>
-            <div class="row mine">14:30 &nbsp;自分の記録</div>
-            <div class="row mine">18:40 &nbsp;自分の記録</div>
+            <div class="row mine">15:42 &nbsp;成田空港</div>
+            <div class="row mine">21:05 &nbsp;西九州新幹線</div>
+            <div class="row mine">21:39 &nbsp;長崎駅</div>
+            <div class="row mine">22:25 &nbsp;宿へ</div>
           </div>
         </div>
       </div>
@@ -503,6 +521,7 @@
         <text x="520" y="348" font-size="24" font-weight="700" fill="#374151">Trailcast 側の記録構造は変わらない</text>
       </svg>
     </div>
+    <p class="foot">「2026-09 九州」の 19 件はすべて Bluesky へクロスポスト済み。PDS 上の記録が持つのは Bluesky 投稿への参照 1 つだけ。</p>
   </section>
 
   <!-- ========== 8. 記録と共有を分離する ========== -->
