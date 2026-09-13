@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>slides — 発表スライド一覧</title>
+<style>
+  /* 各スライドへのリンク一覧。スライドを足したら .deck-list に <li> を1行足す */
+  :root {
+    --accent: #1083fe;
+    --accent-deep: #0a5fb8;
+    --ink: #0b1426;
+    --ink-soft: #44586f;
+    --muted: #7b8ca1;
+    --line: #dbe6f3;
+    --card: #ffffff;
+    --bg: #f2f6fb;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 56px 20px 80px;
+  }
+
+  header h1 {
+    font-size: clamp(28px, 6vw, 40px);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  header p {
+    margin: 10px 0 0;
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  h2 {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 48px 0 4px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  h2 .when { color: var(--accent); }
+
+  .deck-list { list-style: none; margin: 0; padding: 0; }
+  .deck-list li { margin-top: 12px; }
+  .deck-list a {
+    display: block;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, transform 0.1s;
+  }
+  .deck-list a:hover,
+  .deck-list a:focus-visible {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    outline: none;
+  }
+  .deck-list a:focus-visible { box-shadow: 0 0 0 3px rgba(16,131,254,0.25); }
+
+  .row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .role {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 999px;
+    padding: 4px 10px;
+    white-space: nowrap;
+  }
+  .role.lt { background: #0f9d7a; }
+  .role.tpl { background: var(--muted); }
+  .name { font-size: 17px; font-weight: 800; line-height: 1.4; }
+  .count {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .desc {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--ink-soft);
+  }
+  .path {
+    margin: 10px 0 0;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 12px;
+    color: var(--muted);
+    word-break: break-all;
+  }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--muted);
+  }
+  footer kbd {
+    font-family: inherit;
+    font-weight: 800;
+    color: var(--ink-soft);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-size: 12px;
+  }
+  footer a { color: var(--accent-deep); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <h1>slides</h1>
+    <p>発表スライド置き場。各スライドは HTML 1 ファイルで完結していて、開けばそのまま再生できます。</p>
+  </header>
+
+  <!-- ▼スライドを足したら、ここに <li> を1行足す -->
+  <h2><span class="when">2026-09-13</span> ・ Bluesky Meetup in Fukuoka vol.3</h2>
+  <ul class="deck-list">
+    <li>
+      <a href="decks/2026-09-bluesky-meetup/mc/slide.html">
+        <div class="row">
+          <span class="role">会場投影</span>
+          <span class="name">MC 進行 / サイネージ</span>
+          <span class="count">17 枚</span>
+        </div>
+        <p class="desc">開場待ちから懇親会まで。NOW / NEXT / BREAK で進行状態を示します。<kbd>N</kbd> で NEXT、<kbd>W</kbd> で PLEASE WAIT、<kbd>B</kbd> で BREAK に直接飛べます。</p>
+        <p class="path">decks/2026-09-bluesky-meetup/mc/slide.html</p>
+      </a>
+    </li>
+    <li>
+      <a href="decks/2026-09-bluesky-meetup/lt/slide.html">
+        <div class="row">
+          <span class="role lt">LT</span>
+          <span class="name">記録する場所と、共有する場所を分ける</span>
+          <span class="count">9 枚</span>
+        </div>
+        <p class="desc">Trailcast の構成を例に、PDS に記録を置き専用 AppView を持たない設計が何をもたらすかを話します。</p>
+        <p class="path">decks/2026-09-bluesky-meetup/lt/slide.html</p>
+      </a>
+    </li>
+  </ul>
+
+  <h2><span class="when">2026-06</span> ・ Bluesky Meetup in Tokyo Vol.4</h2>
+  <ul class="deck-list">
+    <li>
+      <a href="decks/2026-06-bluesky-meetup/slide.html">
+        <div class="row">
+          <span class="role lt">LT</span>
+          <span class="name">振り返り</span>
+          <span class="count">10 枚</span>
+        </div>
+        <p class="desc">東京の会場で感じたことのレポート。</p>
+        <p class="path">decks/2026-06-bluesky-meetup/slide.html</p>
+      </a>
+    </li>
+  </ul>
+
+  <h2>テンプレート</h2>
+  <ul class="deck-list">
+    <li>
+      <a href="template/slide.html">
+        <div class="row">
+          <span class="role tpl">雛形</span>
+          <span class="name">スライドの型</span>
+          <span class="count">12 枚</span>
+        </div>
+        <p class="desc">新しいスライドはこれを <code>decks/&lt;日付&gt;-&lt;イベント名&gt;/</code> にコピーして作ります。表紙・目次・2カラム・カード・コード・引用など、典型的な種別のサンプルが入っています。</p>
+        <p class="path">template/slide.html</p>
+      </a>
+    </li>
+  </ul>
+
+  <footer>
+    操作: <kbd>→</kbd> 次へ &nbsp; <kbd>←</kbd> 前へ &nbsp; <kbd>F</kbd> プレゼンモード &nbsp; <kbd>Esc</kbd> 戻る &nbsp; <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>P</kbd> PDF 出力<br>
+    作り方は <a href="README.md">README.md</a> に書いてあります。
+  </footer>
+
+</div>
+
+</body>
+</html>
