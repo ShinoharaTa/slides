@@ -294,6 +294,107 @@
     letter-spacing: 0.02em;
   }
 
+  /* ---- スマホ枠に入れた実サイトの画面 ---- */
+  .phone {
+    width: 225px;
+    margin: 0 auto;
+    border: 6px solid #1c1c2e;
+    border-radius: 30px;
+    overflow: hidden;
+    background: #0b0b1a;
+  }
+  .phone img { width: 100%; display: block; }
+  .phone-cap {
+    margin: 10px 0 0;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--tc);
+    letter-spacing: 0.02em;
+  }
+
+  /* ---- コード（実レコード / rkey） ---- */
+  .code {
+    margin: 0;
+    padding: 18px 22px;
+    background: #f3f4f6;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+    white-space: pre;
+    overflow: hidden;
+    min-width: 0;
+  }
+  .code .k { color: var(--muted); }
+  .code .tc { color: var(--tc); font-weight: 700; }
+  .code .bs { color: var(--bs); font-weight: 700; }
+  .rec-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 44px; align-items: start; }
+  .rec-uri {
+    margin: 0 0 12px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .rk-head { margin: 0 0 12px; font-size: 26px; font-weight: 800; }
+  .rk-list { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .rk-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 20px;
+    padding: 6px 12px;
+    background: var(--tc-soft);
+    border-radius: 6px;
+  }
+  .rk-list li b { color: var(--tc); font-weight: 700; }
+  .rk-list li span { font-family: inherit; font-size: 16px; color: var(--muted); white-space: nowrap; }
+  .rk-note { margin: 16px 0 0; font-size: 21px; font-weight: 700; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ---- サーバー側の構成 ---- */
+  .srv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+  .srv-stack { border: 3px solid var(--ink); padding: 20px 24px 8px; }
+  .srv-title { font-size: 24px; font-weight: 900; margin-bottom: 14px; letter-spacing: 0.02em; }
+  .srv-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 14px;
+    align-items: baseline;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .srv-row b { font-size: 21px; font-weight: 800; color: var(--ink); }
+  .srv-row.d1 { background: var(--tc-soft); margin: 0 -24px -8px; padding: 14px 24px 18px; }
+  .srv-row.d1 b { color: var(--tc); }
+  .srv-row code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: 17px; color: var(--tc); }
+  .srv-points { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+  .srv-points li {
+    position: relative;
+    padding-left: 26px;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .srv-points li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 12px;
+    height: 12px;
+    background: var(--tc);
+  }
+  .srv-points strong { color: var(--ink); }
+  .srv-points code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: 19px; color: var(--tc); }
+
   /* ---- 3 / 6 / 8. 左右比較 ---- */
   .compare {
     display: grid;
@@ -463,7 +564,7 @@
     <h1>記録する場所と、<br>共有する場所を分ける</h1>
     <p class="sub">Trailcast / AT Protocol / PDS</p>
     <!-- ▼差し替え: 登壇者名 -->
-    <p class="foot">@shino3.net &nbsp;·&nbsp; github.com/ShinoharaTa/trailcast</p>
+    <p class="foot">@shino3.net &nbsp;·&nbsp; <span class="tc">trailcast.shino3.net</span> &nbsp;·&nbsp; github.com/ShinoharaTa/trailcast</p>
   </section>
 
   <!-- ========== 2. Trailcast とは（実際のスレッド「2026-09 九州」から抜粋） ========== -->
@@ -498,12 +599,12 @@
         </div>
         </div>
         <div>
-          <img class="photo" src="images/sasebo.jpg" alt="佐世保駅の外観">
-          <p class="photo-cap">9/11 16:09 &nbsp;佐世保ついた！港！！</p>
+          <div class="phone"><img src="images/app-sp.png" alt="trailcast.shino3.net のスレッド画面"></div>
+          <p class="phone-cap">trailcast.shino3.net</p>
         </div>
       </div>
     </div>
-    <p class="foot center">実際の記録「2026-09 九州」全 19 チェックポイントから抜粋 &nbsp;·&nbsp; 旅行 / 開発記録 / 謎解き参加 などに利用</p>
+    <p class="foot center">実際の記録「2026-09 九州」全 25 チェックポイントから抜粋 &nbsp;·&nbsp; 旅行 / 開発記録 / 謎解き参加 などに利用</p>
   </section>
 
   <!-- ========== 3. SNS のタイムラインとの違い ========== -->
@@ -584,9 +685,43 @@
     <p class="foot">PDS は「Bluesky 用の保存先」ではなく、自分のレコード置き場。</p>
   </section>
 
+  <!-- ========== 実物: PDS に入っているレコード ========== -->
+  <section class="slide" data-slide="6">
+    <h2 class="head">PDS に入っている実物</h2>
+    <div class="fill">
+      <div class="rec-grid">
+        <div>
+          <p class="rec-uri">at://did:plc:rpwpuzu2yyiuufm3232d7pm5/<br>net.shino3.trailcast.post/<span class="tc" style="font-weight:700">1ir3qi7qjlg7d</span></p>
+          <pre class="code">{
+  <span class="k">"$type"</span>: <span class="tc">"net.shino3.trailcast.post"</span>,
+  <span class="k">"thread"</span>: "at://…/net.shino3.trailcast.thread/1ir3d4o0rdg66",
+  <span class="k">"text"</span>: "見渡す限り一面の曇り空",
+  <span class="k">"images"</span>: [ { "$type": "blob", "mimeType": "image/jpeg",
+               "size": 60670, "ref": { "$link": "bafkrei…" } } ],
+  <span class="k">"checkpointAt"</span>: "2026-09-10T09:57:03.000Z",
+  <span class="k">"createdAt"</span>:    "2026-09-10T10:43:47.084Z",
+  <span class="k">"sourceRef"</span>: <span class="bs">"at://…/app.bsky.feed.post/3mv5umbf3ae2l"</span>
+}</pre>
+        </div>
+        <div>
+          <p class="rk-head">rkey は時刻から作る</p>
+          <pre class="code">(now_µs &lt;&lt; 10 | clock)
+  .toString(32)</pre>
+          <ul class="rk-list">
+            <li><b>1ir3d606ms82j</b><span>9/10 15:42</span></li>
+            <li><b>1ir3g666rqosq</b><span>9/10 16:19</span></li>
+            <li><b>1ir3qi7qjlg7d</b><span>9/10 18:57</span></li>
+          </ul>
+          <p class="rk-note">文字列として並べるだけで時系列になる。並び替えの仕組みが要らない。</p>
+        </div>
+      </div>
+    </div>
+    <p class="foot"><code class="inline">$type</code> が独自なので、Bluesky のタイムラインには一切出ない。<code class="inline">sourceRef</code> がクロスポスト先への参照。</p>
+  </section>
+
   <!-- ========== 6. AppView を作らない（中心） ==========
        3 つの PDS を束ねる線を一本も引かないことが、この図の主張 -->
-  <section class="slide" data-slide="6">
+  <section class="slide" data-slide="7">
     <h2 class="head">Trailcast には「みんなの Trailcast」がない</h2>
     <div class="fill">
       <div class="pds-row">
@@ -608,8 +743,30 @@
     <p class="foot center" style="padding-top: 0.6cqi;">検索ランキング / おすすめ / 人気投稿 / 全体フィード を作らない</p>
   </section>
 
+  <!-- ========== 実装: サーバーに持っているのは索引だけ ========== -->
+  <section class="slide" data-slide="8">
+    <h2 class="head">サーバーに持っているのは「索引」だけ</h2>
+    <div class="fill">
+      <div class="srv-grid">
+        <div class="srv-stack">
+          <div class="srv-title">Cloudflare Pages</div>
+          <div class="srv-row"><b>Next.js</b><span>静的書き出し。PDS へはブラウザから XRPC で直接読み書き</span></div>
+          <div class="srv-row"><b>Functions</b><span>/api/index/sync ・ /api/index/thread、OGP の meta 差し込み</span></div>
+          <div class="srv-row d1"><b>D1</b><span><code>post_index</code>: post_uri / thread_uri / checkpoint_at</span></div>
+        </div>
+        <ul class="srv-points">
+          <li>本文・画像・位置情報は<strong>持たない</strong>。at-uri と時刻だけ</li>
+          <li>公開スレッドに複数人が投稿したぶんを<strong>束ねる</strong>ためだけにある</li>
+          <li>全部消しても <code>/api/index/sync</code> で各 PDS から作り直せる</li>
+          <li>ランキング・おすすめ・全体フィードは作らない</li>
+        </ul>
+      </div>
+    </div>
+    <p class="foot">これが「AppView を持たない」の実装上の意味。正本はいつも各ユーザーの PDS。</p>
+  </section>
+
   <!-- ========== 7. AppView がないことで起こること ========== -->
-  <section class="slide" data-slide="7">
+  <section class="slide" data-slide="9">
     <h2 class="head">コミュニティが、記録の構造を壊さない</h2>
     <div class="fill">
       <div class="compare">
@@ -639,7 +796,7 @@
   </section>
 
   <!-- ========== 8. 共有したいときだけ Bluesky へ ========== -->
-  <section class="slide" data-slide="8">
+  <section class="slide" data-slide="10">
     <h2 class="head">共有は捨てない</h2>
     <div class="fill">
       <div class="d-flow">
@@ -668,7 +825,7 @@
   </section>
 
   <!-- ========== 9. 記録と共有を分離する ========== -->
-  <section class="slide" data-slide="9">
+  <section class="slide" data-slide="11">
     <h2 class="head">記録する空間と、共有する空間を分ける</h2>
     <div class="fill">
       <div class="compare divided">
@@ -696,10 +853,10 @@
   </section>
 
   <!-- ========== 10. 終了 ========== -->
-  <section class="slide final" data-slide="10">
+  <section class="slide final" data-slide="12">
     <h1><span class="tc">Trailcast</span> は、自分の記録を<br>自分の領域に残す。</h1>
     <p class="sub">共有したいものだけ、<span class="bs">Bluesky</span> へ。</p>
-    <p class="foot">github.com/ShinoharaTa/trailcast</p>
+    <p class="foot"><span class="tc">trailcast.shino3.net</span> &nbsp;·&nbsp; github.com/ShinoharaTa/trailcast</p>
   </section>
 
 </div>
