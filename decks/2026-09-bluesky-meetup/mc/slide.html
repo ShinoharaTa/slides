@@ -200,19 +200,6 @@
   .lineup .nm { font-size: var(--fs-body); font-weight: 800; line-height: 1.2; white-space: nowrap; }
   .lineup .hd { font-size: var(--fs-caption); font-weight: 700; line-height: 1; white-space: nowrap; opacity: 0.8; }
   .lineup li.on .hd { color: var(--sky-deep); opacity: 1; }
-  /* 休憩の位置を示す区切り。● は付かず、選択もされない */
-  .lineup li.divider {
-    display: block;
-    padding: 2px 0;
-    text-align: center;
-    font-size: var(--fs-label);
-    font-weight: 900;
-    letter-spacing: 0.16em;
-    text-indent: 0.16em;
-    color: var(--muted);
-    background: none;
-  }
-  .lineup li.divider::before { content: none; }
 
   /* =========================================================
      ツールバー（投影中は薄くなる）・印刷
@@ -347,13 +334,13 @@
 
   <!-- ========== 5. LT TIME ==========
        タイトルは出さず、登壇者名の順番だけを出す。
-       休憩に入るときは B キー、戻るときは L キー（● の位置は保たれる） -->
+       休憩に入るときは B キー、戻るときは L キー（● の位置は保たれる）。
+       休憩の位置はこの一覧には出さない -->
   <section class="slide" data-slide="5" data-key="l">
     <h2 class="t-sub c-sky spaced">LT TIME</h2>
     <ul class="lineup mt-m" data-lineup data-idx="0">
         <li><span class="nm">ねこファースト</span><span class="hd">@nekofirst.life</span></li>
         <li><span class="nm">こじら</span><span class="hd">@kojira.io</span></li>
-        <li class="divider">休 憩</li>
         <li><span class="nm">うかわ</span><span class="hd"></span></li>
         <li><span class="nm">しのさん</span><span class="hd">@shino3.net</span></li>
         <li><span class="nm">Nobuhide_Tsuda</span><span class="hd">@vivisuke.bsky.social</span></li>
