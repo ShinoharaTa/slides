@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ステージ</title>
+<style>
+  /* =========================================================
+     ステージ: 複数のデッキを 1 つの画面で切り替えて投影する
+       stage.html?d=decks/a/slide.html,decks/b/slide.html
+     ・各デッキを iframe で持ち、表示を切り替えるだけなので全画面が解除されない
+     ・キー 1〜9 でデッキ切り替え。それ以外のキーは表示中のデッキへ転送
+     ・「発表者」で stage.html#presenter を別ウィンドウに開く。デッキも一緒に切り替わる
+     ========================================================= */
+  html, body { margin: 0; height: 100%; background: #0b1426; overflow: hidden;
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #fff; }
+  .stage { position: fixed; inset: 0; }
+  .stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: none; background: #0b1426; }
+  .stage iframe.active { display: block; }
+
+  /* デッキ切り替えのバー。投影側では薄くしておき、触ると出る */
+  .bar {
+    position: fixed; left: 16px; bottom: 16px; z-index: 10;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    background: rgba(11, 20, 38, 0.92); backdrop-filter: blur(10px);
+    padding: 8px 12px; border-radius: 999px; font-size: 13px;
+    opacity: 0.15; transition: opacity 0.2s;
+  }
+  .bar:hover { opacity: 1; }
+  body.presenter .bar { opacity: 1; bottom: auto; top: 12px; }
+  .bar button {
+    font: inherit; font-size: 13px; color: #fff; background: rgba(255,255,255,0.12);
+    border: none; border-radius: 999px; padding: 6px 12px; cursor: pointer; white-space: nowrap;
+  }
+  .bar button:hover { background: rgba(255,255,255,0.26); }
+  .bar button.tab.on { background: #1083fe; }
+  .bar button.tab b { opacity: 0.6; margin-right: 6px; font-weight: 700; }
+  .bar .sep { width: 1px; height: 18px; background: rgba(255,255,255,0.25); }
+  .bar .hint { opacity: 0.6; padding: 0 4px; }
+
+  .usage { max-width: 720px; margin: 80px auto; padding: 0 24px; font-size: 16px; line-height: 1.9; }
+  .usage code { background: rgba(255,255,255,0.12); padding: 2px 6px; border-radius: 4px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage"></div>
+<div class="bar" id="bar"></div>
+
+<script>
+  const isPresenter = location.hash === '#presenter';
+  const decks = (new URLSearchParams(location.search).get('d') || '')
+    .split(',').map((s) => s.trim()).filter(Boolean);
+
+  const stageEl = document.getElementById('stage');
+  const bar = document.getElementById('bar');
+
+  if (!decks.length) {
+    stageEl.innerHTML = '<div class="usage"><b>stage.html</b> は複数のデッキを 1 画面で切り替えて投影するページです。<br>'
+      + 'URL の <code>?d=</code> にデッキのパスをカンマ区切りで渡してください。<br><br>'
+      + '<code>stage.html?d=decks/2026-09-bluesky-meetup/mc/slide.html,decks/2026-09-bluesky-meetup/lt/slide.html</code><br><br>'
+      + 'index.html の各イベントに「まとめて投影」のリンクがあります。</div>';
+    bar.hidden = true;
+  }
+
+  // ---- iframe を並べる ----
+  const frames = decks.map((src) => {
+    const f = document.createElement('iframe');
+    f.src = src + (isPresenter ? '#presenter' : '');
+    f.addEventListener('load', () => f.contentWindow.postMessage({ type: 'hello' }, '*'));
+    stageEl.appendChild(f);
+    return f;
+  });
+  const titles = decks.map((d) => d.split('/').slice(-2, -1)[0] || d);
+  let active = 0;
+  let presenterWin = null;
+  if (isPresenter) document.body.classList.add('presenter');
+
+  function renderBar() {
+    if (!frames.length) return;
+    bar.innerHTML = '';
+    frames.forEach((f, i) => {
+      const b = document.createElement('button');
+      b.className = 'tab' + (i === active ? ' on' : '');
+      b.innerHTML = `<b>${i + 1}</b>${titles[i]}`;
+      b.addEventListener('click', () => switchTo(i, true));
+      bar.appendChild(b);
+    });
+    const sep = document.createElement('span'); sep.className = 'sep'; bar.appendChild(sep);
+    if (!isPresenter) {
+      const fs = document.createElement('button'); fs.textContent = '全画面'; fs.title = 'Shift+F';
+      fs.addEventListener('click', enterFullscreen); bar.appendChild(fs);
+      const pv = document.createElement('button'); pv.textContent = '発表者'; pv.title = 'P';
+      pv.addEventListener('click', openPresenter); bar.appendChild(pv);
+    }
+    const hint = document.createElement('span'); hint.className = 'hint'; hint.textContent = '1〜9 で切り替え';
+    bar.appendChild(hint);
+  }
+
+  // デッキを切り替える。投影側で切り替えたら発表者側にも伝える
+  function switchTo(i, tell) {
+    if (i < 0 || i >= frames.length) return;
+    active = i;
+    frames.forEach((f, j) => f.classList.toggle('active', j === i));
+    renderBar();
+    if (isPresenter) { if (tell) send({ type: 'key', key: String(i + 1) }); return; }
+    frames[i].contentWindow.postMessage({ type: 'hello' }, '*');   // 状態を送り直させる
+    if (presenterWin && !presenterWin.closed) presenterWin.postMessage({ type: 'switch', deck: i }, '*');
+  }
+
+  function send(msg) { if (window.opener) window.opener.postMessage(msg, '*'); }
+
+  // 投影側でのキー処理。数字はデッキ切り替え、それ以外は表示中のデッキへ
+  function handleKey(key, shift) {
+    const d = parseInt(key, 10);
+    if (!isNaN(d) && String(d) === key && d >= 1 && d <= frames.length) { switchTo(d - 1); return; }
+    const k = key.toLowerCase();
+    if (k === 'f' && shift) { enterFullscreen(); return; }
+    if (k === 'p') { openPresenter(); return; }
+    frames[active].contentWindow.postMessage({ type: 'key', key, shiftKey: !!shift }, '*');
+  }
+
+  function enterFullscreen() {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+  }
+  function openPresenter() {
+    presenterWin = window.open(location.href.split('#')[0] + '#presenter', 'stage-presenter', 'width=1100,height=680');
+    if (!presenterWin) alert('ポップアップがブロックされました。許可してからもう一度押してください。');
+  }
+
+  window.addEventListener('message', (e) => {
+    const m = e.data || {};
+    const idx = frames.findIndex((f) => f.contentWindow === e.source);
+    if (idx >= 0) {
+      // 自分の iframe から
+      if (m.type === 'state') {
+        if (m.title) titles[idx] = m.title.split(' - ')[0];
+        renderBar();
+        if (!isPresenter && presenterWin && !presenterWin.closed) {
+          presenterWin.postMessage({ type: 'titles', titles }, '*');
+          if (idx === active) presenterWin.postMessage(Object.assign({}, m, { deck: idx }), '*');
+        }
+      } else if (m.type === 'key') {
+        // iframe 内にフォーカスがあるときのキー。投影側なら自分で処理、発表者側なら投影側へ
+        if (isPresenter) send(m); else handleKey(m.key, m.shiftKey);
+      } else if (isPresenter && m.type === 'hello') {
+        send(m);
+      }
+      return;
+    }
+    if (!isPresenter) {
+      // 発表者ウィンドウから
+      if (m.type === 'hello') {
+        presenterWin = e.source;
+        presenterWin.postMessage({ type: 'titles', titles }, '*');
+        presenterWin.postMessage({ type: 'switch', deck: active }, '*');
+        frames[active].contentWindow.postMessage({ type: 'hello' }, '*');
+      }
+      else if (m.type === 'key') handleKey(m.key, m.shiftKey);
+    } else {
+      // 投影側（opener）から
+      if (m.type === 'switch') switchTo(m.deck, false);
+      else if (m.type === 'titles') { m.titles.forEach((t, i) => { titles[i] = t; }); renderBar(); }
+      else if (m.type === 'state') {
+        if (m.deck != null && m.deck !== active) switchTo(m.deck, false);
+        frames[active].contentWindow.postMessage(m, '*');
+      }
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (['ArrowRight', 'ArrowLeft', ' ', 'PageDown', 'PageUp'].includes(e.key)) e.preventDefault();
+    if (isPresenter) { send({ type: 'key', key: e.key, shiftKey: e.shiftKey }); return; }
+    handleKey(e.key, e.shiftKey);
+  });
+
+  if (frames.length) switchTo(0, false);
+  if (isPresenter) send({ type: 'hello' });
+</script>
+
+</body>
+</html>
