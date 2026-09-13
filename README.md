@@ -7,6 +7,7 @@
 
 ```
 .
+├── index.html                    # 各スライドへのリンク一覧（入口）
 ├── template/                     # 雛形。ここを複製して新しいスライドを作る
 │   ├── slide.html
 │   └── images/placeholder.svg
@@ -41,6 +42,9 @@ mkdir decks/2026-10-example-conf
 cp -r template decks/2026-10-example-conf/mc
 cp -r template decks/2026-10-example-conf/lt
 ```
+
+作ったら **`index.html` に 1 項目足す**。`<!-- ▼スライドを足したら -->` のコメントの下に
+`<li>` を 1 つコピーして、リンク先・役割・名前・枚数・説明を書き換えるだけ。
 
 あとは `decks/2026-10-example-conf/slide.html` を編集するだけ。編集ポイントには
 `<!-- ▼差し替え -->` のコメントが付いているので、そこを順に埋めていく。
