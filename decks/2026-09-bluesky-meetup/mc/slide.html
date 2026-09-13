@@ -3,29 +3,29 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<!-- ▼差し替え: ブラウザのタブとPDFのファイル名になる -->
-<title>司会進行 - Bluesky Meetup 2026-09</title>
+<title>会場投影 - Bluesky Meetup in Fukuoka vol.3</title>
 <style>
   /* =========================================================
-     テーマ（ここだけ変えれば全体の配色が変わる）
+     会場サイネージ兼 MC 進行スライド
+     ・後方の席から読めることが最優先。文字は大きく、情報は最小限
+     ・数分〜数十分は表示しっぱなしになる前提で余白を大きく取る
+     ・個別セッションは時刻を出さず NOW で運用する（進行が前後しても破綻しない）
      ========================================================= */
   :root {
-    --s: 1;                   /* スライドの表示倍率。JS が上書きする */
-    /* ▼差し替え: アクセントカラー。3つとも同系色で揃える */
-    --accent: #1083fe;        /* 見出し・アイコン・強調 */
-    --accent-dark: #0a6cd6;   /* ボタンのホバー */
-    --accent-soft: #e7f1ff;   /* 淡い背景 */
+    --s: 1;                    /* スライドの表示倍率。JS が上書きする */
 
-    --ink: #0b1426;           /* 本文の濃い文字 */
-    --ink-soft: #4a5568;      /* 本文のやや薄い文字 */
-    --muted: #6b7280;
+    --sky: #2f9bff;            /* アクセント: 水色寄りの青 */
+    --sky-deep: #1668c8;
+    --sky-soft: #e8f3ff;
+    --deep: #0b3a6f;           /* 見出しの濃い青 */
+    --ink: #12263f;
+    --ink-soft: #44586f;
+    --muted: #7b8ca1;
+    --curry: #d9701c;          /* 懇親会・カレーの暖色。終盤の3枚だけに使う */
+    --curry-soft: #fdf3e8;
+    --line: #cfe0f2;
     --bg: #ffffff;
-    --bg-grad: linear-gradient(135deg, #ffffff 0%, #f0f6ff 100%); /* スライドの地 */
-    --card-bg: #f8fafc;
-    --card-border: #e2e8f0;
-    --code-bg: #0f172a;
-    --code-ink: #e2e8f0;
-    --shadow: 0 10px 30px rgba(16, 131, 254, 0.08), 0 2px 6px rgba(0,0,0,0.04);
+    --bg-grad: linear-gradient(160deg, #ffffff 0%, #eaf4ff 100%);
   }
 
   * { box-sizing: border-box; }
@@ -34,20 +34,19 @@
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    -webkit-text-size-adjust: 100%;   /* iOS の文字自動拡大を止める */
+    -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     color: var(--ink);
-    background: #eef2f7;
+    background: #dfe8f2;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* =========================================================
-     デッキのレイアウト
-     .slide は 16:9 の箱。container-type: inline-size により
-     文字サイズの cqi 指定がスライド幅に追従する（= 拡大縮小しても崩れない）
-     ========================================================= */
+  /* ---- デッキ ----
+     .frame は JS が各 .slide を包む普通のブロック。位置決めは .frame に任せ、
+     中の .slide は常に 1280x720 のまま transform で縮小する。
+     こうすると端末の文字サイズ設定や自動拡大に左右されない */
   .deck {
     display: flex;
     flex-direction: column;
@@ -55,10 +54,6 @@
     gap: 24px;
     padding: 32px 16px 100px;
   }
-
-  /* .frame は JS が各 .slide を包む普通のブロック。幅は画面に合わせて縮み、
-     中の .slide は 1280x720 のまま .frame の幅に合わせて transform で縮小される。
-     位置決めは .frame（通常のレイアウト）に任せるのでズレる余地がない */
   .frame {
     width: min(1280px, 100%);
     aspect-ratio: 16 / 9;
@@ -66,456 +61,242 @@
     flex: none;
   }
   .slide {
-    /* 常に 1280x720 でレイアウトし、画面に収まるよう丸ごと縮小する。
-       文字サイズが端末の最小フォント設定や自動拡大に左右されないための方式 */
     width: 1280px;
     height: 720px;
-    /* 倍率 --s は :root に既定値 1 があり、末尾の JS（fitScale）が .frame の実測幅から
-       上書きする。ここ（.slide 自身）に --s を書くと JS の値より優先されるので書かないこと */
     transform: scale(var(--s));
     transform-origin: top left;
-    background: var(--bg-grad);
-    border-radius: 16px;
-    box-shadow: var(--shadow);
     position: absolute;
     top: 0;
     left: 0;
     overflow: hidden;
-    padding: 6% 7%;
-    display: flex;
-    flex-direction: column;
-    container-type: inline-size;
-  }
-
-  /* ---- 共通パーツ ---- */
-  h1.title {
-    font-size: min(5.2cqi, 72px);
-    font-weight: 900;
-    letter-spacing: -0.01em;
-    line-height: 1.2;
-    margin: 0 0 24px;
-    color: var(--ink);
-  }
-  h1.title.center { text-align: center; }
-
-  h2.section-title {
-    font-size: min(3.3cqi, 44px);
-    font-weight: 900;
-    margin: 0 0 28px;
-    color: var(--ink);
-  }
-
-  .accent, .highlight { color: var(--accent); }
-  .highlight { font-weight: 800; }
-
-  .subtitle {
-    font-size: min(1.8cqi, 24px);
-    color: var(--ink-soft);
-    text-align: center;
-    font-weight: 700;
-  }
-
-  .divider {
-    width: 64px;
-    height: 4px;
-    background: var(--accent);
-    border-radius: 2px;
-    margin: 0 auto 28px;
-  }
-
-  .body {
-    font-size: min(1.7cqi, 22px);
-    color: var(--ink-soft);
-    line-height: 1.9;
-  }
-
-  /* ---- 種別: cover（表紙） ---- */
-  .slide.cover {
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-  .slide.cover h1.title {
-    font-size: min(8cqi, 116px);
-    margin-bottom: 28px;
-  }
-  .slide.cover .subtitle { font-size: min(2.6cqi, 36px); }
-
-  /* ---- 種別: statement（セクション扉／大きな問いかけ） ---- */
-  .slide.statement {
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-  .slide.statement .body { max-width: 70%; }
-
-  /* ---- 背景写真（cover / quote などに重ねる） ---- */
-  .slide.has-bg-photo > .bg-photo {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    z-index: 0;
-    pointer-events: none;
-  }
-  .slide.has-bg-photo > .bg-photo::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    /* 白いベールを重ねて文字を読めるようにする。濃さはここで調整 */
-    background: linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(240,246,255,0.55) 100%);
-  }
-  .slide.has-bg-photo > *:not(.bg-photo) {
-    position: relative;
-    z-index: 2;
-  }
-  .slide.has-bg-photo .bg-photo { opacity: 0.55; }
-  /* 写真の上でも文字が沈まないよう、白いハロを敷く */
-  .slide.has-bg-photo .title,
-  .slide.has-bg-photo .subtitle,
-  .slide.has-bg-photo .section-title,
-  .slide.has-bg-photo .quote-text,
-  .slide.has-bg-photo .quote-attribution {
-    text-shadow:
-      0 0 14px rgba(255,255,255,0.95),
-      0 0 28px rgba(255,255,255,0.75),
-      0 1px 2px rgba(0,0,0,0.05);
-  }
-
-  /* ---- 種別: 2カラム（本文 + 画像 / 箇条書き + 画像） ---- */
-  .two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5%;
-    flex: 1;
-    align-items: center;
-  }
-  .col-text h3 {
-    color: var(--accent);
-    font-size: min(2.1cqi, 28px);
-    font-weight: 800;
-    margin: 0 0 18px;
-  }
-  .col-text p {
-    font-size: min(1.55cqi, 20px);
-    line-height: 1.85;
-    color: var(--ink-soft);
-    margin: 0 0 14px;
-  }
-  /* スライドに置く画像の標準形。src を差し替えるだけで収まる */
-  .slide-img {
-    width: 100%;
-    aspect-ratio: 3 / 2;   /* 縦横比を固定し、はみ出しは cover で切り取る */
-    max-height: 36cqi;     /* スライドの高さを超えないための上限 */
-    object-fit: cover;
-    object-position: center;
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    display: block;
-  }
-  /* 画像がまだ無いとき用のグレーの箱 */
-  .img-placeholder {
-    background: #e5e7eb;
-    border-radius: 12px;
-    aspect-ratio: 3 / 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #9ca3af;
-    font-size: min(4cqi, 52px);
-    font-weight: 700;
-  }
-
-  /* ---- 種別: 箇条書き ---- */
-  .bullets {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-  .bullets li {
-    display: grid;
-    grid-template-columns: 16px 1fr;
-    gap: 16px;
-    align-items: start;
-    font-size: min(1.5cqi, 19px);
-    line-height: 1.8;
-    color: var(--ink-soft);
-  }
-  .bullets li::before {
-    content: "";
-    display: block;
-    width: 14px;
-    height: 14px;
-    background: var(--accent);
-    border-radius: 2px;
-    margin-top: 0.4em;
-  }
-
-  /* ---- 種別: 目次（番号つき） ---- */
-  .agenda {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 20px;
-    counter-reset: agenda;
-  }
-  .agenda li {
-    counter-increment: agenda;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 22px;
-    align-items: baseline;
-    font-size: min(2cqi, 28px);
-    font-weight: 700;
-    color: var(--ink);
-    border-bottom: 1px solid var(--card-border);
-    padding-bottom: 16px;
-  }
-  .agenda li::before {
-    content: counter(agenda, decimal-leading-zero);
-    color: var(--accent);
-    font-weight: 900;
-    font-variant-numeric: tabular-nums;
-  }
-  .agenda li .note {
-    display: block;
-    font-size: 0.62em;
-    font-weight: 600;
-    color: var(--muted);
-    margin-top: 6px;
-  }
-
-  /* ---- 種別: カード（3枚 / 2枚） ---- */
-  .cards-3 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 28px;
-    flex: 1;
-    align-content: center;
-  }
-  .cards-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    flex: 1;
-    align-content: center;
-  }
-  .card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 14px;
-    padding: 28px 26px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .card .icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: 900;
-  }
-  .card .icon.outline {
-    background: transparent;
-    color: var(--accent);
-  }
-  .card h3 {
-    font-size: min(1.9cqi, 24px);
-    margin: 0;
-    color: var(--ink);
-    font-weight: 800;
-  }
-  .card p {
-    font-size: min(1.35cqi, 17px);
-    color: var(--ink-soft);
-    line-height: 1.8;
-    margin: 0;
-  }
-  /* 比較スライド用: 上辺にアクセントの線 */
-  .card.bordered-top {
-    border-top: 4px solid var(--accent);
-    padding-top: 28px;
-  }
-  .card.bordered-top h3 {
-    color: var(--accent);
-    margin-bottom: 14px;
-  }
-
-  /* ---- 種別: 引用 ---- */
-  .slide.quote-slide { justify-content: flex-start; }
-  .quote-block {
-    flex: 1;
+    background: var(--bg-grad);
+    border: 1px solid var(--line);
+    padding: 64px 88px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 0 8%;
   }
-  .quote-wrap {
-    position: relative;
-    display: inline-block;
-    padding: 0 6cqi;
-    margin-bottom: 24px;
-  }
-  .quote-text {
-    font-size: min(3.5cqi, 46px);
-    font-weight: 800;
-    line-height: 1.55;
-    margin: 0;
-    color: var(--ink);
-  }
-  .quote-mark {
-    color: var(--accent);
-    font-size: min(6cqi, 80px);
-    line-height: 1;
-    opacity: 0.55;
-    font-family: Georgia, serif;
-    position: absolute;
-  }
-  .quote-mark.open { top: -0.2em; left: 0; }
-  .quote-mark.close { bottom: -0.55em; right: 0; }
-  .quote-attribution {
-    color: var(--accent);
-    font-weight: 700;
-    font-size: min(1.65cqi, 22px);
-  }
-
-  /* ---- 種別: コード ---- */
-  .code-block {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 0;
-  }
-  .code-block pre {
-    background: var(--code-bg);
-    color: var(--code-ink);
-    border-radius: 12px;
-    padding: 3.2cqi 3.6cqi;
-    margin: 0;
-    overflow: auto;
-    box-shadow: var(--shadow);
-    max-height: 100%;
-  }
-  .code-block code {
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-    font-size: min(1.45cqi, 19px);
-    line-height: 1.75;
-    white-space: pre;
-    tab-size: 2;
-  }
-  .code-caption {
-    font-size: min(1.3cqi, 17px);
-    color: var(--muted);
-    margin: 14px 0 0;
-  }
-  /* インラインのコード片 */
-  code.inline {
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-    background: var(--accent-soft);
-    color: var(--accent-dark);
-    border-radius: 5px;
-    padding: 0.1em 0.4em;
-    font-size: 0.92em;
-  }
-
-  /* ---- 種別: 額縁メッセージ ---- */
-  .frame-card {
-    flex: 1;
-    align-self: center;
-    width: 92%;
-    margin: auto;
-    background: #ffffff;
-    border-radius: 18px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    padding: 6% 7%;
-    text-align: center;
-  }
-  .frame-card h2 {
-    font-size: min(3.7cqi, 48px);
-    font-weight: 900;
-    margin: 0 0 22px;
-  }
-  .frame-card p {
-    font-size: min(1.55cqi, 20px);
-    line-height: 1.9;
-    margin: 10px 0;
-    color: var(--ink-soft);
-  }
-
-  /* ---- 種別: 大きな一言 + 補足 ---- */
-  .split-hero {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5%;
-    flex: 1;
-    align-items: center;
-    padding: 0 2%;
-  }
-  .split-hero .hero-left {
-    text-align: center;
-    border-right: 2px solid #d1d5db;
-    padding-right: 5%;
-  }
-  .hero-word {
-    font-size: min(9cqi, 140px);
-    font-weight: 900;
-    color: var(--accent);
-    line-height: 0.95;
-    letter-spacing: -0.02em;
-  }
-  .hero-sub {
-    font-size: min(2.3cqi, 30px);
-    font-weight: 800;
-    margin-top: 12px;
-    color: var(--ink);
-  }
-  .split-hero .hero-right h3 {
-    color: var(--accent);
-    font-weight: 800;
-    font-size: min(2cqi, 26px);
-    margin: 0 0 16px;
-  }
-  .split-hero .hero-right p {
-    font-size: min(1.5cqi, 19px);
-    line-height: 1.85;
-    color: var(--ink-soft);
-    margin: 0 0 12px;
-  }
-
-  /* ---- 種別: 締め ---- */
-  .slide.final {
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-  .slide.final .body { font-weight: 700; line-height: 2.1; }
 
   /* =========================================================
-     ツールバー（印刷時は消える）
+     状態バッジ（NOW / NEXT / BREAK / PLEASE WAIT）
+     遠くからでも「いま何をしているか」が分かるようにする
+     ========================================================= */
+  .badge {
+    display: inline-block;
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    text-indent: 0.2em;
+    padding: 12px 36px;
+    border-radius: 999px;
+    line-height: 1;
+    margin-bottom: 56px;
+  }
+  .badge.now   { background: var(--sky); color: #fff; }
+  .badge.next  { background: transparent; color: var(--sky-deep); border: 4px solid var(--sky); padding: 8px 32px; }
+  .badge.break { background: var(--deep); color: #fff; }
+  .badge.wait  { background: transparent; color: var(--deep); border: 4px solid var(--deep); padding: 8px 32px; }
+  .badge.curry { background: var(--curry); color: #fff; }
+
+  /* =========================================================
+     セッションスライドの中身
+     ========================================================= */
+  .session-title {
+    font-size: 84px;
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin: 0;
+  }
+  .session-title.sm { font-size: 68px; }      /* 文字数が多いとき */
+  .speaker {
+    margin-top: 52px;
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--deep);
+    line-height: 1.3;
+  }
+  .handle {
+    margin-top: 14px;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--sky-deep);
+    letter-spacing: 0.01em;
+  }
+
+  /* 常時表示するイベント名（下部・小さく） */
+  .stamp {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 30px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  /* =========================================================
+     個別のスライド
+     ========================================================= */
+  /* 1. 開場待ち */
+  .event-title {
+    font-size: 100px;
+    font-weight: 900;
+    line-height: 1.18;
+    letter-spacing: -0.015em;
+    color: var(--deep);
+    margin: 0;
+  }
+  .event-title .fk { color: var(--sky); }
+  .event-meta {
+    margin-top: 36px;
+    font-size: 38px;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .rule {
+    width: 120px;
+    height: 6px;
+    background: var(--sky);
+    border-radius: 3px;
+    margin: 64px auto;
+  }
+  .start-time {
+    font-size: 64px;
+    font-weight: 900;
+    color: var(--sky-deep);
+    letter-spacing: 0.04em;
+  }
+  .wait-note {
+    margin-top: 20px;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  /* 2. Welcome */
+  .kicker {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    line-height: 1.35;
+  }
+  .shout {
+    font-size: 168px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--sky);
+    margin: 28px 0 0;
+  }
+  .mc-block { margin-top: 64px; }
+  .mc-label {
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 0.22em;
+    text-indent: 0.22em;
+    color: var(--muted);
+  }
+  .mc-name {
+    margin-top: 12px;
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--deep);
+  }
+  .mc-handle {
+    margin-top: 8px;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--sky-deep);
+  }
+
+  /* 3. 今日の流れ（細かい時刻ではなく大きなブロックで示す） */
+  .flow { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .fb {
+    font-size: 52px;
+    font-weight: 800;
+    color: var(--deep);
+    line-height: 1.2;
+  }
+  .fb.hero {
+    font-size: 72px;
+    font-weight: 900;
+    color: var(--curry);
+    letter-spacing: 0.01em;
+  }
+  .fb-arrow { font-size: 34px; line-height: 1.1; color: var(--sky); }
+  .flow-note {
+    margin-top: 44px;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  /* 9. 休憩 */
+  .break-word {
+    font-size: 180px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: var(--deep);
+  }
+  .break-ja {
+    margin-top: 20px;
+    font-size: 56px;
+    font-weight: 900;
+    color: var(--ink);
+  }
+  .break-resume {
+    margin-top: 48px;
+    font-size: 44px;
+    font-weight: 800;
+    color: var(--sky-deep);
+  }
+
+  /* 13-15. 懇親会・カレー（暖色を使うのはこの3枚だけ） */
+  .slide.warm { background: linear-gradient(160deg, #ffffff 0%, var(--curry-soft) 100%); }
+  .slide.warm .session-title { color: var(--ink); }
+  .curry-lead {
+    margin-top: 40px;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--curry);
+  }
+  .curry-name {
+    margin-top: 26px;
+    font-size: 44px;
+    font-weight: 900;
+    color: var(--ink);
+    line-height: 1.35;
+  }
+  .curry-note {
+    margin-top: 40px;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  /* 17. 少々お待ちください（赤は使わず、通常のイベントカラーのまま） */
+  .wait-word {
+    font-size: 96px;
+    font-weight: 900;
+    line-height: 1.15;
+    color: var(--deep);
+  }
+
+  /* =========================================================
+     ツールバー（投影中は薄くなる）・印刷
      ========================================================= */
   .toolbar {
     position: fixed;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(11, 20, 38, 0.92);
+    background: rgba(11, 58, 111, 0.92);
     backdrop-filter: blur(10px);
     color: white;
     padding: 10px 16px;
@@ -523,12 +304,12 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
     z-index: 100;
     font-size: 14px;
+    white-space: nowrap;
   }
   .toolbar button {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.12);
     color: white;
     border: none;
     padding: 8px 14px;
@@ -536,56 +317,32 @@
     cursor: pointer;
     font-size: 13px;
     font-family: inherit;
-    transition: background 0.15s;
+    white-space: nowrap;
   }
-  .toolbar button:hover { background: rgba(255,255,255,0.22); }
-  .toolbar button.primary { background: var(--accent); }
-  .toolbar button.primary:hover { background: var(--accent-dark); }
-  /* left:50% 配置は狭い画面で利用可能幅が半分と計算されるので、折り返しを禁止する */
-  .toolbar, .toolbar button { white-space: nowrap; }
+  .toolbar button:hover { background: rgba(255,255,255,0.26); }
+  .toolbar button.primary { background: var(--sky); }
+  .toolbar .counter { min-width: 50px; text-align: center; font-variant-numeric: tabular-nums; }
   @media (max-width: 640px) {
     .toolbar { bottom: 10px; padding: 6px 10px; gap: 8px; font-size: 12px; }
     .toolbar button { padding: 6px 10px; font-size: 12px; }
   }
-  .toolbar .counter {
-    min-width: 50px;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-  }
 
-  /* プレゼンモード（1枚ずつ全画面表示） */
-  body.present {
-    background: #0b1426;
-    overflow: hidden;
-  }
-  body.present .deck {
-    padding: 0;
-    height: 100vh;
-    justify-content: center;
-  }
+  body.present { background: #0b1c2e; overflow: hidden; }
+  body.present .deck { padding: 0; height: 100vh; justify-content: center; }
   body.present .frame {
     display: none;
     width: min(100vw, calc(100vh * 16 / 9));
   }
   body.present .frame.active { display: block; }
-  body.present .slide {
-    border-radius: 0;
-  }
+  body.present .slide { border: none; }
+  body.present .toolbar { opacity: 0.1; transition: opacity 0.2s; }
+  body.present .toolbar:hover { opacity: 1; }
 
-  /* =========================================================
-     印刷（= PDF出力）。1スライド = 1ページ
-     ========================================================= */
   @media print {
-    @page {
-      size: landscape;
-      margin: 0;
-    }
+    @page { size: landscape; margin: 0; }
     html, body { background: #fff; }
     .toolbar { display: none !important; }
-    .deck {
-      padding: 0;
-      gap: 0;
-    }
+    .deck { padding: 0; gap: 0; }
     .frame {
       width: 1280px;
       height: 720px;
@@ -594,163 +351,184 @@
       break-after: page;
     }
     .frame:last-child { page-break-after: auto; }
-    .slide {
-      transform: none;
-      border-radius: 0;
-      box-shadow: none;
-      page-break-after: always;
-      break-after: page;
-      margin: 0;
-    }
-    .slide:last-child { page-break-after: auto; }
+    .slide { transform: none; border: none; }
   }
 </style>
 </head>
 <body>
 
 <!-- =============================================================
-     スライド本体
-     ・1枚 = <section class="slide" data-slide="N">
-     ・順番は書いた順。data-slide は目印なので通し番号を振り直すだけでよい
-       （枚数のカウントは JS が自動でやるので total を直す必要はない）
-     ・不要な種別のスライドはセクションごと削除してよい
-     ・「▼差し替え」と書いてある箇所が編集ポイント
+     スライドの順番は当日の進行どおり。
+     各セッションは独立したスライドなので、順番が入れ替わっても
+     そのスライドだけ出せばよい（時刻は出していない）。
+
+     ■ ショートカット（プレゼンモード中も効く）
+        →/Space 次    ←  前    F プレゼンモード    Esc 戻る
+        N … NEXT（進行調整用）   W … 少々お待ちください   B … 休憩
      ============================================================= -->
 <div class="deck" id="deck">
 
-  <!-- ========== 1. 表紙（開場中はこれを出しておく） ========== -->
-  <section class="slide cover" data-slide="1">
-    <!-- 会場写真を敷くなら class に has-bg-photo を足して下の行を有効化 -->
-    <!-- <div class="bg-photo" style="background-image: url('images/venue.jpg');"></div> -->
-    <h1 class="title center">Bluesky <span class="accent">Meetup</span></h1>
-    <!-- ▼差し替え: 会場名を入れる -->
-    <p class="subtitle">2026-09-12 / 会場名</p>
+  <!-- ========== 1. 開場待ち（13:40〜14:00 表示しっぱなし） ========== -->
+  <section class="slide" data-slide="1">
+    <h1 class="event-title">Bluesky Meetup<br>in <span class="fk">Fukuoka</span> vol.3</h1>
+    <p class="event-meta">2026.09.13 &nbsp;・&nbsp; おおはしラボ</p>
+    <div class="rule"></div>
+    <div class="start-time">14:00 START</div>
+    <p class="wait-note">開始までしばらくお待ちください</p>
   </section>
 
-  <!-- ========== 2. 開会のあいさつ ========== -->
-  <section class="slide statement" data-slide="2">
-    <h1 class="title center">ようこそ</h1>
-    <div class="divider"></div>
-    <p class="body">
-      <!-- ▼差し替え: 自己紹介と、今日の位置づけを一言 -->
-      本日の司会を務めます <span class="accent">@ハンドル</span> です。<br />
-      今日はよろしくお願いします。
-    </p>
+  <!-- ========== 2. Welcome（14:00 開始宣言） ========== -->
+  <section class="slide" data-slide="2">
+    <p class="kicker">Bluesky Meetup in Fukuoka vol.3</p>
+    <p class="shout">START!</p>
+    <div class="mc-block">
+      <div class="mc-label">MC</div>
+      <div class="mc-name">しのさん</div>
+      <div class="mc-handle">@shino3.net</div>
+    </div>
   </section>
 
-  <!-- ========== 3. タイムテーブル ========== -->
+  <!-- ========== 3. 今日の流れ ==========
+       時刻ではなく大きなブロックで示す。進行が前後しても破綻しない -->
   <section class="slide" data-slide="3">
-    <h2 class="section-title">本日のながれ</h2>
-    <ol class="agenda">
-      <!-- ▼差し替え: li を増減させる。.note に時刻を入れると読みやすい -->
-      <li>オープニング<span class="note">00:00 - 00:00</span></li>
-      <li>LT セッション<span class="note">00:00 - 00:00</span></li>
-      <li>休憩<span class="note">00:00 - 00:00</span></li>
-      <li>懇親・フリータイム<span class="note">00:00 - 00:00</span></li>
-      <li>クロージング<span class="note">00:00 - 00:00</span></li>
-    </ol>
+    <div class="flow">
+      <div class="fb">OPENING</div>
+      <div class="fb-arrow">↓</div>
+      <div class="fb">Bluesky / Meetup Reports</div>
+      <div class="fb-arrow">↓</div>
+      <div class="fb">Talks &amp; Contents</div>
+      <div class="fb-arrow">↓</div>
+      <div class="fb hero">CURRY &amp; MEETUP</div>
+    </div>
+    <p class="flow-note">15:50 頃 〜 懇親会</p>
+    <div class="stamp">Bluesky Meetup in Fukuoka vol.3</div>
   </section>
 
-  <!-- ========== 4. 会場のご案内 ========== -->
+  <!-- ========== 4. Bluesky社からのビデオレター ========== -->
   <section class="slide" data-slide="4">
-    <h2 class="section-title">会場のご案内</h2>
-    <div class="two-col">
-      <ul class="bullets">
-        <!-- ▼差し替え: 会場に合わせて書き換える。不要な行は消す -->
-        <li>お手洗いは〇〇にあります。</li>
-        <li>Wi-Fi は SSID <code class="inline">SSID</code> / パスワード <code class="inline">password</code>。</li>
-        <li>非常口は〇〇です。</li>
-        <li>飲食は〇〇でお願いします。ゴミは〇〇へ。</li>
-      </ul>
-      <!-- 会場マップや案内図があれば images/ に置いて差し替える -->
-      <div class="img-placeholder">MAP</div>
-    </div>
+    <span class="badge now">NOW</span>
+    <h2 class="session-title">Bluesky 社からの<br>ビデオレター</h2>
+    <div class="speaker">高野直子</div>
+    <div class="handle">@naoko.cc</div>
+    <div class="stamp">Bluesky Meetup in Fukuoka vol.3</div>
   </section>
 
-  <!-- ========== 5. お願いごと ========== -->
+  <!-- ========== 5. 東京・大阪 Meetup報告 ========== -->
   <section class="slide" data-slide="5">
-    <h2 class="section-title">3つのお願い</h2>
-    <div class="cards-3">
-      <div class="card">
-        <div class="icon" aria-hidden="true">#</div>
-        <h3>ハッシュタグ</h3>
-        <!-- ▼差し替え: 当日のタグ -->
-        <p>実況・感想は <strong>#ハッシュタグ</strong> でどうぞ。盛り上げていきましょう。</p>
-      </div>
-      <div class="card">
-        <div class="icon outline" aria-hidden="true">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h3l2-2h8l2 2h3v12H3z"/><circle cx="12" cy="13" r="3.5"/></svg>
-        </div>
-        <h3>写真・撮影</h3>
-        <p>会場の様子は撮影OKです。人が写る場合はひと声かけてください。</p>
-      </div>
-      <div class="card">
-        <div class="icon outline" aria-hidden="true">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.2 2.4c-.6.2-.7.6-.7 1.1v.5"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        </div>
-        <h3>困ったら</h3>
-        <p>スタッフまで気軽に声をかけてください。体調が悪くなったら無理せずどうぞ。</p>
-      </div>
-    </div>
+    <span class="badge now">NOW</span>
+    <h2 class="session-title">東京、大阪<br>ミートアップ報告</h2>
+    <div class="speaker">しのさん</div>
+    <div class="handle">@shino3.net</div>
+    <div class="stamp">Bluesky Meetup in Fukuoka vol.3</div>
   </section>
 
-  <!-- ========== 6. 登壇者紹介 ==========
-       このセクションを人数分コピーして並べる。
-       LTの合間に出すので、順番はタイムテーブル通りにしておく -->
+  <!-- ========== 6. 東京ハッカソン報告 ========== -->
   <section class="slide" data-slide="6">
-    <h2 class="section-title">LT #1</h2>
-    <div class="split-hero">
-      <div class="hero-left">
-        <!-- ▼差し替え: 登壇者のハンドル -->
-        <div class="hero-word" style="font-size: min(4.4cqi, 64px);">@handle</div>
-        <div class="hero-sub">登壇者名</div>
-      </div>
-      <div class="hero-right">
-        <!-- ▼差し替え: 発表タイトルと一言紹介 -->
-        <h3>発表タイトル</h3>
-        <p>紹介を1〜2行で。</p>
-      </div>
-    </div>
+    <span class="badge now">NOW</span>
+    <h2 class="session-title">東京ハッカソン報告</h2>
+    <div class="speaker">こじら</div>
+    <div class="handle">@kojira.io</div>
+    <div class="stamp">Bluesky Meetup in Fukuoka vol.3</div>
   </section>
 
-  <!-- ========== 7. 休憩（時刻を大きく出す） ========== -->
-  <section class="slide statement" data-slide="7">
-    <h1 class="title center">休憩</h1>
-    <div class="divider"></div>
-    <p class="body">
-      <!-- ▼差し替え: 再開時刻 -->
-      <span class="accent">00:00</span> に再開します。<br />
-      お手洗い・水分補給をどうぞ。
-    </p>
+  <!-- ========== 7. ねこファースト ==========
+       プログラムにセッションタイトルの記載が無いため、
+       「ねこファースト」をタイトルとして大きく出す -->
+  <section class="slide" data-slide="7">
+    <span class="badge now">NOW</span>
+    <h2 class="session-title">ねこファースト</h2>
+    <div class="handle" style="margin-top: 52px;">@nekofirst.life</div>
+    <div class="stamp">Bluesky Meetup in Fukuoka vol.3</div>
   </section>
 
-  <!-- ========== 8. 告知 ========== -->
+  <!-- ========== 8. あおぞらクエスト ========== -->
   <section class="slide" data-slide="8">
-    <h2 class="section-title">おしらせ</h2>
-    <div class="cards-2">
-      <div class="card bordered-top">
-        <!-- ▼差し替え: 不要なら section ごと削除 -->
-        <h3>次回のご案内</h3>
-        <p>日程・場所が決まっていれば書く。未定なら「決まり次第お知らせします」。</p>
-      </div>
-      <div class="card bordered-top">
-        <h3>アンケート</h3>
-        <p>フォームのURLやQRコードを置く場所。</p>
-      </div>
-    </div>
+    <span class="badge now">NOW</span>
+    <h2 class="session-title">あおぞらクエスト</h2>
+    <div class="speaker">こじら</div>
+    <div class="stamp">Bluesky Meetup in Fukuoka vol.3</div>
   </section>
 
-  <!-- ========== 9. クロージング ========== -->
-  <section class="slide final" data-slide="9">
-    <h1 class="title center">ありがとうございました</h1>
-    <div class="divider"></div>
-    <p class="body">
-      本日はご参加いただきありがとうございました。<br>
-      <!-- ▼差し替え -->
-      感想は <span class="highlight">#ハッシュタグ</span> で。
-    </p>
+  <!-- ========== 9. 休憩（長時間表示するので極力シンプルに） ========== -->
+  <section class="slide" data-slide="9" data-key="b">
+    <div class="break-word">BREAK</div>
+    <div class="break-ja">休憩</div>
+    <div class="break-resume">15:10 再開予定</div>
+    <p class="wait-note" style="margin-top: 44px;">後半もまだあります</p>
   </section>
 
+  <!-- ========== 10. おかんボット ========== -->
+  <section class="slide" data-slide="10">
+    <span class="badge now">NOW</span>
+    <h2 class="session-title sm">おかんボット3年目の失敗</h2>
+    <div class="speaker">うかわ</div>
+    <div class="stamp">Bluesky Meetup in Fukuoka vol.3</div>
+  </section>
+
+  <!-- ========== 11. しのさん ==========
+       タイトルはプログラムの記載をそのまま使う -->
+  <section class="slide" data-slide="11">
+    <span class="badge now">NOW</span>
+    <h2 class="session-title">なにか面白い事</h2>
+    <div class="speaker">しのさん</div>
+    <div class="handle">@shino3.net</div>
+    <div class="stamp">Bluesky Meetup in Fukuoka vol.3</div>
+  </section>
+
+  <!-- ========== 12. Nobuhide_Tsuda ==========
+       セッションタイトルが明示されていないため、勝手にタイトルは作らない -->
+  <section class="slide" data-slide="12">
+    <span class="badge now">NOW</span>
+    <h2 class="session-title">Nobuhide_Tsuda</h2>
+    <div class="handle" style="margin-top: 52px;">@vivisuke.bsky.social</div>
+    <div class="stamp">Bluesky Meetup in Fukuoka vol.3</div>
+  </section>
+
+  <!-- ========== 13. マサラキッチン ==========
+       ここから懇親会・カレーへの流れを感じさせるため暖色に切り替える -->
+  <section class="slide warm" data-slide="13">
+    <span class="badge curry">NOW</span>
+    <h2 class="session-title">マサラキッチン<br>店長みつじ</h2>
+    <div class="handle" style="margin-top: 44px; color: var(--curry);">@mitsuji.masalakitchen.jp</div>
+    <div class="stamp">Bluesky Meetup in Fukuoka vol.3</div>
+  </section>
+
+  <!-- ========== 14. 懇親会開始 ========== -->
+  <section class="slide warm" data-slide="14">
+    <p class="shout" style="color: var(--curry); font-size: 132px;">MEETUP TIME!</p>
+    <p class="curry-lead">そして、カレー。</p>
+    <p class="curry-name">ASO SPICE CURRY<br>マサラキッチン</p>
+    <p class="curry-note">参加者同士でぜひ交流してください</p>
+  </section>
+
+  <!-- ========== 15. 懇親会中の常時表示 ========== -->
+  <section class="slide warm" data-slide="15">
+    <h1 class="event-title" style="font-size: 76px;">Bluesky Meetup<br>in <span class="fk">Fukuoka</span> vol.3</h1>
+    <p class="shout" style="color: var(--curry); font-size: 116px; margin-top: 44px;">Thank you!</p>
+    <p class="curry-name" style="margin-top: 56px; font-size: 36px;">ASO SPICE CURRY　マサラキッチン</p>
+    <p class="curry-note" style="margin-top: 18px; font-size: 27px;">参加者同士でご自由に交流ください</p>
+  </section>
+
+  <!-- ========== 16. NEXT（進行調整用の汎用スライド） ==========
+       キーボードの N でいつでもここに飛べる。
+       ▼差し替え: 下の2箇所（タイトル・登壇者/ハンドル）だけ書き換えて使う -->
+  <section class="slide" data-slide="16" data-key="n">
+    <span class="badge next">NEXT</span>
+    <p class="kicker" style="font-size: 32px; color: var(--muted);">次のセッション</p>
+    <h2 class="session-title" style="margin-top: 28px;">セッションタイトル</h2>
+    <div class="speaker">登壇者名</div>
+    <div class="handle">@handle</div>
+    <div class="stamp">Bluesky Meetup in Fukuoka vol.3</div>
+  </section>
+
+  <!-- ========== 17. 少々お待ちください ==========
+       機材トラブル・登壇者の準備中に。キーボードの W で飛べる -->
+  <section class="slide" data-slide="17" data-key="w">
+    <span class="badge wait">PLEASE WAIT</span>
+    <div class="wait-word">少々お待ちください</div>
+    <p class="wait-note" style="margin-top: 36px; font-size: 34px;">準備中です</p>
+    <div class="stamp">Bluesky Meetup in Fukuoka vol.3</div>
+  </section>
 
 </div>
 
@@ -758,14 +536,13 @@
   <button id="prevBtn" title="前のスライド (←)">←</button>
   <span class="counter"><span id="curr">1</span> / <span id="total">1</span></span>
   <button id="nextBtn" title="次のスライド (→)">→</button>
-  <button id="presentBtn" title="プレゼンモード切替 (F)">プレゼン</button>
+  <button id="presentBtn" title="投影モード切替 (F)">投影</button>
   <button id="printBtn" class="primary" title="PDF出力 (Ctrl/Cmd+P)">PDF出力</button>
 </div>
 
 <script>
-  // スライドの枚数は DOM から数えるので、ページを増減しても手直し不要
   const slides = document.querySelectorAll('.slide');
-  // 各 .slide を .frame で包む（HTML 側は section を並べるだけでよい）
+  // 各 .slide を .frame で包む（位置決めを通常のレイアウトに任せるため）
   slides.forEach((s) => {
     const f = document.createElement('div');
     f.className = 'frame';
@@ -776,11 +553,24 @@
   const total = slides.length;
   document.getElementById('total').textContent = total;
 
+  // data-key を持つスライドはそのキーで直接呼び出せる（N=NEXT / W=待機 / B=休憩）
+  const jumpKeys = {};
+  slides.forEach((s, i) => {
+    const k = s.dataset.key;
+    if (k) jumpKeys[k.toLowerCase()] = i;
+  });
+
   let current = 0;
   let present = false;
 
   const currEl = document.getElementById('curr');
   const body = document.body;
+
+  function fitScale() {
+    const f = present ? frames[current] : frames[0];
+    const w = f.clientWidth;
+    if (w > 0) document.documentElement.style.setProperty('--s', w / 1280);
+  }
 
   function render() {
     if (present) {
@@ -790,13 +580,11 @@
     currEl.textContent = current + 1;
   }
 
-  // 現在ビューポートの中心にいちばん近いスライドの index
   function nearestSlide() {
     const mid = window.scrollY + window.innerHeight / 2;
-    let best = 0;
-    let bestDist = Infinity;
-    slides.forEach((s, i) => {
-      const rect = s.getBoundingClientRect();
+    let best = 0, bestDist = Infinity;
+    frames.forEach((f, i) => {
+      const rect = f.getBoundingClientRect();
       const center = rect.top + window.scrollY + rect.height / 2;
       const dist = Math.abs(center - mid);
       if (dist < bestDist) { bestDist = dist; best = i; }
@@ -804,32 +592,27 @@
     return best;
   }
 
-  function go(delta) {
-    current = Math.max(0, Math.min(total - 1, current + delta));
-    // スクロールモードのときは該当スライドまで送る
-    if (!present) {
-      frames[current].scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+  function goTo(i) {
+    current = Math.max(0, Math.min(total - 1, i));
+    if (!present) frames[current].scrollIntoView({ behavior: 'smooth', block: 'center' });
     render();
   }
+  function go(delta) { goTo(current + delta); }
 
   function togglePresent() {
     present = !present;
     body.classList.toggle('present', present);
-    // スクロールモードから入るときは、いま見ているスライドを開始位置にする
     if (present) current = nearestSlide();
     render();
   }
 
-  // スクロールモードでは、スクロールに追従してカウンタを更新する
   window.addEventListener('scroll', () => {
     if (present) return;
     const best = nearestSlide();
-    if (best !== current) {
-      current = best;
-      currEl.textContent = current + 1;
-    }
+    if (best !== current) { current = best; currEl.textContent = current + 1; }
   }, { passive: true });
+  window.addEventListener('resize', fitScale);
+  if (window.ResizeObserver) new ResizeObserver(fitScale).observe(frames[0]);
 
   document.getElementById('prevBtn').addEventListener('click', () => go(-1));
   document.getElementById('nextBtn').addEventListener('click', () => go(1));
@@ -837,25 +620,20 @@
   document.getElementById('printBtn').addEventListener('click', () => window.print());
 
   document.addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key.toLowerCase();
     if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
       e.preventDefault(); go(1);
     } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
       e.preventDefault(); go(-1);
-    } else if (e.key === 'f' || e.key === 'F') {
+    } else if (k === 'f') {
       togglePresent();
     } else if (e.key === 'Escape' && present) {
       togglePresent();
+    } else if (k in jumpKeys) {
+      e.preventDefault(); goTo(jumpKeys[k]);
     }
   });
-
-  // .frame の実測幅から倍率を決める。ビューポートの幅は一切見ない
-  function fitScale() {
-    const f = present ? frames[current] : frames[0];
-    const w = f.clientWidth;
-    if (w > 0) document.documentElement.style.setProperty('--s', w / 1280);
-  }
-  window.addEventListener('resize', fitScale);
-  if (window.ResizeObserver) new ResizeObserver(fitScale).observe(frames[0]);
 
   fitScale();
   render();
