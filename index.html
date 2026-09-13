@@ -56,6 +56,18 @@
     border-bottom: 1px solid var(--line);
   }
   h2 .when { color: var(--accent); }
+  h2 .stage-link {
+    float: right;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 999px;
+    padding: 4px 12px;
+    text-decoration: none;
+  }
+  h2 .stage-link:hover { background: var(--accent-deep); }
 
   .deck-list { list-style: none; margin: 0; padding: 0; }
   .deck-list li { margin-top: 12px; }
@@ -145,7 +157,8 @@
   </header>
 
   <!-- ▼スライドを足したら、ここに <li> を1行足す -->
-  <h2><span class="when">2026-09-13</span> ・ Bluesky Meetup in Fukuoka vol.3</h2>
+  <h2><span class="when">2026-09-13</span> ・ Bluesky Meetup in Fukuoka vol.3
+    <a class="stage-link" href="stage.html?d=decks/2026-09-bluesky-meetup/mc/slide.html,decks/2026-09-bluesky-meetup/report/slide.html,decks/2026-09-bluesky-meetup/lt/slide.html">▶ 3 本をまとめて投影（stage）</a></h2>
   <ul class="deck-list">
     <li>
       <a href="decks/2026-09-bluesky-meetup/mc/slide.html">

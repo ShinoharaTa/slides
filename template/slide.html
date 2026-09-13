@@ -583,6 +583,7 @@
   /* =========================================================
      印刷（= PDF出力）。1スライド = 1ページ
      ========================================================= */
+  body.embedded .toolbar { display: none; }   /* stage.html の中ではステージ側のバーを使う */
   /* ---- 発表者ビュー（#presenter 付きで開いた別ウィンドウ）---- */
   body.presenter { background: #0b1426; overflow: hidden; }
   body.presenter .deck {
@@ -880,8 +881,12 @@ greet("world");
   //    矢印キーは投影側と連動する（postMessage なので file:// でも動く）
   //  ・data-key="x" のスライドはキー x で直接呼べる
   //  ・[data-lineup] のリストは → で ● だけを進める（登壇順スライド用）
+  //  ・stage.html の iframe に入れられたときは投影モード固定になり、
+  //    キー操作はすべて親（ステージ）経由で受ける
   // =============================================================
   const isPresenter = location.hash === '#presenter';
+  const embedded = window.parent !== window;
+  const bus = window.opener || (embedded ? window.parent : null);   // 状態やキーを送る相手
 
   const slides = document.querySelectorAll('.slide');
   slides.forEach((s) => {
@@ -940,14 +945,14 @@ greet("world");
   }
 
   function goTo(i) {
-    if (isPresenter) { send({ type: 'goto', index: i }); return; }
+    if (isPresenter) return;
     current = Math.max(0, Math.min(total - 1, i));
     if (!present) frames[current].scrollIntoView({ behavior: 'smooth', block: 'center' });
     render();
   }
 
   function go(delta) {
-    if (isPresenter) { send({ type: 'go', delta }); return; }
+    if (isPresenter) return;
     // 登壇順リストの上にいるあいだは、スライドではなく ● を動かす
     const el = lineupOf(current);
     if (el) {
@@ -989,14 +994,18 @@ greet("world");
   function stateMsg() {
     return {
       type: 'state',
+      title: document.title,
       current,
+      total,
       lineups: [...document.querySelectorAll('[data-lineup]')].map((el) => el.dataset.idx),
     };
   }
   function broadcast() {
-    if (presenterWin && !presenterWin.closed) presenterWin.postMessage(stateMsg(), '*');
+    const m = stateMsg();
+    if (presenterWin && !presenterWin.closed) presenterWin.postMessage(m, '*');
+    if (embedded) window.parent.postMessage(m, '*');
   }
-  function send(msg) { if (window.opener) window.opener.postMessage(msg, '*'); }
+  function send(msg) { if (bus) bus.postMessage(msg, '*'); }
   function applyState(m) {
     current = m.current;
     document.querySelectorAll('[data-lineup]').forEach((el, i) => {
@@ -1007,9 +1016,8 @@ greet("world");
   window.addEventListener('message', (e) => {
     const m = e.data || {};
     if (isPresenter) { if (m.type === 'state') applyState(m); return; }
-    if (m.type === 'go') go(m.delta);
-    else if (m.type === 'goto') goTo(m.index);
-    else if (m.type === 'hello') { presenterWin = e.source; broadcast(); }
+    if (m.type === 'key') handleKey(m.key, !!m.shiftKey);
+    else if (m.type === 'hello') { if (!embedded) presenterWin = e.source; broadcast(); }
   });
 
   let panel = null, startedAt = Date.now();
@@ -1044,7 +1052,7 @@ greet("world");
   window.addEventListener('scroll', () => {
     if (present || isPresenter) return;
     const best = nearestSlide();
-    if (best !== current) { current = best; currEl.textContent = current + 1; broadcast(); }
+    if (best !== current) { current = best; currEl.textContent = current + 1; }
   }, { passive: true });
   window.addEventListener('resize', fitScale);
   if (window.ResizeObserver) { const ro = new ResizeObserver(fitScale); frames.forEach((f) => ro.observe(f)); }
@@ -1056,20 +1064,28 @@ greet("world");
   document.getElementById('presenterBtn').addEventListener('click', openPresenter);
   document.getElementById('printBtn').addEventListener('click', () => window.print());
 
-  document.addEventListener('keydown', (e) => {
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
-    const k = e.key.toLowerCase();
-    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); go(1); }
-    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(-1); }
-    else if (isPresenter) { if (k in jumpKeys) { e.preventDefault(); goTo(jumpKeys[k]); } }
-    else if (k === 'f' && e.shiftKey) enterFullscreen();
+  // キーの意味づけは 1 か所に。発表者ビューと iframe 内では自分で処理せず親へ送る
+  function handleKey(key, shift) {
+    const k = key.toLowerCase();
+    if (key === 'ArrowRight' || key === ' ' || key === 'PageDown') go(1);
+    else if (key === 'ArrowLeft' || key === 'PageUp') go(-1);
+    else if (k in jumpKeys) goTo(jumpKeys[k]);
+    else if (embedded) return;                       // F / P / Esc はステージ側が扱う
+    else if (k === 'f' && shift) enterFullscreen();
     else if (k === 'f') togglePresent();
     else if (k === 'p') openPresenter();
-    else if (e.key === 'Escape' && present) togglePresent();
-    else if (k in jumpKeys) { e.preventDefault(); goTo(jumpKeys[k]); }
+    else if (key === 'Escape' && present) togglePresent();
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (['ArrowRight', 'ArrowLeft', ' ', 'PageDown', 'PageUp'].includes(e.key)) e.preventDefault();
+    if (isPresenter || embedded) { send({ type: 'key', key: e.key, shiftKey: e.shiftKey }); return; }
+    handleKey(e.key, e.shiftKey);
   });
 
-  if (isPresenter) { body.classList.add('presenter'); send({ type: 'hello' }); }
+  if (isPresenter) body.classList.add('presenter');
+  if (embedded && !isPresenter) { present = true; body.classList.add('present', 'embedded'); }
+  if (bus) send({ type: 'hello' });
   render();
 </script>
 
