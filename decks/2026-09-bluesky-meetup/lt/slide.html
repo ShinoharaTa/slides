@@ -257,6 +257,43 @@
   .d-flow .fanout { position: absolute; font-size: 26px; font-weight: 700; color: var(--bs); line-height: 1.45; }
   .d-flow .note { position: absolute; font-size: 24px; font-weight: 700; color: var(--ink-soft); line-height: 1.5; }
 
+  /* ---- 5. PDS に置くメリット（2 枚組） ---- */
+  .merits {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+  .merit { border-top: 4px solid var(--tc); padding-top: 28px; }
+  .merit h3 {
+    margin: 0 0 20px;
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  .merit h3 .tc { color: var(--tc); }
+  .merit p {
+    margin: 0;
+    font-size: 22px;
+    line-height: 1.8;
+    color: var(--ink-soft);
+  }
+  .merit code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 20px;
+    color: var(--tc);
+    background: var(--tc-soft);
+    border-radius: 5px;
+    padding: 0.1em 0.45em;
+  }
+  .merit .keys {
+    margin-top: 12px;
+    font-size: 20px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+
   /* ---- 3 / 6 / 8. 左右比較 ---- */
   .compare {
     display: grid;
@@ -528,9 +565,28 @@
     </div>
   </section>
 
-  <!-- ========== 5. AppView を作らない（中心） ==========
-       3 つの PDS を束ねる線を一本も引かないことが、この図の主張 -->
+  <!-- ========== 5. PDS に置くメリット ========== -->
   <section class="slide" data-slide="5">
+    <h2 class="head">自分の PDS に置くと、何がいいか</h2>
+    <div class="fill">
+      <div class="merits">
+        <div class="merit">
+          <h3>データは<span class="tc">自分の PDS に残る</span></h3>
+          <p>Trailcast というアプリが無くなっても、記録は自分の手元に残る。<br>他のアプリからも同じ記録を読める。</p>
+        </div>
+        <div class="merit">
+          <h3><span class="tc">独自のキー</span>で自由に設計できる</h3>
+          <p>Bluesky の投稿の型に合わせなくていい。<br><code>net.shino3.trailcast.post</code> に必要な項目だけを持たせる。</p>
+          <p class="keys">checkpointAt ・ images ・ sourceRef ・ thread</p>
+        </div>
+      </div>
+    </div>
+    <p class="foot">PDS は「Bluesky 用の保存先」ではなく、自分のレコード置き場。</p>
+  </section>
+
+  <!-- ========== 6. AppView を作らない（中心） ==========
+       3 つの PDS を束ねる線を一本も引かないことが、この図の主張 -->
+  <section class="slide" data-slide="6">
     <h2 class="head">Trailcast には「みんなの Trailcast」がない</h2>
     <div class="fill">
       <div class="pds-row">
@@ -552,8 +608,8 @@
     <p class="foot center" style="padding-top: 0.6cqi;">検索ランキング / おすすめ / 人気投稿 / 全体フィード を作らない</p>
   </section>
 
-  <!-- ========== 6. AppView がないことで起こること ========== -->
-  <section class="slide" data-slide="6">
+  <!-- ========== 7. AppView がないことで起こること ========== -->
+  <section class="slide" data-slide="7">
     <h2 class="head">コミュニティが、記録の構造を壊さない</h2>
     <div class="fill">
       <div class="compare">
@@ -582,8 +638,8 @@
     <p class="foot strong">記録空間は、他人の活動によって変形しない。</p>
   </section>
 
-  <!-- ========== 7. 共有したいときだけ Bluesky へ ========== -->
-  <section class="slide" data-slide="7">
+  <!-- ========== 8. 共有したいときだけ Bluesky へ ========== -->
+  <section class="slide" data-slide="8">
     <h2 class="head">共有は捨てない</h2>
     <div class="fill">
       <div class="d-flow">
@@ -611,8 +667,8 @@
     <p class="foot">「2026-09 九州」の 19 件はすべて Bluesky へクロスポスト済み。PDS 上の記録が持つのは Bluesky 投稿への参照 1 つだけ。</p>
   </section>
 
-  <!-- ========== 8. 記録と共有を分離する ========== -->
-  <section class="slide" data-slide="8">
+  <!-- ========== 9. 記録と共有を分離する ========== -->
+  <section class="slide" data-slide="9">
     <h2 class="head">記録する空間と、共有する空間を分ける</h2>
     <div class="fill">
       <div class="compare divided">
@@ -639,8 +695,8 @@
     <p class="foot strong center">PDS は使う。コミュニティ空間は作らない。</p>
   </section>
 
-  <!-- ========== 9. 終了 ========== -->
-  <section class="slide final" data-slide="9">
+  <!-- ========== 10. 終了 ========== -->
+  <section class="slide final" data-slide="10">
     <h1><span class="tc">Trailcast</span> は、自分の記録を<br>自分の領域に残す。</h1>
     <p class="sub">共有したいものだけ、<span class="bs">Bluesky</span> へ。</p>
     <p class="foot">github.com/ShinoharaTa/trailcast</p>
