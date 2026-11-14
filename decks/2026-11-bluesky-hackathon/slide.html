@@ -320,35 +320,8 @@
   .slide.glow-result {
     --glow-c: radial-gradient(520px 340px at 50% 52%, rgba(16,131,254,0.34), rgba(34,211,238,0.10) 55%, transparent 75%);
   }
-  .slide.glow-silver {
-    --glow-a: radial-gradient(760px 520px at 0% 0%, rgba(34,211,238,0.20), transparent 70%);
-    --glow-b: radial-gradient(720px 500px at 100% 100%, rgba(250,204,21,0.14), transparent 70%);
-    --glow-c: radial-gradient(520px 340px at 50% 52%, rgba(34,211,238,0.26), rgba(250,204,21,0.10) 55%, transparent 75%);
-  }
-  .slide.glow-gold {
-    --glow-a: radial-gradient(760px 520px at 0% 0%, rgba(251,191,36,0.16), transparent 70%);
-    --glow-b: radial-gradient(720px 500px at 100% 100%, rgba(245,158,11,0.16), transparent 70%);
-    --glow-c: radial-gradient(540px 360px at 50% 52%, rgba(251,191,36,0.34), rgba(245,158,11,0.10) 55%, transparent 75%);
-  }
   .slide.statement.glow-result .grad { filter: drop-shadow(0 0 28px rgba(34,211,238,0.45)); }
-  /* 本文のある受賞スライドでは、中央の光を見出しの後ろへ寄せる */
-  .slide.glow-silver:not(.statement) { --glow-c: radial-gradient(420px 260px at 14% 20%, rgba(250,204,21,0.16), transparent 75%); }
-  .slide.glow-gold:not(.statement) { --glow-c: radial-gradient(420px 260px at 14% 20%, rgba(251,191,36,0.22), transparent 75%); }
-  .slide.glow-silver .grad {
-    background-image: linear-gradient(90deg, #22d3ee 0%, #facc15 100%);
-    filter: drop-shadow(0 0 26px rgba(34,211,238,0.40));
-  }
-  .slide.glow-gold .grad {
-    background-image: linear-gradient(90deg, #fde68a 0%, #fbbf24 50%, #f59e0b 100%);
-    filter: drop-shadow(0 0 28px rgba(251,191,36,0.45));
-  }
-  .slide.glow-silver .kicker { color: var(--yellow); }
-  .slide.glow-gold .kicker { color: var(--gold); }
-  .slide.glow-silver .cursor { background: var(--yellow); box-shadow: 0 0 24px rgba(250,204,21,0.6); }
-  .slide.glow-gold .cursor { background: var(--gold); box-shadow: 0 0 24px rgba(251,191,36,0.6); }
   .emoji { font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
-  .glow-silver .emoji { filter: drop-shadow(0 0 22px rgba(250,204,21,0.75)); }
-  .glow-gold .emoji { filter: drop-shadow(0 0 22px rgba(251,191,36,0.75)); }
 
   /* ---- 種別: cover（表紙） ---- */
   .slide.cover {
@@ -738,49 +711,7 @@
   .crit h3 { margin: 0; font-size: 36px; font-weight: 900; line-height: 1.2; }
   .crit p { margin: 0; font-size: 22px; color: var(--ink-soft); white-space: nowrap; }
 
-  /* ---- 受賞チームの記入欄（p34 / p36） ---- */
-  .award {
-    display: grid;
-    grid-template-columns: 210px 1fr;
-    column-gap: 28px;
-    row-gap: 26px;
-    margin: 6px 0 0;
-    flex: 1;
-    align-content: center;
-  }
-  .award dt {
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--muted);
-    padding-top: 22px;
-  }
-  .award dd {
-    margin: 0;
-    min-height: 120px;
-    padding: 20px 28px;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.04);
-    border: 2px solid rgba(34,211,238,0.5);
-    box-shadow: 0 0 36px rgba(34,211,238,0.12), inset 0 0 30px rgba(34,211,238,0.05);
-    font-size: 44px;
-    font-weight: 900;
-    line-height: 1.4;
-    color: var(--ink);
-  }
-  .award dd:last-of-type { min-height: 220px; font-size: 30px; font-weight: 700; }
-  .glow-silver .award dd { border-color: rgba(250,204,21,0.55); box-shadow: 0 0 36px rgba(250,204,21,0.14), inset 0 0 30px rgba(250,204,21,0.05); }
-  .glow-gold .award dd { border-color: rgba(251,191,36,0.65); box-shadow: 0 0 40px rgba(251,191,36,0.18), inset 0 0 30px rgba(251,191,36,0.06); }
-  .glow-silver .award dt { color: #d8e6a8; }
-  .glow-gold .award dt { color: #f3d79a; }
 
-  /* 特別賞: パープル */
-  .slide.glow-special:not(.statement) { --glow-c: radial-gradient(420px 260px at 14% 20%, rgba(192,132,252,0.18), transparent 75%); }
-  .slide.glow-special .grad { background: linear-gradient(100deg, #e9d5ff 0%, #c084fc 45%, #f472b6 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .slide.glow-special .kicker { color: #c084fc; }
-  .slide.glow-special .cursor { background: #c084fc; box-shadow: 0 0 24px rgba(192,132,252,0.6); }
-  .glow-special .emoji { filter: drop-shadow(0 0 22px rgba(192,132,252,0.75)); }
-  .glow-special .award dd { border-color: rgba(192,132,252,0.55); box-shadow: 0 0 36px rgba(192,132,252,0.14), inset 0 0 30px rgba(192,132,252,0.05); }
-  .glow-special .award dt { color: #e3cffc; }
   .cover-date .dow { font-size: 0.5em; letter-spacing: 0.12em; opacity: 0.7; margin-left: 0.3em; }
 
   /* ---- 締め（p40） ---- */
@@ -1006,30 +937,18 @@
     <span class="bg-word" aria-hidden="true">NETWORKING</span>
     <p class="kicker"><span>//</span> 00 LUNCH &amp; NETWORKING</p>
     <h1 class="title center"><span class="grad">軽食＆交流タイム</span><span class="cursor" aria-hidden="true"></span></h1>
-  </section>
-
-  <!-- ========== 交流シール ========== -->
-  <section class="slide" data-slide="3">
-    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/networking</div>
-    <p class="kicker"><span>//</span> 00 LUNCH &amp; NETWORKING</p>
-    <h2 class="section-title">交流シール</h2>
-    <div class="body list">
-      <p>交流したらお互いに相手の名札にシールを貼ってもらいましょう。</p>
-      <p>シールの数が多い人は<span class="grad" style="font-weight: 900;">後でいいことがあるかも？</span></p>
-      <p>12:45まで軽食＆交流タイムです。ご歓談ください</p>
-      <p>12:45からオープニング、13:15からプチアイディアソンがあるので今のうちにネタを収集するのもよいでしょう</p>
-    </div>
+    <p class="recap-sub">12:45 からオープニングです</p>
   </section>
 
   <!-- ========== はじめに（扉） ========== -->
-  <section class="slide statement" data-slide="4">
+  <section class="slide statement" data-slide="3">
     <span class="bg-word" aria-hidden="true">OPENING</span>
     <p class="kicker"><span>//</span> 00 OPENING</p>
     <h1 class="title center"><span class="grad">はじめに</span><span class="cursor" aria-hidden="true"></span></h1>
   </section>
 
   <!-- ========== はじめに ========== -->
-  <section class="slide" data-slide="5">
+  <section class="slide" data-slide="4">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/opening</div>
     <p class="kicker"><span>//</span> 00 OPENING</p>
     <h2 class="section-title">はじめに</h2>
@@ -1046,7 +965,7 @@
   </section>
 
   <!-- ========== 四谷ラボってなんやねん ========== -->
-  <section class="slide" data-slide="6">
+  <section class="slide" data-slide="5">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/opening</div>
     <p class="kicker"><span>//</span> 00 OPENING</p>
     <h2 class="section-title">四谷ラボってなんやねん</h2>
@@ -1066,14 +985,14 @@
   </section>
 
   <!-- ========== 本日の流れ（扉） ========== -->
-  <section class="slide statement" data-slide="7">
+  <section class="slide statement" data-slide="6">
     <span class="bg-word" aria-hidden="true">GUIDE</span>
     <p class="kicker"><span>//</span> 01 GUIDE</p>
     <h1 class="title center"><span class="grad">本日の流れ</span><span class="cursor" aria-hidden="true"></span></h1>
   </section>
 
   <!-- ========== 本日の流れ ========== -->
-  <section class="slide" data-slide="8">
+  <section class="slide" data-slide="7">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/guide</div>
     <p class="kicker"><span>//</span> 01 GUIDE</p>
     <h2 class="section-title">本日の流れ</h2>
@@ -1085,7 +1004,7 @@
       <dt>13:15</dt><dd>プチアイディアソン</dd>
       <dt>14:30</dt><dd>チーム分け</dd>
       <dt class="hot">14:45</dt><dd class="hot">ハッカソン開始<em class="tag">HACK START</em></dd>
-      <dt>17:30</dt><dd>成果発表（1チーム5分＋切り替え3分）</dd>
+      <dt>17:30</dt><dd>成果発表</dd>
       <dt>18:10</dt><dd>集計・表彰</dd>
       <dt class="hot">18:30</dt><dd class="hot">クロージング・交流会<em class="tag">PARTY</em></dd>
       <dt>20:30</dt><dd>終了</dd>
@@ -1093,7 +1012,7 @@
   </section>
 
   <!-- ========== アイディアソン、ハッカソンとは ========== -->
-  <section class="slide" data-slide="9">
+  <section class="slide" data-slide="8">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/guide</div>
     <p class="kicker"><span>//</span> 01 GUIDE</p>
     <h2 class="section-title">アイディアソン、ハッカソンとは</h2>
@@ -1107,21 +1026,17 @@
   </section>
 
   <!-- ========== 賞品について ========== -->
-  <section class="slide" data-slide="10">
+  <section class="slide" data-slide="9">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/guide</div>
     <p class="kicker"><span>//</span> 01 GUIDE</p>
     <h2 class="section-title">賞品について</h2>
-    <div class="body list">
-      <p>受賞チームから順番にBlueskyグッズを選んでもらいます</p>
-      <p class="note">※在庫がない分は後日匿名配送も可能です</p>
-    </div>
-    <div class="img-fill">
-      <div class="photo-card"><img src="images/goods.jpg" alt="Bluesky のトートバッグ・キャップ・T シャツ"></div>
+    <div class="body lg">
+      <p>受賞チームには<span class="grad" style="font-weight: 900;">Bluesky グッズ</span>をプレゼントします</p>
     </div>
   </section>
 
   <!-- ========== 開発について ========== -->
-  <section class="slide" data-slide="11">
+  <section class="slide" data-slide="10">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/guide</div>
     <p class="kicker"><span>//</span> 01 GUIDE</p>
     <h2 class="section-title">開発について</h2>
@@ -1132,7 +1047,7 @@
   </section>
 
   <!-- ========== 注意すること ========== -->
-  <section class="slide" data-slide="12">
+  <section class="slide" data-slide="11">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/guide</div>
     <p class="kicker"><span>//</span> 01 GUIDE</p>
     <h2 class="section-title">注意すること</h2>
@@ -1147,7 +1062,7 @@
 
   <!-- ========== 会場のWi-Fi ==========
        リポジトリは公開なので、Wi-Fi の SSID・パスワード・QR はコミットしない。当日は手元の紙で案内する -->
-  <section class="slide" data-slide="13">
+  <section class="slide" data-slide="12">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/guide</div>
     <p class="kicker"><span>//</span> 01 GUIDE</p>
     <h2 class="section-title">会場のWi-Fi</h2>
@@ -1158,16 +1073,15 @@
   </section>
 
   <!-- ========== 投票ページの事前確認（events lab） ========== -->
-  <section class="slide" data-slide="14">
+  <section class="slide" data-slide="13">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/guide</div>
     <p class="kicker"><span>//</span> 01 GUIDE <span class="fallback-tag">PRE-CHECK</span></p>
     <h2 class="section-title">投票ページを開いてみてください</h2>
     <div class="two-col vote">
       <div class="body">
-        <p class="lead">ハッカソンの投票は、発表を聞きながら events lab のページで行います。<br>いまのうちに Wi-Fi につないで、一度開けるか確認してください</p>
+        <p class="lead">ハッカソンの投票は events lab で行います。<br>Wi-Fi につないで一度開いてみてください</p>
         <!-- ▼差し替え: events lab の投票ページの URL（.url の中身）。後ろの「投票」スライドと同じものにする -->
         <p class="cmd"><span class="prompt">$</span><span class="verb">open</span><span class="url">（差し替え）</span></p>
-        <p class="note">※開けない場合は近くのスタッフに声をかけてください</p>
       </div>
       <!-- ▼差し替え: events lab の投票ページの QR。後ろの「投票」スライドと同じ images/vote-qr.png を使う -->
       <div class="qr-box">[ QR ]</div>
@@ -1176,7 +1090,7 @@
 
   <!-- ========== 前回のアイデア（扉） ==========
        Vol.1 の 5 チームの発表。出典は四谷ラボのブログ（開催レポート）と発表動画。順位順（優勝から）に並べている -->
-  <section class="slide statement" data-slide="15">
+  <section class="slide statement" data-slide="14">
     <span class="bg-word" aria-hidden="true">RECAP</span>
     <p class="kicker"><span>//</span> 03 IDEATHON · VOL.1 RECAP</p>
     <h1 class="title center"><span class="grad">前回のアイデア</span><span class="cursor" aria-hidden="true"></span></h1>
@@ -1184,7 +1098,7 @@
   </section>
 
   <!-- ========== 前回のアイデア 1/5: 青空マップ ========== -->
-  <section class="slide recap" data-slide="16">
+  <section class="slide recap" data-slide="15">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon/vol1-recap</div>
     <p class="kicker"><span>//</span> VOL.1 RECAP <span class="recap-no">01 / 05</span></p>
     <div class="recap-head">
@@ -1198,8 +1112,6 @@
         <p>Bluesky には青空の写真がたくさん流れてくる。ただのタイムラインではなく、どこの青空なのかを知りたい</p>
         <h3>主な機能</h3>
         <ul><li>ドラッグ＆ドロップで画像を投稿</li><li>写真の EXIF の GPS から地図にピン</li><li>投稿をスライドショーで再生</li></ul>
-        <h3>技術・工夫</h3>
-        <ul class="tech"><li>React + Vite + Leaflet / Workers + D1</li><li>画像処理はブラウザで完結、個人情報を残さない</li></ul>
       </div>
       <div class="recap-side">
         <figure class="recap-shot"><img src="images/vol1-aozora-map.png" alt="青空マップのデモ画面（地図と青空の写真）"></figure>
@@ -1210,7 +1122,7 @@
   </section>
 
   <!-- ========== 前回のアイデア 2/5: @プロトブリュー ========== -->
-  <section class="slide recap" data-slide="17">
+  <section class="slide recap" data-slide="16">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon/vol1-recap</div>
     <p class="kicker"><span>//</span> VOL.1 RECAP <span class="recap-no">02 / 05</span></p>
     <div class="recap-head">
@@ -1224,8 +1136,6 @@
         <p>ATProto で作られたサービスが増えてきた。自由に選んで並べられる入口が欲しい（着想は Wii のホーム画面）</p>
         <h3>主な機能</h3>
         <ul><li>「ブリューストア」でサービスを一覧</li><li>選んだサービスをホームに追加</li><li>ホームからサービスを起動</li></ul>
-        <h3>技術・工夫</h3>
-        <ul class="tech"><li>実在の ATProto サービスをストアに並べる</li><li>今回はモックデータ。次は PDS のレコードと同期したい</li></ul>
       </div>
       <div class="recap-side">
         <figure class="recap-shot"><img src="images/vol1-atproto-brew.png" alt="@プロトブリューのストア画面（ATProto サービスの一覧）"></figure>
@@ -1236,7 +1146,7 @@
   </section>
 
   <!-- ========== 前回のアイデア 3/5: スカイハイライト ========== -->
-  <section class="slide recap" data-slide="18">
+  <section class="slide recap" data-slide="17">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon/vol1-recap</div>
     <p class="kicker"><span>//</span> VOL.1 RECAP <span class="recap-no">03 / 05</span></p>
     <div class="recap-head">
@@ -1250,8 +1160,6 @@
         <p>音楽サービスの年間ハイライトが Bluesky にも欲しい。既存の振り返りサービスは海外製で、日本向けでなく見づらい</p>
         <h3>主な機能</h3>
         <ul><li>期間を指定して振り返りを作成</li><li>いいね・リポスト・引用数や活動時間帯を分析</li><li>リンクコピーでワンタップ共有</li></ul>
-        <h3>技術・工夫</h3>
-        <ul class="tech"><li>ATProto で投稿・反応データを取得</li><li>ログインしてより幅広いデータを取得</li></ul>
       </div>
       <div class="recap-side">
         <figure class="recap-shot"><img src="images/vol1-skyhighlights.png" alt="スカイハイライトのデモ画面（振り返りの集計カード）"></figure>
@@ -1262,7 +1170,7 @@
   </section>
 
   <!-- ========== 前回のアイデア 4/5: 絵師ギャラリー ========== -->
-  <section class="slide recap" data-slide="19">
+  <section class="slide recap" data-slide="18">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon/vol1-recap</div>
     <p class="kicker"><span>//</span> VOL.1 RECAP <span class="recap-no">04 / 05</span></p>
     <div class="recap-head">
@@ -1276,8 +1184,6 @@
         <p>Bluesky 日本のフォロワー上位には絵師が多いのに、ファンがいないと X に戻ってしまう。ハッシュタグ検索では画像を一覧で見られない</p>
         <h3>主な機能</h3>
         <ul><li>タグクラウドからハッシュタグ別に画像一覧</li><li>ユーザーごとの画像一覧</li><li>見ている画面からフォロー・リプライ</li></ul>
-        <h3>技術・工夫</h3>
-        <ul class="tech"><li>画像付きの投稿に絞った検索・一覧 UI</li><li>コメントは通常のリプライとして投稿</li></ul>
       </div>
       <div class="recap-side">
         <figure class="recap-shot"><img src="images/vol1-eshi-gallery.png" alt="絵師ギャラリーのタイトル画面"></figure>
@@ -1288,7 +1194,7 @@
   </section>
 
   <!-- ========== 前回のアイデア 5/5: ブルーブックス ========== -->
-  <section class="slide recap" data-slide="20">
+  <section class="slide recap" data-slide="19">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon/vol1-recap</div>
     <p class="kicker"><span>//</span> VOL.1 RECAP <span class="recap-no">05 / 05</span></p>
     <div class="recap-head">
@@ -1302,8 +1208,6 @@
         <p>ヘビーユーザーは本 1 冊分も投稿しているのに、ホームは時系列に流れるだけで振り返りにくい</p>
         <h3>主な機能</h3>
         <ul><li>投稿を選んで 1 冊の「本」にまとめる</li><li>テーマ別（遠征記録・料理・写真など）の本棚</li><li>共有用ページのリンクで人に見せる</li></ul>
-        <h3>技術・工夫</h3>
-        <ul class="tech"><li>ログインして自分の投稿を一覧から選ぶ</li><li>フロー型の SNS にストックの軸を足す</li></ul>
       </div>
       <div class="recap-side">
         <figure class="recap-shot"><img src="images/vol1-bluebooks.png" alt="ブルーブックスのタイトル画面「自分のSNSを、本棚のように。」"></figure>
@@ -1314,52 +1218,35 @@
   </section>
 
   <!-- ========== プチアイディアソン（扉） ========== -->
-  <section class="slide statement" data-slide="21">
+  <section class="slide statement" data-slide="20">
     <span class="bg-word" aria-hidden="true">IDEATHON</span>
     <p class="kicker"><span>//</span> 03 IDEATHON</p>
     <h1 class="title center"><span class="grad">プチアイディアソン</span><span class="cursor" aria-hidden="true"></span></h1>
   </section>
 
   <!-- ========== プチアイディアソンの流れ ========== -->
-  <section class="slide" data-slide="22">
+  <section class="slide" data-slide="21">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon</div>
     <p class="kicker"><span>//</span> 03 IDEATHON</p>
     <h2 class="section-title">プチアイディアソンの流れ</h2>
     <!-- ▼差し替え: 時刻と項目。dt / dd を 1 組ずつ増減させる -->
     <dl class="timeline roomy">
       <dt>13:15</dt><dd>アイディアをアイデアシートに書く</dd>
-      <dt>13:30</dt><dd>アイディアを発表(1つ1分・ひとり2つくらいが目安)</dd>
-      <dt>14:10</dt><dd>アイディアに投票(10分)</dd>
+      <dt>13:30</dt><dd>アイディアを発表(1つ1分)</dd>
+      <dt>14:10</dt><dd>アイディアに投票</dd>
       <dt>14:20</dt><dd>集計</dd>
       <dt>14:25</dt><dd>上位5アイディア発表</dd>
       <dt>14:30</dt><dd>チーム分け(良いと思ったアイディアのチームに参加)</dd>
     </dl>
   </section>
 
-  <!-- ========== プチアイディアソン（アイデアシートの説明） ========== -->
-  <section class="slide" data-slide="23">
-    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon</div>
-    <p class="kicker"><span>//</span> 03 IDEATHON</p>
-    <h2 class="section-title">プチアイディアソン</h2>
-    <div class="body dense">
-      <p>各自に配ったアイデアシートに最低1枚書いてもらいます。書ける人は何枚でも</p>
-    </div>
-    <div class="sheet-layout">
-      <div class="sheet-card"><img src="images/idea-sheet.jpg" alt="アイデアシートの用紙"></div>
-      <div class="callouts">
-        <p class="callout">右上のこのへんに自分の名前を書いておいてください</p>
-        <p class="callout">1分で説明することをイメージしながら書くとよいでしょう。<br>絵を描いても構いません</p>
-      </div>
-    </div>
-  </section>
-
   <!-- ========== プチアイディアソン開始！ ========== -->
-  <section class="slide" data-slide="24">
+  <section class="slide" data-slide="22">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon</div>
     <p class="kicker"><span>//</span> 03 IDEATHON</p>
     <h2 class="section-title">プチアイディアソン開始！</h2>
     <div class="body dense">
-      <p>タイトル、ユーザー、シチュエーション、うれしさを全て埋めてみましょう</p>
+      <p>アイデアシートに1枚以上（何枚でも）。タイトル、ユーザー、シチュエーション、うれしさを埋めてみましょう</p>
     </div>
     <div class="sheet-layout">
       <div class="sheet-card"><img src="images/idea-sheet.jpg" alt="アイデアシートの用紙"></div>
@@ -1371,14 +1258,14 @@
   </section>
 
   <!-- ========== アイディア発表（扉） ========== -->
-  <section class="slide statement" data-slide="25">
+  <section class="slide statement" data-slide="23">
     <span class="bg-word" aria-hidden="true">IDEATHON</span>
     <p class="kicker"><span>//</span> 03 IDEATHON</p>
     <h1 class="title center"><span class="grad">アイディア発表</span><span class="cursor" aria-hidden="true"></span></h1>
   </section>
 
   <!-- ========== アイディア発表 ========== -->
-  <section class="slide" data-slide="26">
+  <section class="slide" data-slide="24">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon</div>
     <p class="kicker"><span>//</span> 03 IDEATHON</p>
     <h2 class="section-title">アイディア発表</h2>
@@ -1390,7 +1277,7 @@
   </section>
 
   <!-- ========== アイディアに投票 ========== -->
-  <section class="slide" data-slide="27">
+  <section class="slide" data-slide="25">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon</div>
     <p class="kicker"><span>//</span> 03 IDEATHON</p>
     <h2 class="section-title">アイディアに投票</h2>
@@ -1403,7 +1290,7 @@
   </section>
 
   <!-- ========== アイディア集計中（扉） ========== -->
-  <section class="slide statement" data-slide="28">
+  <section class="slide statement" data-slide="26">
     <span class="bg-word" aria-hidden="true">IDEATHON</span>
     <p class="kicker"><span>//</span> 03 IDEATHON</p>
     <h1 class="title center"><span class="grad">アイディア集計中</span><span class="cursor" aria-hidden="true"></span></h1>
@@ -1414,14 +1301,14 @@
   </section>
 
   <!-- ========== アイディア発表（扉） ========== -->
-  <section class="slide statement" data-slide="29">
+  <section class="slide statement" data-slide="27">
     <span class="bg-word" aria-hidden="true">IDEATHON</span>
     <p class="kicker"><span>//</span> 03 IDEATHON</p>
     <h1 class="title center"><span class="grad">アイディア発表</span><span class="cursor" aria-hidden="true"></span></h1>
   </section>
 
   <!-- ========== アイディア発表（上位 5 つ） ========== -->
-  <section class="slide" data-slide="30">
+  <section class="slide" data-slide="28">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon</div>
     <p class="kicker"><span>//</span> 03 IDEATHON</p>
     <h2 class="section-title">アイディア発表</h2>
@@ -1431,21 +1318,21 @@
   </section>
 
   <!-- ========== チーム分け（扉） ========== -->
-  <section class="slide statement" data-slide="31">
+  <section class="slide statement" data-slide="29">
     <span class="bg-word" aria-hidden="true">IDEATHON</span>
     <p class="kicker"><span>//</span> 03 IDEATHON</p>
     <h1 class="title center"><span class="grad">チーム分け</span><span class="cursor" aria-hidden="true"></span></h1>
   </section>
 
   <!-- ========== ハッカソン開始（扉） ========== -->
-  <section class="slide statement" data-slide="32">
+  <section class="slide statement" data-slide="30">
     <span class="bg-word" aria-hidden="true">HACKATHON</span>
     <p class="kicker"><span>//</span> 04 HACKATHON</p>
     <h1 class="title center"><span class="grad">ハッカソン開始</span><span class="cursor" aria-hidden="true"></span></h1>
   </section>
 
   <!-- ========== ハッカソンの進め方 ========== -->
-  <section class="slide tight" data-slide="33">
+  <section class="slide tight" data-slide="31">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/hackathon</div>
     <p class="kicker"><span>//</span> 04 HACKATHON</p>
     <h2 class="section-title">ハッカソンの進め方</h2>
@@ -1493,7 +1380,6 @@
       </div>
     </div>
     <div class="notes">
-      <p>※開発は17:30まで。17:30から発表です（1チーム5分＋切り替え3分）</p>
       <p>※1チームに１つClaude Codeのクレジットを発行することができるので活用してください。</p>
       <p>※何もしないで暇な人が出ないように注意するため、リーダーはディレクションに集中してなるべく実作業を持たないこと</p>
       <p>※開発が難しそうだったり、もっといいアイディアが他に思いついたらチーム合意のもとピボットしてもよい</p>
@@ -1501,7 +1387,7 @@
   </section>
 
   <!-- ========== 審査基準 ========== -->
-  <section class="slide" data-slide="34">
+  <section class="slide" data-slide="32">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/hackathon</div>
     <p class="kicker"><span>//</span> 04 HACKATHON</p>
     <h2 class="section-title">審査基準</h2>
@@ -1526,26 +1412,26 @@
   </section>
 
   <!-- ========== 発表について ========== -->
-  <section class="slide" data-slide="35">
+  <section class="slide" data-slide="33">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/demo-and-vote</div>
     <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE</p>
     <h2 class="section-title">発表について</h2>
     <div class="body lg list">
       <p>1チーム<span class="grad" style="font-weight: 900;">5分</span>で発表してください（切り替え3分）</p>
       <p>発表順はMCから案内します</p>
-      <p>発表の様子は録画します（配信はしません）</p>
+      <p>発表の様子は録画します</p>
     </div>
   </section>
 
   <!-- ========== 投票（扉） ========== -->
-  <section class="slide statement" data-slide="36">
+  <section class="slide statement" data-slide="34">
     <span class="bg-word" aria-hidden="true">DEMO &amp; VOTE</span>
     <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE</p>
     <h1 class="title center"><span class="grad">投票</span><span class="cursor" aria-hidden="true"></span></h1>
   </section>
 
   <!-- ========== 投票（events lab） ========== -->
-  <section class="slide" data-slide="37">
+  <section class="slide" data-slide="35">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/demo-and-vote</div>
     <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE</p>
     <h2 class="section-title">投票</h2>
@@ -1554,7 +1440,6 @@
         <p class="lead">発表を聞きながら、events lab のページで随時採点してください</p>
         <!-- ▼差し替え: events lab の投票ページの URL（.url の中身）。出さないなら <p class="cmd"> ごと消す -->
         <p class="cmd"><span class="prompt">$</span><span class="verb">open</span><span class="url">（差し替え）</span></p>
-        <p class="note">※自チームへの投票は集計対象から除外されます</p>
         <p class="note">※Wi-Fi はお手元の紙をご覧ください</p>
       </div>
       <!-- ▼差し替え: events lab の投票ページの QR。images/vote-qr.png を置いて、中身を
@@ -1564,7 +1449,7 @@
   </section>
 
   <!-- ========== 投票（予備フォーム） ========== -->
-  <section class="slide" data-slide="38">
+  <section class="slide" data-slide="36">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/demo-and-vote</div>
     <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE <span class="fallback-tag">FALLBACK</span></p>
     <h2 class="section-title">投票（予備）</h2>
@@ -1573,7 +1458,6 @@
         <p class="lead">events lab のページが開けない場合は、こちらのフォームから投票してください</p>
         <!-- ▼差し替え: 予備フォームの URL（.url の中身）。出さないなら <p class="cmd"> ごと消す -->
         <p class="cmd"><span class="prompt">$</span><span class="verb">open</span><span class="url">（差し替え）</span></p>
-        <p class="note">※自チームへの投票は集計対象から除外されます</p>
       </div>
       <!-- ▼差し替え: 予備フォームの QR。images/vote-qr-backup.png を置いて、中身を
            <img src="images/vote-qr-backup.png" alt="予備の投票フォームの QR コード"> に替える -->
@@ -1582,14 +1466,14 @@
   </section>
 
   <!-- ========== ハッカソンプレゼン（扉） ========== -->
-  <section class="slide statement" data-slide="39">
+  <section class="slide statement" data-slide="37">
     <span class="bg-word" aria-hidden="true">DEMO &amp; VOTE</span>
     <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE</p>
     <h1 class="title center"><span class="grad">ハッカソンプレゼン</span><span class="cursor" aria-hidden="true"></span></h1>
   </section>
 
   <!-- ========== 集計中（扉） ========== -->
-  <section class="slide statement" data-slide="40">
+  <section class="slide statement" data-slide="38">
     <span class="bg-word" aria-hidden="true">DEMO &amp; VOTE</span>
     <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE</p>
     <h1 class="title center"><span class="grad">集計中</span><span class="cursor" aria-hidden="true"></span></h1>
@@ -1599,76 +1483,17 @@
     </div>
   </section>
 
-  <!-- ========== 結果発表！（扉） ========== -->
-  <section class="slide statement glow-result" data-slide="41">
+  <!-- ========== 結果発表！（扉） ==========
+       このあと events lab の結果画面に切り替えて発表する -->
+  <section class="slide statement glow-result" data-slide="39">
     <span class="rays" aria-hidden="true"></span>
     <span class="bg-word" aria-hidden="true">AWARDS</span>
     <p class="kicker"><span>//</span> 06 AWARDS</p>
     <h1 class="title center"><span class="grad">結果発表！</span><span class="cursor" aria-hidden="true"></span></h1>
   </section>
 
-  <!-- ========== 特別賞（扉） ========== -->
-  <section class="slide statement glow-special" data-slide="42">
-    <span class="rays" aria-hidden="true"></span>
-    <span class="bg-word" aria-hidden="true">AWARDS</span>
-    <p class="kicker"><span>//</span> 06 AWARDS</p>
-    <h1 class="title center"><span class="grad">特別賞</span><span class="emoji">✨</span><span class="cursor" aria-hidden="true"></span></h1>
-  </section>
-
-  <!-- ========== 特別賞 ========== -->
-  <section class="slide glow-special" data-slide="43">
-    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/awards</div>
-    <p class="kicker"><span>//</span> 06 AWARDS</p>
-    <h2 class="section-title"><span class="emoji">✨</span><span class="grad">特別賞</span></h2>
-    <!-- ▼差し替え: 当日、dd にチーム名と受賞のひとことを書き込む -->
-    <dl class="award">
-      <dt>チーム名</dt><dd></dd>
-      <dt>受賞のひとこと</dt><dd></dd>
-    </dl>
-  </section>
-
-  <!-- ========== 優秀賞（扉） ========== -->
-  <section class="slide statement glow-silver" data-slide="44">
-    <span class="rays" aria-hidden="true"></span>
-    <span class="bg-word" aria-hidden="true">AWARDS</span>
-    <p class="kicker"><span>//</span> 06 AWARDS</p>
-    <h1 class="title center"><span class="grad">優秀賞</span><span class="emoji">⚡</span><span class="cursor" aria-hidden="true"></span></h1>
-  </section>
-
-  <!-- ========== 優秀賞 ========== -->
-  <section class="slide glow-silver" data-slide="45">
-    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/awards</div>
-    <p class="kicker"><span>//</span> 06 AWARDS</p>
-    <h2 class="section-title"><span class="emoji">⚡</span><span class="grad">優秀賞</span></h2>
-    <!-- ▼差し替え: 当日、dd にチーム名と受賞のひとことを書き込む -->
-    <dl class="award">
-      <dt>チーム名</dt><dd></dd>
-      <dt>受賞のひとこと</dt><dd></dd>
-    </dl>
-  </section>
-
-  <!-- ========== 最優秀賞（扉） ========== -->
-  <section class="slide statement glow-gold" data-slide="46">
-    <span class="rays" aria-hidden="true"></span>
-    <span class="bg-word" aria-hidden="true">AWARDS</span>
-    <p class="kicker"><span>//</span> 06 AWARDS</p>
-    <h1 class="title center"><span class="emoji">🏆</span><span class="grad">最優秀賞</span><span class="cursor" aria-hidden="true"></span></h1>
-  </section>
-
-  <!-- ========== 最優秀賞 ========== -->
-  <section class="slide glow-gold" data-slide="47">
-    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/awards</div>
-    <p class="kicker"><span>//</span> 06 AWARDS</p>
-    <h2 class="section-title"><span class="emoji">🏆</span><span class="grad">最優秀賞</span></h2>
-    <!-- ▼差し替え: 当日、dd にチーム名と受賞のひとことを書き込む -->
-    <dl class="award">
-      <dt>チーム名</dt><dd></dd>
-      <dt>受賞のひとこと</dt><dd></dd>
-    </dl>
-  </section>
-
   <!-- ========== アンケート ========== -->
-  <section class="slide" data-slide="48">
+  <section class="slide" data-slide="40">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/awards</div>
     <p class="kicker"><span>//</span> 06 AWARDS</p>
     <h2 class="section-title">こちらにアンケートの記入をお願いします！</h2>
@@ -1679,28 +1504,14 @@
   </section>
 
   <!-- ========== 交流会（扉） ========== -->
-  <section class="slide statement" data-slide="49">
+  <section class="slide statement" data-slide="41">
     <span class="bg-word" aria-hidden="true">PARTY</span>
     <p class="kicker"><span>//</span> 07 PARTY</p>
     <h1 class="title center"><span class="grad">交流会</span><span class="cursor" aria-hidden="true"></span></h1>
   </section>
 
-  <!-- ========== 交流シール（交流会） ========== -->
-  <section class="slide" data-slide="50">
-    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/party</div>
-    <p class="kicker"><span>//</span> 07 PARTY</p>
-    <h2 class="section-title">交流シール</h2>
-    <div class="body list">
-      <p>交流したらお互いに相手の名札にシールを貼ってもらいましょう。</p>
-      <p>シールの数が多い人から順にグッズを配布します。(上位3名。入賞チームは除く)</p>
-    </div>
-    <div class="img-fill">
-      <div class="photo-card"><img src="images/goods.jpg" alt="Bluesky のトートバッグ・キャップ・T シャツ"></div>
-    </div>
-  </section>
-
   <!-- ========== おつかれさまでした！（扉） ========== -->
-  <section class="slide statement" data-slide="51">
+  <section class="slide statement" data-slide="42">
     <span class="bg-word" aria-hidden="true">PARTY</span>
     <p class="kicker"><span>//</span> 07 PARTY</p>
     <h1 class="title center"><span class="grad">おつかれさまでした！</span><span class="cursor" aria-hidden="true"></span></h1>
