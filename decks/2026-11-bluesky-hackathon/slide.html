@@ -1059,13 +1059,14 @@
     <h2 class="section-title">本日の流れ</h2>
     <!-- ▼差し替え: 時刻と項目。dt / dd を 1 組ずつ増減させる。目立たせたい行は dt / dd に class="hot" -->
     <dl class="timeline">
-      <dt>12:00</dt><dd>みんなで軽食を食べながらイベントの説明</dd>
-      <dt>12:45</dt><dd>前回のアイデア紹介</dd>
+      <dt>12:00</dt><dd>オープニング・イベントの説明</dd>
+      <dt>12:20</dt><dd>ランチタイム＆交流時間</dd>
+      <dt>12:50</dt><dd>前回のアイデア紹介</dd>
       <dt>13:00</dt><dd>プチアイディアソン</dd>
-      <dt>14:10</dt><dd>チーム分け</dd>
-      <dt class="hot">14:20</dt><dd class="hot">ハッカソン開始<em class="tag">HACK START</em></dd>
-      <dt>17:30</dt><dd>成果発表</dd>
-      <dt>18:00</dt><dd>審査・表彰</dd>
+      <dt>14:15</dt><dd>チーム分け</dd>
+      <dt class="hot">14:30</dt><dd class="hot">ハッカソン開始<em class="tag">HACK START</em></dd>
+      <dt>17:30</dt><dd>成果発表（1チーム5分＋切り替え3分）</dd>
+      <dt>18:10</dt><dd>集計・表彰</dd>
       <dt class="hot">18:30</dt><dd class="hot">クロージング・交流会<em class="tag">PARTY</em></dd>
       <dt>20:30</dt><dd>終了</dd>
     </dl>
@@ -1106,7 +1107,7 @@
     <h2 class="section-title">開発について</h2>
     <div class="body lg">
       <p>何で開発しても構いませんが、</p>
-      <p>1チームに１つの<span class="grad" style="font-weight: 900;">Claude Codeの$50分のAPIキー</span>を発行することができるので活用してください。</p>
+      <p>1チームに１つ<span class="grad" style="font-weight: 900;">Claude Codeのクレジット</span>を発行することができるので活用してください。</p>
     </div>
   </section>
 
@@ -1116,8 +1117,8 @@
     <p class="kicker"><span>//</span> 01 GUIDE</p>
     <h2 class="section-title">注意すること</h2>
     <div class="body list">
-      <p>発表と表彰はyoutube liveで配信する予定です。</p>
-      <p>もし、画面に映りたくない場合はあらかじめお知らせください。</p>
+      <p>発表と表彰の様子は録画する予定です（配信はしません）。</p>
+      <p>もし、映りたくない場合はあらかじめお知らせください。</p>
       <p>説明や発表の時間にトイレなどで席を立たれると進行に影響があるため、なるべく影響のない時間にお願いします</p>
       <p>途中退場も自由ですがハッカソン終了までは居て頂けると助かります！</p>
       <p class="note">(※18:30からの交流会では軽食・ドリンクが出ます！)</p>
@@ -1137,40 +1138,40 @@
     </div>
   </section>
 
-  <!-- ========== どきどき交流タイム（扉） ========== -->
-  <section class="slide statement" data-slide="12">
-    <span class="bg-word" aria-hidden="true">NETWORKING</span>
-    <p class="kicker"><span>//</span> 02 NETWORKING</p>
-    <h1 class="title center"><span class="grad">どきどき交流タイム</span><span class="cursor" aria-hidden="true"></span></h1>
-  </section>
-
-  <!-- ========== 交流シール ========== -->
-  <section class="slide" data-slide="13">
-    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/networking</div>
-    <p class="kicker"><span>//</span> 02 NETWORKING</p>
-    <h2 class="section-title">交流シール</h2>
-    <div class="body list">
-      <p>交流したらお互いに相手の名札にシールを貼ってもらいましょう。</p>
-      <p>シールの数が多い人は<span class="grad" style="font-weight: 900;">後でいいことがあるかも？</span></p>
-      <p>それでは13時までご歓談ください</p>
-      <p>13時からプチアイディアソンがあるので今のうちにネタを収集するのもよいでしょう</p>
-    </div>
-  </section>
-
   <!-- ========== 投票ページの事前確認（events lab） ========== -->
-  <section class="slide" data-slide="14">
-    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/demo-and-vote</div>
-    <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE <span class="fallback-tag">PRE-CHECK</span></p>
+  <section class="slide" data-slide="12">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/guide</div>
+    <p class="kicker"><span>//</span> 01 GUIDE <span class="fallback-tag">PRE-CHECK</span></p>
     <h2 class="section-title">投票ページを開いてみてください</h2>
     <div class="two-col vote">
       <div class="body">
-        <p class="lead">最後の投票は events lab のページで行います。<br>いまのうちに一度開けるか確認してください</p>
+        <p class="lead">ハッカソンの投票は、発表を聞きながら events lab のページで行います。<br>いまのうちに Wi-Fi につないで、一度開けるか確認してください</p>
         <!-- ▼差し替え: events lab の投票ページの URL（.url の中身）。後ろの「投票」スライドと同じものにする -->
         <p class="cmd"><span class="prompt">$</span><span class="verb">open</span><span class="url">（差し替え）</span></p>
         <p class="note">※開けない場合は近くのスタッフに声をかけてください</p>
       </div>
       <!-- ▼差し替え: events lab の投票ページの QR。後ろの「投票」スライドと同じ images/vote-qr.png を使う -->
       <div class="qr-box">[ QR ]</div>
+    </div>
+  </section>
+
+  <!-- ========== どきどき交流タイム（扉） ========== -->
+  <section class="slide statement" data-slide="13">
+    <span class="bg-word" aria-hidden="true">NETWORKING</span>
+    <p class="kicker"><span>//</span> 02 NETWORKING</p>
+    <h1 class="title center"><span class="grad">どきどき交流タイム</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 交流シール ========== -->
+  <section class="slide" data-slide="14">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/networking</div>
+    <p class="kicker"><span>//</span> 02 NETWORKING</p>
+    <h2 class="section-title">交流シール</h2>
+    <div class="body list">
+      <p>交流したらお互いに相手の名札にシールを貼ってもらいましょう。</p>
+      <p>シールの数が多い人は<span class="grad" style="font-weight: 900;">後でいいことがあるかも？</span></p>
+      <p>それでは12:50までランチタイム＆交流時間です。ご歓談ください</p>
+      <p>13:00からプチアイディアソンがあるので今のうちにネタを収集するのもよいでしょう</p>
     </div>
   </section>
 
@@ -1327,12 +1328,12 @@
     <h2 class="section-title">プチアイディアソンの流れ</h2>
     <!-- ▼差し替え: 時刻と項目。dt / dd を 1 組ずつ増減させる -->
     <dl class="timeline roomy">
-      <dt>13:10</dt><dd>アイディアをアイデアシートに書く</dd>
-      <dt>13:30</dt><dd>アイディアを発表(1つ1分程度で発表)</dd>
-      <dt>13:50</dt><dd>アイディアに投票</dd>
-      <dt>14:00</dt><dd>集計</dd>
-      <dt>14:05</dt><dd>上位5アイディア発表</dd>
-      <dt>14:10</dt><dd>チーム分け(良いと思ったアイディアのチームに参加)</dd>
+      <dt>13:00</dt><dd>アイディアをアイデアシートに書く</dd>
+      <dt>13:15</dt><dd>アイディアを発表(1つ1分・ひとり2つくらいが目安)</dd>
+      <dt>13:55</dt><dd>アイディアに投票(10分)</dd>
+      <dt>14:05</dt><dd>集計</dd>
+      <dt>14:10</dt><dd>上位5アイディア発表</dd>
+      <dt>14:15</dt><dd>チーム分け(良いと思ったアイディアのチームに参加)</dd>
     </dl>
   </section>
 
@@ -1385,6 +1386,7 @@
     <div class="body lg">
       <p>手前の席の人から順にその場で立って、</p>
       <p><span class="grad" style="font-weight: 900;">１アイディア１分</span>でアイディアの説明をしてください</p>
+      <p class="note">※ひとり2つくらいが目安です</p>
     </div>
   </section>
 
@@ -1397,6 +1399,7 @@
       <p>机にシートを並べてください</p>
       <p>並べ終わったら各自シールを良いと思ったアイディアに貼っていきます</p>
       <p>自分自身のアイディアシートに貼っても構いません</p>
+      <p>投票時間は<span class="grad" style="font-weight: 900;">10分</span>です</p>
     </div>
   </section>
 
@@ -1491,7 +1494,8 @@
       </div>
     </div>
     <div class="notes">
-      <p>※1チームに１つのClaude Codeの$50分のAPIキーを発行することができるので活用してください。</p>
+      <p>※開発は17:30まで。17:30から発表です（1チーム5分＋切り替え3分）</p>
+      <p>※1チームに１つClaude Codeのクレジットを発行することができるので活用してください。</p>
       <p>※何もしないで暇な人が出ないように注意するため、リーダーはディレクションに集中してなるべく実作業を持たないこと</p>
       <p>※開発が難しそうだったり、もっといいアイディアが他に思いついたらチーム合意のもとピボットしてもよい</p>
     </div>
@@ -1522,11 +1526,16 @@
     </div>
   </section>
 
-  <!-- ========== ハッカソンプレゼン（扉） ========== -->
-  <section class="slide statement" data-slide="35">
-    <span class="bg-word" aria-hidden="true">DEMO &amp; VOTE</span>
+  <!-- ========== 発表について ========== -->
+  <section class="slide" data-slide="35">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/demo-and-vote</div>
     <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE</p>
-    <h1 class="title center"><span class="grad">ハッカソンプレゼン</span><span class="cursor" aria-hidden="true"></span></h1>
+    <h2 class="section-title">発表について</h2>
+    <div class="body lg list">
+      <p>1チーム<span class="grad" style="font-weight: 900;">5分</span>で発表してください（切り替え3分）</p>
+      <p>発表順はMCから案内します</p>
+      <p>発表の様子は録画します（配信はしません）</p>
+    </div>
   </section>
 
   <!-- ========== 投票（扉） ========== -->
@@ -1543,10 +1552,11 @@
     <h2 class="section-title">投票</h2>
     <div class="two-col vote">
       <div class="body">
-        <p class="lead">events lab のページから投票してください</p>
+        <p class="lead">発表を聞きながら、events lab のページで随時採点してください</p>
         <!-- ▼差し替え: events lab の投票ページの URL（.url の中身）。出さないなら <p class="cmd"> ごと消す -->
         <p class="cmd"><span class="prompt">$</span><span class="verb">open</span><span class="url">（差し替え）</span></p>
         <p class="note">※自チームへの投票は集計対象から除外されます</p>
+        <p class="note">※Wi-Fi は events lab のイベントページ「参加者限定のお知らせ」にあります</p>
       </div>
       <!-- ▼差し替え: events lab の投票ページの QR。images/vote-qr.png を置いて、中身を
            <img src="images/vote-qr.png" alt="投票ページの QR コード"> に替える -->
@@ -1572,8 +1582,15 @@
     </div>
   </section>
 
-  <!-- ========== 集計中（扉） ========== -->
+  <!-- ========== ハッカソンプレゼン（扉） ========== -->
   <section class="slide statement" data-slide="39">
+    <span class="bg-word" aria-hidden="true">DEMO &amp; VOTE</span>
+    <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE</p>
+    <h1 class="title center"><span class="grad">ハッカソンプレゼン</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 集計中（扉） ========== -->
+  <section class="slide statement" data-slide="40">
     <span class="bg-word" aria-hidden="true">DEMO &amp; VOTE</span>
     <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE</p>
     <h1 class="title center"><span class="grad">集計中</span><span class="cursor" aria-hidden="true"></span></h1>
@@ -1584,7 +1601,7 @@
   </section>
 
   <!-- ========== 結果発表！（扉） ========== -->
-  <section class="slide statement glow-result" data-slide="40">
+  <section class="slide statement glow-result" data-slide="41">
     <span class="rays" aria-hidden="true"></span>
     <span class="bg-word" aria-hidden="true">AWARDS</span>
     <p class="kicker"><span>//</span> 06 AWARDS</p>
@@ -1592,7 +1609,7 @@
   </section>
 
   <!-- ========== 特別賞（扉） ========== -->
-  <section class="slide statement glow-special" data-slide="41">
+  <section class="slide statement glow-special" data-slide="42">
     <span class="rays" aria-hidden="true"></span>
     <span class="bg-word" aria-hidden="true">AWARDS</span>
     <p class="kicker"><span>//</span> 06 AWARDS</p>
@@ -1600,7 +1617,7 @@
   </section>
 
   <!-- ========== 特別賞 ========== -->
-  <section class="slide glow-special" data-slide="42">
+  <section class="slide glow-special" data-slide="43">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/awards</div>
     <p class="kicker"><span>//</span> 06 AWARDS</p>
     <h2 class="section-title"><span class="emoji">✨</span><span class="grad">特別賞</span></h2>
@@ -1612,7 +1629,7 @@
   </section>
 
   <!-- ========== 優秀賞（扉） ========== -->
-  <section class="slide statement glow-silver" data-slide="43">
+  <section class="slide statement glow-silver" data-slide="44">
     <span class="rays" aria-hidden="true"></span>
     <span class="bg-word" aria-hidden="true">AWARDS</span>
     <p class="kicker"><span>//</span> 06 AWARDS</p>
@@ -1620,7 +1637,7 @@
   </section>
 
   <!-- ========== 優秀賞 ========== -->
-  <section class="slide glow-silver" data-slide="44">
+  <section class="slide glow-silver" data-slide="45">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/awards</div>
     <p class="kicker"><span>//</span> 06 AWARDS</p>
     <h2 class="section-title"><span class="emoji">⚡</span><span class="grad">優秀賞</span></h2>
@@ -1632,7 +1649,7 @@
   </section>
 
   <!-- ========== 最優秀賞（扉） ========== -->
-  <section class="slide statement glow-gold" data-slide="45">
+  <section class="slide statement glow-gold" data-slide="46">
     <span class="rays" aria-hidden="true"></span>
     <span class="bg-word" aria-hidden="true">AWARDS</span>
     <p class="kicker"><span>//</span> 06 AWARDS</p>
@@ -1640,7 +1657,7 @@
   </section>
 
   <!-- ========== 最優秀賞 ========== -->
-  <section class="slide glow-gold" data-slide="46">
+  <section class="slide glow-gold" data-slide="47">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/awards</div>
     <p class="kicker"><span>//</span> 06 AWARDS</p>
     <h2 class="section-title"><span class="emoji">🏆</span><span class="grad">最優秀賞</span></h2>
@@ -1652,7 +1669,7 @@
   </section>
 
   <!-- ========== アンケート ========== -->
-  <section class="slide" data-slide="47">
+  <section class="slide" data-slide="48">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/awards</div>
     <p class="kicker"><span>//</span> 06 AWARDS</p>
     <h2 class="section-title">こちらにアンケートの記入をお願いします！</h2>
@@ -1663,14 +1680,14 @@
   </section>
 
   <!-- ========== 交流会（扉） ========== -->
-  <section class="slide statement" data-slide="48">
+  <section class="slide statement" data-slide="49">
     <span class="bg-word" aria-hidden="true">PARTY</span>
     <p class="kicker"><span>//</span> 07 PARTY</p>
     <h1 class="title center"><span class="grad">交流会</span><span class="cursor" aria-hidden="true"></span></h1>
   </section>
 
   <!-- ========== 交流シール（交流会） ========== -->
-  <section class="slide" data-slide="49">
+  <section class="slide" data-slide="50">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/party</div>
     <p class="kicker"><span>//</span> 07 PARTY</p>
     <h2 class="section-title">交流シール</h2>
@@ -1684,7 +1701,7 @@
   </section>
 
   <!-- ========== おつかれさまでした！（扉） ========== -->
-  <section class="slide statement" data-slide="50">
+  <section class="slide statement" data-slide="51">
     <span class="bg-word" aria-hidden="true">PARTY</span>
     <p class="kicker"><span>//</span> 07 PARTY</p>
     <h1 class="title center"><span class="grad">おつかれさまでした！</span><span class="cursor" aria-hidden="true"></span></h1>
