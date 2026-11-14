@@ -1,0 +1,1703 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bluesky Hackathon Tokyo Vol.1 — 進行</title>
+<!-- フォントは Google Fonts。オフラインで読めなくても --font-sans / --font-mono の fallback で日本語は出る -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Noto+Sans+JP:wght@400;700;900&display=swap">
+<style>
+  /* =========================================================
+     テーマ（ダーク基調の「ターミナル / IDE」）
+     ========================================================= */
+  :root {
+    --s: 1;                   /* スライドの表示倍率。JS が上書きする */
+    /* ▼差し替え: アクセントカラー。--accent / --cyan と --grad を同系で揃える */
+    --accent: #1083fe;        /* Bluesky ブルー。見出しの強調・ツールバー */
+    --accent-dark: #0a6cd6;   /* ボタンのホバー */
+    --cyan: #22d3ee;          /* サブアクセント。箇条書きの ▸・キッカー */
+    --lime: #a3e635;          /* 記号用（プロンプトの $ など）。少しだけ使う */
+    --amber: #f59e0b;         /* 注意書きの線 */
+    --gold: #fbbf24;          /* 最優秀賞 */
+    --yellow: #facc15;        /* 優秀賞 */
+
+    --bg: #0a0e17;            /* スライドの地 */
+    --ink: #e6edf3;           /* 本文 */
+    --ink-soft: #c3cdd8;      /* 入れ子の箇条書きなど */
+    --muted: #8b98a9;         /* 注記・ラベル */
+    --card-bg: rgba(255,255,255,0.04);
+    --card-border: rgba(255,255,255,0.08);
+    --grad: linear-gradient(90deg, #1083fe 0%, #22d3ee 100%);
+    --shadow: 0 18px 50px rgba(0,0,0,0.45);
+
+    /* 日本語は Noto Sans JP、無ければ OS の日本語フォントへ落ちる */
+    --font-sans: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "YuGothic", "Meiryo", "IPAPGothic", system-ui, sans-serif;
+    /* 等幅は JetBrains Mono。日本語が混ざったときのために日本語フォントも後ろに並べる */
+    --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Meiryo", monospace;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;   /* iOS の文字自動拡大を止める */
+    text-size-adjust: 100%;
+    font-family: var(--font-sans);
+    color: var(--ink);
+    background: #05080f;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* =========================================================
+     デッキのレイアウト
+     ========================================================= */
+  .deck {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 32px 16px 100px;
+  }
+
+  /* .frame は JS が各 .slide を包む普通のブロック。幅は画面に合わせて縮み、
+     中の .slide は 1280x720 のまま .frame の幅に合わせて transform で縮小される。
+     位置決めは .frame（通常のレイアウト）に任せるのでズレる余地がない */
+  .frame {
+    width: min(1280px, 100%);
+    aspect-ratio: 16 / 9;
+    position: relative;
+    flex: none;
+  }
+  .slide {
+    /* 常に 1280x720 でレイアウトし、画面に収まるよう丸ごと縮小する。
+       文字サイズが端末の最小フォント設定や自動拡大に左右されないための方式 */
+    width: 1280px;
+    height: 720px;
+    /* 倍率 --s は :root に既定値 1 があり、末尾の JS（fitScale）が .frame の実測幅から
+       上書きする。ここ（.slide 自身）に --s を書くと JS の値より優先されるので書かないこと */
+    transform: scale(var(--s));
+    transform-origin: top left;
+    /* 地: 紺の上に 40px のグリッド線、左上にブルー・右下にシアンの光。
+       光だけ差し替えたいスライドは --glow-a / --glow-b / --glow-c を上書きする */
+    --glow-a: radial-gradient(760px 520px at 0% 0%, rgba(16,131,254,0.26), transparent 70%);
+    --glow-b: radial-gradient(720px 500px at 100% 100%, rgba(34,211,238,0.16), transparent 70%);
+    --glow-c: linear-gradient(transparent, transparent);
+    background-color: var(--bg);
+    background-image:
+      var(--glow-c), var(--glow-a), var(--glow-b),
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: auto, auto, auto, 40px 40px, 40px 40px;
+    background-position: center, 0 0, 0 0, -1px -1px, -1px -1px;
+    color: var(--ink);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    padding: 84px 80px 52px;   /* 上は窓のバー（44px）のぶん広い */
+    display: flex;
+    flex-direction: column;
+    container-type: inline-size;
+  }
+
+  /* ---- 窓の枠（ターミナル窓風のバー） ---- */
+  .win {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 20px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--card-border);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  .win i { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
+  .win i:nth-child(2) { background: #febc2e; }
+  .win i:nth-child(3) { background: #28c840; margin-right: 14px; }
+
+  /* ---- 共通パーツ ---- */
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--cyan);
+    margin: 0 0 8px;
+  }
+  .kicker span { color: var(--muted); }
+
+  h1.title {
+    font-size: 72px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin: 0 0 24px;
+    color: var(--ink);
+  }
+  h1.title.center { text-align: center; }
+
+  h2.section-title {
+    font-size: 50px;
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: 0.01em;
+    margin: 0 0 30px;
+    color: var(--ink);
+  }
+
+  /* ブルー → シアンのグラデーション文字 */
+  .grad {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+  .accent { color: var(--cyan); }
+
+  .body {
+    font-size: 26px;
+    color: var(--ink);
+    line-height: 1.7;
+  }
+  .body.lg { font-size: 28px; }
+  .body.dense { font-size: 24px; line-height: 1.6; }
+  .slide .body p { margin: 0 0 14px; }
+  /* 箇条書き。記号はシアンの ▸ */
+  .list p, .bullets li { position: relative; padding-left: 1.25em; }
+  .list p::before, .bullets li::before {
+    content: "▸";
+    position: absolute;
+    left: 0;
+    color: var(--cyan);
+  }
+  .slide .body p.note, .note-text {
+    font-size: 20px;
+    color: var(--muted);
+    padding-left: 0;
+  }
+  .slide .body p.note::before { content: none; }
+  /* 一行だけ強く言いたいとき */
+  .slide .body p.punch {
+    margin-top: 22px;
+    padding: 14px 22px;
+    border-left: 3px solid var(--cyan);
+    background: linear-gradient(90deg, rgba(34,211,238,0.10), transparent 80%);
+    font-weight: 700;
+  }
+  .slide .body p.punch::before { content: none; }
+
+  /* SVG はアイコンや線・箱の図に使う。ただし SVG の <text> は Android Chrome の
+     文字自動拡大で巨大化することがあり、text-size-adjust でも止まらない。
+     図の中の文字は SVG ではなく HTML の要素として置くこと
+     （decks/2026-09-bluesky-meetup/lt/slide.html の .node / .line / .ahead が実例） */
+
+  /* ---- 種別: statement（セクション扉） ---- */
+  .slide.statement {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 56px 80px;
+  }
+  .slide.statement > * { position: relative; z-index: 1; }
+  .slide.statement .kicker { font-size: 22px; margin-bottom: 22px; }
+  .slide.statement h1.title {
+    font-size: 104px;
+    line-height: 1.15;
+    margin: 0;
+    white-space: nowrap;
+  }
+  /* 章の英語名を薄い輪郭文字で敷く */
+  .slide.statement > .bg-word {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 0;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 176px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(255,255,255,0.06);
+    pointer-events: none;
+    user-select: none;
+  }
+  /* 点滅するブロックカーソル（文字ではなく箱で描く。フォントに左右されない） */
+  .cursor {
+    display: inline-block;
+    width: 0.4em;
+    height: 0.86em;
+    margin-left: 0.14em;
+    vertical-align: -0.06em;
+    background: var(--cyan);
+    box-shadow: 0 0 24px rgba(34,211,238,0.6);
+    animation: blink 1.1s steps(1, end) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  /* 扉の出現: fade + 少し上へ */
+  .slide.statement .kicker,
+  .slide.statement h1.title,
+  .slide.statement .after {
+    animation: rise 600ms var(--ease-out) both;
+  }
+  .slide.statement h1.title { animation-delay: 80ms; }
+  .slide.statement .after { animation-delay: 200ms; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* ---- 集計中（ローディング） ---- */
+  .loader {
+    margin-top: 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .loader .bar {
+    position: relative;
+    width: 520px;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+  }
+  .loader .bar i {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 60%;
+    border-radius: 3px;
+    background: var(--grad);
+    box-shadow: 0 0 16px rgba(34,211,238,0.7);
+    animation: flow 1.6s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+  }
+  @keyframes flow {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(170%); }
+  }
+  .loader-label {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .loader-label b { font-weight: 400; animation: blink 1.2s steps(1, end) infinite; }
+  .loader-label b:nth-child(2) { animation-delay: 0.2s; }
+  .loader-label b:nth-child(3) { animation-delay: 0.4s; }
+
+  /* ---- 結果発表・受賞の光 ---- */
+  .slide > .rays {
+    position: absolute;
+    inset: -20%;
+    z-index: 0;
+    pointer-events: none;
+    background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,0.07) 0deg 5deg, transparent 5deg 15deg);
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0%, transparent 55%);
+    mask-image: radial-gradient(circle at 50% 50%, #000 0%, transparent 55%);
+  }
+  .slide.glow-result {
+    --glow-c: radial-gradient(520px 340px at 50% 52%, rgba(16,131,254,0.34), rgba(34,211,238,0.10) 55%, transparent 75%);
+  }
+  .slide.glow-silver {
+    --glow-a: radial-gradient(760px 520px at 0% 0%, rgba(34,211,238,0.20), transparent 70%);
+    --glow-b: radial-gradient(720px 500px at 100% 100%, rgba(250,204,21,0.14), transparent 70%);
+    --glow-c: radial-gradient(520px 340px at 50% 52%, rgba(34,211,238,0.26), rgba(250,204,21,0.10) 55%, transparent 75%);
+  }
+  .slide.glow-gold {
+    --glow-a: radial-gradient(760px 520px at 0% 0%, rgba(251,191,36,0.16), transparent 70%);
+    --glow-b: radial-gradient(720px 500px at 100% 100%, rgba(245,158,11,0.16), transparent 70%);
+    --glow-c: radial-gradient(540px 360px at 50% 52%, rgba(251,191,36,0.34), rgba(245,158,11,0.10) 55%, transparent 75%);
+  }
+  .slide.statement.glow-result .grad { filter: drop-shadow(0 0 28px rgba(34,211,238,0.45)); }
+  /* 本文のある受賞スライドでは、中央の光を見出しの後ろへ寄せる */
+  .slide.glow-silver:not(.statement) { --glow-c: radial-gradient(420px 260px at 14% 20%, rgba(250,204,21,0.16), transparent 75%); }
+  .slide.glow-gold:not(.statement) { --glow-c: radial-gradient(420px 260px at 14% 20%, rgba(251,191,36,0.22), transparent 75%); }
+  .slide.glow-silver .grad {
+    background-image: linear-gradient(90deg, #22d3ee 0%, #facc15 100%);
+    filter: drop-shadow(0 0 26px rgba(34,211,238,0.40));
+  }
+  .slide.glow-gold .grad {
+    background-image: linear-gradient(90deg, #fde68a 0%, #fbbf24 50%, #f59e0b 100%);
+    filter: drop-shadow(0 0 28px rgba(251,191,36,0.45));
+  }
+  .slide.glow-silver .kicker { color: var(--yellow); }
+  .slide.glow-gold .kicker { color: var(--gold); }
+  .slide.glow-silver .cursor { background: var(--yellow); box-shadow: 0 0 24px rgba(250,204,21,0.6); }
+  .slide.glow-gold .cursor { background: var(--gold); box-shadow: 0 0 24px rgba(251,191,36,0.6); }
+  .emoji { font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .glow-silver .emoji { filter: drop-shadow(0 0 22px rgba(250,204,21,0.75)); }
+  .glow-gold .emoji { filter: drop-shadow(0 0 22px rgba(251,191,36,0.75)); }
+
+  /* ---- 種別: cover（表紙） ---- */
+  .slide.cover {
+    --glow-a: radial-gradient(900px 620px at 0% 0%, rgba(16,131,254,0.34), transparent 70%);
+    --glow-b: radial-gradient(820px 560px at 100% 100%, rgba(34,211,238,0.22), transparent 70%);
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    align-items: center;
+    column-gap: 40px;
+    padding: 84px 96px 88px;
+  }
+  .cover-logo { width: 104px; height: auto; display: block; margin-bottom: 22px; filter: drop-shadow(0 0 22px rgba(16,131,254,0.55)); }
+  .slide.cover h1.title {
+    font-size: 116px;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    margin: 0 0 30px;
+    max-width: 760px;
+  }
+  .slide.cover h1.title .grad { padding-bottom: 0.08em; }
+  .cover-event {
+    font-family: var(--font-mono);
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--cyan);
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+  .cover-date {
+    font-family: var(--font-mono);
+    font-size: 56px;
+    font-weight: 800;
+    margin: 6px 0 0;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .cover-badges { display: flex; flex-direction: column; align-items: center; gap: 36px; }
+  .cover-code {
+    position: absolute;
+    right: 80px;
+    top: 66px;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 18px;
+    color: rgba(230,237,243,0.42);
+    white-space: pre;
+  }
+  .cover-code .k { color: rgba(16,131,254,0.85); }
+  .cover-code .s { color: rgba(34,211,238,0.70); }
+  .cover-code .n { color: rgba(163,230,53,0.75); }
+
+  /* ---- 光るリング付きの丸（キャラクター・ロゴ） ---- */
+  .orb {
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex: none;
+    box-shadow:
+      0 0 0 5px var(--bg),
+      0 0 0 7px rgba(34,211,238,0.85),
+      0 0 40px 10px rgba(16,131,254,0.45);
+  }
+  .orb img { width: 90%; height: 90%; object-fit: contain; display: block; }
+  .orb img.logo { width: 66%; height: 66%; }
+
+  /* ---- 種別: 2カラム（本文 + 画像） ---- */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5%;
+    flex: 1;
+    align-items: center;
+  }
+  .col-text p {
+    font-size: 26px;
+    line-height: 1.7;
+    color: var(--ink);
+    margin: 0 0 12px;
+  }
+
+  /* ---- 左にロゴ、右に本文（p3 / p4） ---- */
+  .two-col.logo-left { grid-template-columns: 2fr 3fr; }
+  .logo-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 44px;
+    align-self: stretch;
+    border-radius: 20px;
+    background: radial-gradient(closest-side, rgba(16,131,254,0.22), transparent);
+  }
+  .logo-stack > img { display: block; height: auto; filter: drop-shadow(0 0 30px rgba(16,131,254,0.55)); }
+
+  /* ---- タイムライン（時刻 / 線上の点 / 項目） ---- */
+  .timeline {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    margin: 0;
+    flex: 1;
+    align-content: center;
+    font-size: 24px;
+    line-height: 1.4;
+  }
+  .timeline.roomy { font-size: 26px; }
+  .timeline dt, .timeline dd { margin: 0; padding: 8px 0; }
+  .timeline.roomy dt, .timeline.roomy dd { padding-top: 13px; padding-bottom: 13px; }
+  .timeline dt {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    text-align: right;
+    padding-right: 34px;
+  }
+  .timeline dd {
+    position: relative;
+    padding-left: 40px;
+    border-left: 2px solid rgba(255,255,255,0.12);
+    font-weight: 700;
+  }
+  .timeline dd::before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    top: calc(8px + 0.7em - 7px);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--cyan);
+  }
+  .timeline.roomy dd::before { top: calc(13px + 0.7em - 7px); }
+  .timeline dt.hot { color: var(--cyan); }
+  .timeline dd.hot { color: #fff; text-shadow: 0 0 22px rgba(16,131,254,0.85); }
+  .timeline dd.hot::before {
+    background: var(--accent);
+    border-color: #8cc8ff;
+    box-shadow: 0 0 0 5px rgba(16,131,254,0.22), 0 0 22px 4px rgba(16,131,254,0.8);
+  }
+  .tag {
+    display: inline-block;
+    margin-left: 16px;
+    padding: 2px 10px;
+    border-radius: 6px;
+    vertical-align: 0.15em;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--bg);
+    background: var(--grad);
+    text-shadow: none;
+  }
+
+  /* ---- 写真（白地の写真は角丸の白いカードに入れる） ---- */
+  .img-fill { flex: 1; min-height: 0; margin-top: 10px; display: flex; justify-content: center; }
+  .photo-card {
+    height: 100%;
+    background: #fff;
+    border-radius: 18px;
+    padding: 14px 22px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.15), 0 0 60px rgba(16,131,254,0.28), var(--shadow);
+  }
+  .photo-card img { height: 100%; width: auto; display: block; }
+
+  /* ---- QR の仮の枠 ---- */
+  .center-stack {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+  }
+  .qr-box {
+    width: 320px;
+    aspect-ratio: 1 / 1;
+    justify-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px dashed rgba(34,211,238,0.75);
+    border-radius: 18px;
+    background: rgba(34,211,238,0.05);
+    box-shadow: 0 0 40px rgba(34,211,238,0.15);
+    font-family: var(--font-mono);
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 0.04em;
+  }
+  .note-text { margin: 0; }
+  /* コマンド風の URL（p30） */
+  .two-col.vote { grid-template-columns: 1.5fr 1fr; }
+  .cmd {
+    font-family: var(--font-mono);
+    font-size: 26px;
+    line-height: 1.5;
+    padding: 18px 22px;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid var(--card-border);
+    word-break: break-all;
+  }
+  .cmd .prompt { color: var(--lime); margin-right: 0.5em; }
+  .cmd .verb { color: var(--muted); margin-right: 0.5em; }
+  .cmd .url { color: var(--cyan); }
+
+  /* ---- アイデアシート + 吹き出し（p16 / p17） ---- */
+  .sheet-layout {
+    display: grid;
+    grid-template-columns: 540px 1fr;
+    gap: 56px;
+    align-items: center;
+    margin-top: 6px;
+  }
+  .sheet-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 10px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.15), 0 0 50px rgba(16,131,254,0.25), var(--shadow);
+  }
+  .sheet-card img { width: 100%; height: auto; display: block; border-radius: 8px; }
+  .callouts { display: flex; flex-direction: column; gap: 44px; }
+  .callout {
+    position: relative;
+    background: #111a2b;
+    border: 2px solid var(--cyan);
+    border-radius: 14px;
+    padding: 20px 24px;
+    font-size: 24px;
+    line-height: 1.6;
+    color: var(--ink);
+    font-weight: 700;
+    margin: 0;
+    box-shadow: 0 0 30px rgba(34,211,238,0.12);
+  }
+  /* 左向きの小さな三角。外側をシアン、内側を吹き出しの地で重ねて枠線に見せる */
+  .callout::before,
+  .callout::after {
+    content: "";
+    position: absolute;
+    top: 28px;
+    border: 12px solid transparent;
+    border-left: 0;
+  }
+  .callout::before { left: -14px; border-right-color: var(--cyan); }
+  .callout::after { left: -11px; border-right-color: #111a2b; }
+
+  /* ---- エディタのペイン（p26） ---- */
+  .slide.tight { padding-bottom: 32px; }
+  .slide.tight h2.section-title { font-size: 42px; margin-bottom: 16px; }
+  .panes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: stretch;
+  }
+  .pane {
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    background: rgba(5,8,15,0.55);
+    overflow: hidden;
+  }
+  .pane-tab {
+    display: flex;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--card-border);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    color: var(--muted);
+  }
+  .pane-tab span {
+    padding: 7px 18px;
+    color: var(--ink);
+    background: rgba(10,14,23,0.9);
+    border-top: 2px solid var(--accent);
+    border-right: 1px solid var(--card-border);
+  }
+  .nested, .nested ul { list-style: none; margin: 0; padding: 0; }
+  .nested { padding: 12px 18px 14px 20px; }
+  .nested li { position: relative; padding-left: 1.2em; }
+  .nested > li {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  .nested > li::before { content: "▸"; position: absolute; left: 0; color: var(--cyan); }
+  .nested ul { margin: 0 0 2px; }
+  .nested ul li {
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--ink-soft);
+  }
+  .nested ul li::before { content: "-"; position: absolute; left: 0.25em; color: var(--muted); }
+  .nested ul ul li::before { content: "·"; }
+  /* 注意書き（左にアンバーの線） */
+  .notes {
+    margin-top: auto;
+    padding: 10px 18px;
+    border-left: 4px solid var(--amber);
+    border-radius: 0 10px 10px 0;
+    background: rgba(245,158,11,0.08);
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .notes p { margin: 0; }
+
+  /* ---- 審査基準（p27） ---- */
+  .criteria {
+    flex: 1;
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .crit {
+    position: relative;
+    display: grid;
+    grid-template-columns: 270px 1fr;
+    align-items: center;
+    column-gap: 24px;
+    padding: 8px 32px;
+    border-radius: 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    overflow: hidden;
+  }
+  .crit::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--grad);
+  }
+  .crit .num {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 0.1em;
+  }
+  .crit h3 { margin: 0; font-size: 36px; font-weight: 900; line-height: 1.2; }
+  .crit p { margin: 0; font-size: 22px; color: var(--ink-soft); white-space: nowrap; }
+
+  /* ---- 受賞チームの記入欄（p34 / p36） ---- */
+  .award {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    column-gap: 28px;
+    row-gap: 26px;
+    margin: 6px 0 0;
+    flex: 1;
+    align-content: center;
+  }
+  .award dt {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--muted);
+    padding-top: 22px;
+  }
+  .award dd {
+    margin: 0;
+    min-height: 120px;
+    padding: 20px 28px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.04);
+    border: 2px solid rgba(34,211,238,0.5);
+    box-shadow: 0 0 36px rgba(34,211,238,0.12), inset 0 0 30px rgba(34,211,238,0.05);
+    font-size: 44px;
+    font-weight: 900;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .award dd:last-of-type { min-height: 220px; font-size: 30px; font-weight: 700; }
+  .glow-silver .award dd { border-color: rgba(250,204,21,0.55); box-shadow: 0 0 36px rgba(250,204,21,0.14), inset 0 0 30px rgba(250,204,21,0.05); }
+  .glow-gold .award dd { border-color: rgba(251,191,36,0.65); box-shadow: 0 0 40px rgba(251,191,36,0.18), inset 0 0 30px rgba(251,191,36,0.06); }
+  .glow-silver .award dt { color: #d8e6a8; }
+  .glow-gold .award dt { color: #f3d79a; }
+
+  /* ---- 締め（p40） ---- */
+  .exit {
+    margin: 40px 0 0;
+    font-family: var(--font-mono);
+    font-size: 22px;
+    color: var(--muted);
+  }
+  .exit .prompt { color: var(--lime); margin-right: 0.6em; }
+  .exit b { color: var(--lime); }
+
+  /* =========================================================
+     ツールバー（印刷時は消える）
+     ========================================================= */
+  .toolbar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(11, 20, 38, 0.92);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    z-index: 100;
+    font-size: 14px;
+  }
+  .toolbar button {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .toolbar button:hover { background: rgba(255,255,255,0.22); }
+  .toolbar button.primary { background: var(--accent); }
+  .toolbar button.primary:hover { background: var(--accent-dark); }
+  /* left:50% 配置は狭い画面で利用可能幅が半分と計算されるので、折り返しを禁止する */
+  .toolbar, .toolbar button { white-space: nowrap; }
+  @media (max-width: 640px) {
+    .toolbar { bottom: 10px; padding: 6px 10px; gap: 8px; font-size: 12px; }
+    .toolbar button { padding: 6px 10px; font-size: 12px; }
+  }
+  .toolbar .counter {
+    min-width: 50px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* プレゼンモード（1枚ずつ全画面表示） */
+  body.present {
+    background: #05080f;
+    overflow: hidden;
+  }
+  body.present .deck {
+    padding: 0;
+    height: 100vh;
+    justify-content: center;
+  }
+  body.present .frame {
+    display: none;
+    width: min(100vw, calc(100vh * 16 / 9));
+  }
+  body.present .frame.active { display: block; }
+  body.present .slide {
+    border-radius: 0;
+  }
+
+  /* =========================================================
+     印刷（= PDF出力）。1スライド = 1ページ
+     ========================================================= */
+  body.embedded .toolbar { display: none; }   /* stage.html の中ではステージ側のバーを使う */
+  /* ---- 閲覧モード（?preview）。共有用。PDF ビューワーのような見え方にする ---- */
+  body.preview { background: #d9dee5; }
+  body.preview .deck { padding-top: 72px; gap: 40px; }
+  .preview-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    font-size: 14px; color: #0b1426;
+  }
+  .preview-bar .pv-title { font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .preview-bar .pv-meta { color: #6b7280; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  body.preview .frame .pageno {
+    position: absolute; top: 100%; right: 0; margin-top: 8px;
+    font-size: 12px; font-weight: 700; color: #6b7280; font-variant-numeric: tabular-nums;
+  }
+  body.preview .slide { box-shadow: 0 2px 12px rgba(0,0,0,0.12); }
+  body.preview #presentBtn, body.preview #fsBtn, body.preview #presenterBtn { display: none; }
+  /* ---- 発表者ビュー（#presenter 付きで開いた別ウィンドウ）---- */
+  body.presenter { background: #0b1426; overflow: hidden; }
+  body.presenter .deck {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    grid-template-rows: auto 1fr;
+    gap: 20px;
+    height: 100vh;
+    padding: 20px;
+    align-items: start;
+  }
+  body.presenter .frame { display: none; }
+  body.presenter .frame.active {
+    display: block;
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: center;
+    width: min(100%, calc((100vh - 40px) * 16 / 9));
+  }
+  body.presenter .frame.next { display: block; grid-column: 2; grid-row: 1; width: 100%; }
+  body.presenter .frame.active::after,
+  body.presenter .frame.next::after {
+    content: "NOW";
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 5;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    color: #fff;
+    background: rgba(11, 20, 38, 0.75);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  body.presenter .frame.next::after { content: "NEXT"; }
+  body.presenter .toolbar { display: none; }
+  .presenter-panel { grid-column: 2; grid-row: 2; color: #fff; display: flex; flex-direction: column; gap: 14px; }
+  .pp-count { font-size: 22px; font-weight: 700; opacity: 0.85; }
+  .pp-count b { font-size: 44px; font-weight: 900; }
+  .pp-clock { font-size: 40px; font-weight: 900; font-variant-numeric: tabular-nums; }
+  .pp-elapsed { font-size: 20px; font-variant-numeric: tabular-nums; display: flex; gap: 12px; align-items: center; }
+  .pp-elapsed button { font: inherit; font-size: 13px; color: #fff; background: rgba(255,255,255,0.14); border: none; border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+  .pp-help { font-size: 13px; opacity: 0.6; }
+
+  /* 動きを減らす設定では、扉の出現・カーソル点滅・ローディングを止める */
+  @media (prefers-reduced-motion: reduce) {
+    .slide *, .slide *::before, .slide *::after { animation: none !important; }
+  }
+
+  @media print {
+    @page {
+      size: landscape;
+      margin: 0;
+    }
+    /* 暗い背景・光・グラデーション文字をそのまま PDF に出す */
+    html, body, .slide, .slide * {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    html, body { background: var(--bg); }
+    .slide *, .slide *::before, .slide *::after { animation: none !important; }
+    .toolbar { display: none !important; }
+    .deck {
+      padding: 0;
+      gap: 0;
+    }
+    .frame {
+      width: 1280px;
+      height: 720px;
+      aspect-ratio: auto;
+      page-break-after: always;
+      break-after: page;
+    }
+    .frame:last-child { page-break-after: auto; }
+    .slide {
+      transform: none;
+      border-radius: 0;
+      box-shadow: none;
+      page-break-after: always;
+      break-after: page;
+      margin: 0;
+    }
+    .slide:last-child { page-break-after: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- =============================================================
+     スライド本体
+     ・1枚 = <section class="slide" data-slide="N">
+     ・順番は書いた順。data-slide は目印なので通し番号を振り直すだけでよい
+       （枚数のカウントは JS が自動でやるので total を直す必要はない）
+     ・不要な種別のスライドはセクションごと削除してよい
+     ・「▼差し替え」と書いてある箇所が編集ポイント
+     ・本文のスライドは先頭に窓のバー（.win）と章のキッカー（.kicker）を置く。
+       扉（.statement）は .kicker・見出し・.cursor、背景に章の英語名（.bg-word）
+     ============================================================= -->
+<div class="deck" id="deck">
+
+  <!-- ========== 1. 表紙 ========== -->
+  <section class="slide cover" data-slide="1">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon</div>
+    <div class="cover-main">
+      <img class="cover-logo" src="images/bluesky-logo-white.png" alt="Bluesky のロゴ">
+      <!-- ▼差し替え: イベント名（題名と回） -->
+      <h1 class="title"><span class="grad">Bluesky Hackathon</span></h1>
+      <p class="cover-event">Tokyo Vol.1</p>
+      <!-- ▼差し替え: 開催日 -->
+      <p class="cover-date">2026.04.18</p>
+    </div>
+    <div class="cover-badges">
+      <span class="orb" style="width: 236px; height: 236px;"><img src="images/keyvisual.png" alt="イベントのキャラクター"></span>
+      <span class="orb" style="width: 150px; height: 150px;"><img class="logo" src="images/yotsuya-lab-logo.png" alt="四谷ラボのロゴ"></span>
+    </div>
+    <!-- ▼差し替え: 飾りのコード片。次回は city と vol を書き換える -->
+    <pre class="cover-code" aria-hidden="true"><span class="k">const</span> event = { protocol: <span class="s">"atproto"</span>, city: <span class="s">"Tokyo"</span>, vol: <span class="n">1</span> };</pre>
+  </section>
+
+  <!-- ========== 2. はじめに（扉） ========== -->
+  <section class="slide statement" data-slide="2">
+    <span class="bg-word" aria-hidden="true">OPENING</span>
+    <p class="kicker"><span>//</span> 00 OPENING</p>
+    <h1 class="title center"><span class="grad">はじめに</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 3. はじめに ========== -->
+  <section class="slide" data-slide="3">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/opening</div>
+    <p class="kicker"><span>//</span> 00 OPENING</p>
+    <h2 class="section-title">はじめに</h2>
+    <div class="two-col logo-left">
+      <div class="logo-stack">
+        <img src="images/bluesky-logo-blue.png" alt="Bluesky のロゴ" style="width: 240px;">
+        <span class="orb" style="width: 150px; height: 150px;"><img class="logo" src="images/yotsuya-lab-logo.png" alt="四谷ラボのロゴ"></span>
+      </div>
+      <div class="col-text">
+        <p>このイベントはBluesky公式イベントです。</p>
+        <p>2023年に世界初のBluesky meetupを四谷ラボというコミュニティでボランティアでお手伝いしたことからの縁で運営の協力をおこなっています。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 4. 四谷ラボってなんやねん ========== -->
+  <section class="slide" data-slide="4">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/opening</div>
+    <p class="kicker"><span>//</span> 00 OPENING</p>
+    <h2 class="section-title">四谷ラボってなんやねん</h2>
+    <div class="two-col logo-left">
+      <div class="logo-stack">
+        <span class="orb" style="width: 280px; height: 280px;"><img class="logo" src="images/yotsuya-lab-logo.png" alt="四谷ラボのロゴ"></span>
+      </div>
+      <div class="col-text">
+        <p>私が創設したコミュニティです。</p>
+        <p>会社組織に縛られずにオープンに知識を蓄積したり、</p>
+        <p>わいわいと楽しくやっていきながら</p>
+        <p><span class="grad" style="font-weight: 900;">いずれ地球を飛び出そう！</span></p>
+        <p>というぶっ飛んだ目標があります。</p>
+        <p>詳しくはkojiraかShino3まで</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 5. 本日の流れ（扉） ========== -->
+  <section class="slide statement" data-slide="5">
+    <span class="bg-word" aria-hidden="true">GUIDE</span>
+    <p class="kicker"><span>//</span> 01 GUIDE</p>
+    <h1 class="title center"><span class="grad">本日の流れ</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 6. 本日の流れ ========== -->
+  <section class="slide" data-slide="6">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/guide</div>
+    <p class="kicker"><span>//</span> 01 GUIDE</p>
+    <h2 class="section-title">本日の流れ</h2>
+    <!-- ▼差し替え: 時刻と項目。dt / dd を 1 組ずつ増減させる。目立たせたい行は dt / dd に class="hot" -->
+    <dl class="timeline">
+      <dt>１２：００</dt><dd>みんなで軽食を食べながらイベントの説明</dd>
+      <dt>１３：００</dt><dd>過去のアイディアソン発表</dd>
+      <dt>１３：１０</dt><dd>プチアイディアソン</dd>
+      <dt>１４：２０</dt><dd>チーム分け</dd>
+      <dt class="hot">１４：３０</dt><dd class="hot">ハッカソン開始<em class="tag">HACK START</em></dd>
+      <dt>１７：２０</dt><dd>発表</dd>
+      <dt>１８：１５</dt><dd>表彰</dd>
+      <dt class="hot">１８：３０</dt><dd class="hot">交流会(お寿司！🍣)<em class="tag">PARTY</em></dd>
+      <dt>２０：３０</dt><dd>終了</dd>
+    </dl>
+  </section>
+
+  <!-- ========== 7. アイディアソン、ハッカソンとは ========== -->
+  <section class="slide" data-slide="7">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/guide</div>
+    <p class="kicker"><span>//</span> 01 GUIDE</p>
+    <h2 class="section-title">アイディアソン、ハッカソンとは</h2>
+    <div class="body dense list">
+      <p>アイディアとマラソン、ハックとマラソンの造語です</p>
+      <p>丸1日や数日掛けてチームでアイディア出しや開発を進めます</p>
+      <p>昔はハッカソンは2日間とかで泊まり込みで夜を徹して開発したりすることが多かったです。(今はAIの開発速度があがって数時間でもできてしまう)</p>
+      <p>いろいろな流儀はありますが、アイディアソン、ハッカソンの醍醐味は、その場でチームを組んで新たな刺激を得ることが一番大事だと考えています</p>
+      <p class="punch">一人では絶対に得られない体験を大事にしましょう！</p>
+    </div>
+  </section>
+
+  <!-- ========== 8. 賞品について ========== -->
+  <section class="slide" data-slide="8">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/guide</div>
+    <p class="kicker"><span>//</span> 01 GUIDE</p>
+    <h2 class="section-title">賞品について</h2>
+    <div class="body list">
+      <p>上位2チームの入賞チームから順番にBlueskyグッズを選んでもらいます</p>
+      <p class="note">※在庫がない分は後日匿名配送も可能です</p>
+    </div>
+    <div class="img-fill">
+      <div class="photo-card"><img src="images/goods.jpg" alt="Bluesky のトートバッグ・キャップ・T シャツ"></div>
+    </div>
+  </section>
+
+  <!-- ========== 9. 開発について ========== -->
+  <section class="slide" data-slide="9">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/guide</div>
+    <p class="kicker"><span>//</span> 01 GUIDE</p>
+    <h2 class="section-title">開発について</h2>
+    <div class="body lg">
+      <p>何で開発しても構いませんが、</p>
+      <p>1チームに１つの<span class="grad" style="font-weight: 900;">Claude Codeの$50分のAPIキー</span>を発行することができるので活用してください。</p>
+    </div>
+  </section>
+
+  <!-- ========== 10. 注意すること ========== -->
+  <section class="slide" data-slide="10">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/guide</div>
+    <p class="kicker"><span>//</span> 01 GUIDE</p>
+    <h2 class="section-title">注意すること</h2>
+    <div class="body list">
+      <p>発表と表彰はyoutube liveで配信する予定です。</p>
+      <p>もし、画面に映りたくない場合はあらかじめお知らせください。</p>
+      <p>説明や発表の時間にトイレなどで席を立たれると進行に影響があるため、なるべく影響のない時間にお願いします</p>
+      <p>途中退場も自由ですがハッカソン終了までは居て頂けると助かります！</p>
+      <p class="note">(※18:30からの交流会はお寿司出ますけどね！🍣)</p>
+    </div>
+  </section>
+
+  <!-- ========== 11. 会場のWi-Fi ==========
+       リポジトリは公開なので、Wi-Fi の認証情報が入った QR 画像はコミットしない -->
+  <section class="slide" data-slide="11">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/guide</div>
+    <p class="kicker"><span>//</span> 01 GUIDE</p>
+    <h2 class="section-title">会場のWi-Fi</h2>
+    <div class="center-stack">
+      <div class="qr-box">[ Wi-Fi QR ]</div>
+      <p class="note-text">※connpassの参加者向け確認欄にも書かれています。</p>
+    </div>
+  </section>
+
+  <!-- ========== 12. どきどき交流タイム（扉） ========== -->
+  <section class="slide statement" data-slide="12">
+    <span class="bg-word" aria-hidden="true">NETWORKING</span>
+    <p class="kicker"><span>//</span> 02 NETWORKING</p>
+    <h1 class="title center"><span class="grad">どきどき交流タイム</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 13. 交流シール ========== -->
+  <section class="slide" data-slide="13">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/networking</div>
+    <p class="kicker"><span>//</span> 02 NETWORKING</p>
+    <h2 class="section-title">交流シール</h2>
+    <div class="body list">
+      <p>交流したらお互いに相手の名札にシールを貼ってもらいましょう。</p>
+      <p>シールの数が多い人は<span class="grad" style="font-weight: 900;">後でいいことがあるかも？</span></p>
+      <p>それでは13時までご歓談ください</p>
+      <p>13時からプチアイディアソンがあるので今のうちにネタを収集するのもよいでしょう</p>
+    </div>
+  </section>
+
+  <!-- ========== 14. プチアイディアソン（扉） ========== -->
+  <section class="slide statement" data-slide="14">
+    <span class="bg-word" aria-hidden="true">IDEATHON</span>
+    <p class="kicker"><span>//</span> 03 IDEATHON</p>
+    <h1 class="title center"><span class="grad">プチアイディアソン</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 15. プチアイディアソンの流れ ========== -->
+  <section class="slide" data-slide="15">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon</div>
+    <p class="kicker"><span>//</span> 03 IDEATHON</p>
+    <h2 class="section-title">プチアイディアソンの流れ</h2>
+    <!-- ▼差し替え: 時刻と項目。dt / dd を 1 組ずつ増減させる -->
+    <dl class="timeline roomy">
+      <dt>13:20</dt><dd>アイディアをアイデアシートに書く</dd>
+      <dt>13:40</dt><dd>アイディアを発表(1つ1分程度で発表)</dd>
+      <dt>14:00</dt><dd>アイディアに投票</dd>
+      <dt>14:10</dt><dd>集計</dd>
+      <dt>14:15</dt><dd>上位5アイディア発表</dd>
+      <dt>14:20</dt><dd>チーム分け(良いと思ったアイディアのチームに参加)</dd>
+    </dl>
+  </section>
+
+  <!-- ========== 16. プチアイディアソン（アイデアシートの説明） ========== -->
+  <section class="slide" data-slide="16">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon</div>
+    <p class="kicker"><span>//</span> 03 IDEATHON</p>
+    <h2 class="section-title">プチアイディアソン</h2>
+    <div class="body dense">
+      <p>各自に配ったアイデアシートに最低1枚書いてもらいます。書ける人は何枚でも</p>
+    </div>
+    <div class="sheet-layout">
+      <div class="sheet-card"><img src="images/idea-sheet.jpg" alt="アイデアシートの用紙"></div>
+      <div class="callouts">
+        <p class="callout">右上のこのへんに自分の名前を書いておいてください</p>
+        <p class="callout">1分で説明することをイメージしながら書くとよいでしょう。<br>絵を描いても構いません</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 17. プチアイディアソン開始！ ========== -->
+  <section class="slide" data-slide="17">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon</div>
+    <p class="kicker"><span>//</span> 03 IDEATHON</p>
+    <h2 class="section-title">プチアイディアソン開始！</h2>
+    <div class="body dense">
+      <p>タイトル、ユーザー、シチュエーション、うれしさを全て埋めてみましょう</p>
+    </div>
+    <div class="sheet-layout">
+      <div class="sheet-card"><img src="images/idea-sheet.jpg" alt="アイデアシートの用紙"></div>
+      <div class="callouts">
+        <p class="callout">右上のこのへんに自分の名前を書いておいてください</p>
+        <p class="callout">1分で説明することをイメージしながら書くとよいでしょう。<br>絵を描いても構いません</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 18. アイディア発表（扉） ========== -->
+  <section class="slide statement" data-slide="18">
+    <span class="bg-word" aria-hidden="true">IDEATHON</span>
+    <p class="kicker"><span>//</span> 03 IDEATHON</p>
+    <h1 class="title center"><span class="grad">アイディア発表</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 19. アイディア発表 ========== -->
+  <section class="slide" data-slide="19">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon</div>
+    <p class="kicker"><span>//</span> 03 IDEATHON</p>
+    <h2 class="section-title">アイディア発表</h2>
+    <div class="body lg">
+      <p>手前の席の人から順にその場で立って、</p>
+      <p><span class="grad" style="font-weight: 900;">１アイディア１分</span>でアイディアの説明をしてください</p>
+    </div>
+  </section>
+
+  <!-- ========== 20. アイディアに投票 ========== -->
+  <section class="slide" data-slide="20">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon</div>
+    <p class="kicker"><span>//</span> 03 IDEATHON</p>
+    <h2 class="section-title">アイディアに投票</h2>
+    <div class="body lg list">
+      <p>机にシートを並べてください</p>
+      <p>並べ終わったら各自シールを良いと思ったアイディアに貼っていきます</p>
+      <p>自分自身のアイディアシートに貼っても構いません</p>
+    </div>
+  </section>
+
+  <!-- ========== 21. アイディア集計中（扉） ========== -->
+  <section class="slide statement" data-slide="21">
+    <span class="bg-word" aria-hidden="true">IDEATHON</span>
+    <p class="kicker"><span>//</span> 03 IDEATHON</p>
+    <h1 class="title center"><span class="grad">アイディア集計中</span><span class="cursor" aria-hidden="true"></span></h1>
+    <div class="loader after" aria-hidden="true">
+      <span class="bar"><i></i></span>
+      <span class="loader-label">counting stickers<b>.</b><b>.</b><b>.</b></span>
+    </div>
+  </section>
+
+  <!-- ========== 22. アイディア発表（扉） ========== -->
+  <section class="slide statement" data-slide="22">
+    <span class="bg-word" aria-hidden="true">IDEATHON</span>
+    <p class="kicker"><span>//</span> 03 IDEATHON</p>
+    <h1 class="title center"><span class="grad">アイディア発表</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 23. アイディア発表（上位 5 つ） ========== -->
+  <section class="slide" data-slide="23">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/ideathon</div>
+    <p class="kicker"><span>//</span> 03 IDEATHON</p>
+    <h2 class="section-title">アイディア発表</h2>
+    <div class="body lg">
+      <p><span class="grad" style="font-weight: 900;">上位５つ</span>のアイディアの発案者の方は前の方に来てください</p>
+    </div>
+  </section>
+
+  <!-- ========== 24. チーム分け（扉） ========== -->
+  <section class="slide statement" data-slide="24">
+    <span class="bg-word" aria-hidden="true">IDEATHON</span>
+    <p class="kicker"><span>//</span> 03 IDEATHON</p>
+    <h1 class="title center"><span class="grad">チーム分け</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 25. ハッカソン開始（扉） ========== -->
+  <section class="slide statement" data-slide="25">
+    <span class="bg-word" aria-hidden="true">HACKATHON</span>
+    <p class="kicker"><span>//</span> 04 HACKATHON</p>
+    <h1 class="title center"><span class="grad">ハッカソン開始</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 26. ハッカソンの進め方 ========== -->
+  <section class="slide tight" data-slide="26">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/hackathon</div>
+    <p class="kicker"><span>//</span> 04 HACKATHON</p>
+    <h2 class="section-title">ハッカソンの進め方</h2>
+    <div class="panes">
+      <div class="pane">
+        <div class="pane-tab" aria-hidden="true"><span>roles.md</span></div>
+        <ul class="nested">
+          <li>自己紹介</li>
+          <li>役割分担
+            <ul>
+              <li>最初にリーダーを決める</li>
+              <li>各自得意なことで役割を振る
+                <ul>
+                  <li>プレゼン資料つくる人</li>
+                  <li>リサーチする人</li>
+                  <li>イラストや図の作成、素材集め(プレゼン資料、開発で使うもの)</li>
+                  <li>利用者視点でレビューする人</li>
+                  <li>開発する人</li>
+                  <li>プレゼンする人(複数人可)</li>
+                  <li>など</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <div class="pane">
+        <div class="pane-tab" aria-hidden="true"><span>workflow.md</span></div>
+        <ul class="nested">
+          <li>開発工程例
+            <ul>
+              <li>リーダーが指示を出して進める</li>
+              <li>1. アウトラインを決める</li>
+              <li>2. 必要なタスクの洗い出し</li>
+              <li>3. 必要なら役割の振り直し</li>
+              <li>4. プロトタイプの作成(1回目はモックで全体が動くもの)</li>
+              <li>5. できたものをみんなでレビュー</li>
+              <li>6. 課題の洗い出し</li>
+              <li>7. 納得いくまで続けて3に戻る</li>
+            </ul>
+          </li>
+          <li>プレゼン資料も並行で進める</li>
+          <li>余裕があればプレゼンのリハも</li>
+        </ul>
+      </div>
+    </div>
+    <div class="notes">
+      <p>※1チームに１つのClaude Codeの$50分のAPIキーを発行することができるので活用してください。</p>
+      <p>※何もしないで暇な人が出ないように注意するため、リーダーはディレクションに集中してなるべく実作業を持たないこと</p>
+      <p>※開発が難しそうだったり、もっといいアイディアが他に思いついたらチーム合意のもとピボットしてもよい</p>
+    </div>
+  </section>
+
+  <!-- ========== 27. 審査基準 ========== -->
+  <section class="slide" data-slide="27">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/hackathon</div>
+    <p class="kicker"><span>//</span> 04 HACKATHON</p>
+    <h2 class="section-title">審査基準</h2>
+    <div class="criteria">
+      <div class="crit">
+        <div><span class="num">01</span><h3>Blueskyらしさ</h3></div>
+        <p>AT Protocolで分散型エコシステムへのよいアプローチになっているか</p>
+      </div>
+      <div class="crit">
+        <div><span class="num">02</span><h3>独創性</h3></div>
+        <p>ユニークか、尖っているか</p>
+      </div>
+      <div class="crit">
+        <div><span class="num">03</span><h3>推す！</h3></div>
+        <p>自分に刺さるか</p>
+      </div>
+      <div class="crit">
+        <div><span class="num">04</span><h3>実用性</h3></div>
+        <p>役に立つかどうか</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 28. ハッカソンプレゼン（扉） ========== -->
+  <section class="slide statement" data-slide="28">
+    <span class="bg-word" aria-hidden="true">DEMO &amp; VOTE</span>
+    <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE</p>
+    <h1 class="title center"><span class="grad">ハッカソンプレゼン</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 29. 投票（扉） ========== -->
+  <section class="slide statement" data-slide="29">
+    <span class="bg-word" aria-hidden="true">DEMO &amp; VOTE</span>
+    <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE</p>
+    <h1 class="title center"><span class="grad">投票</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 30. 投票 ========== -->
+  <section class="slide" data-slide="30">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/demo-and-vote</div>
+    <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE</p>
+    <h2 class="section-title">投票</h2>
+    <div class="two-col vote">
+      <div class="body">
+        <!-- ▼差し替え: 投票フォームの URL（.url の中身） -->
+        <p class="cmd"><span class="prompt">$</span><span class="verb">open</span><span class="url">https://forms.gle/（差し替え）</span></p>
+        <p class="note">※自チームへの投票は集計対象から除外されます</p>
+      </div>
+      <!-- ▼差し替え: 投票フォームの QR 画像（images/ に置いて <img> にする） -->
+      <div class="qr-box">[ QR ]</div>
+    </div>
+  </section>
+
+  <!-- ========== 31. 集計中（扉） ========== -->
+  <section class="slide statement" data-slide="31">
+    <span class="bg-word" aria-hidden="true">DEMO &amp; VOTE</span>
+    <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE</p>
+    <h1 class="title center"><span class="grad">集計中</span><span class="cursor" aria-hidden="true"></span></h1>
+    <div class="loader after" aria-hidden="true">
+      <span class="bar"><i></i></span>
+      <span class="loader-label">tallying votes<b>.</b><b>.</b><b>.</b></span>
+    </div>
+  </section>
+
+  <!-- ========== 32. 結果発表！（扉） ========== -->
+  <section class="slide statement glow-result" data-slide="32">
+    <span class="rays" aria-hidden="true"></span>
+    <span class="bg-word" aria-hidden="true">AWARDS</span>
+    <p class="kicker"><span>//</span> 06 AWARDS</p>
+    <h1 class="title center"><span class="grad">結果発表！</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 33. 優秀賞（扉） ========== -->
+  <section class="slide statement glow-silver" data-slide="33">
+    <span class="rays" aria-hidden="true"></span>
+    <span class="bg-word" aria-hidden="true">AWARDS</span>
+    <p class="kicker"><span>//</span> 06 AWARDS</p>
+    <h1 class="title center"><span class="grad">優秀賞</span><span class="emoji">⚡</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 34. 優秀賞 ========== -->
+  <section class="slide glow-silver" data-slide="34">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/awards</div>
+    <p class="kicker"><span>//</span> 06 AWARDS</p>
+    <h2 class="section-title"><span class="emoji">⚡</span><span class="grad">優秀賞</span></h2>
+    <!-- ▼差し替え: 当日、dd にチーム名と受賞のひとことを書き込む -->
+    <dl class="award">
+      <dt>チーム名</dt><dd></dd>
+      <dt>受賞のひとこと</dt><dd></dd>
+    </dl>
+  </section>
+
+  <!-- ========== 35. 最優秀賞（扉） ========== -->
+  <section class="slide statement glow-gold" data-slide="35">
+    <span class="rays" aria-hidden="true"></span>
+    <span class="bg-word" aria-hidden="true">AWARDS</span>
+    <p class="kicker"><span>//</span> 06 AWARDS</p>
+    <h1 class="title center"><span class="emoji">🏆</span><span class="grad">最優秀賞</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 36. 最優秀賞 ========== -->
+  <section class="slide glow-gold" data-slide="36">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/awards</div>
+    <p class="kicker"><span>//</span> 06 AWARDS</p>
+    <h2 class="section-title"><span class="emoji">🏆</span><span class="grad">最優秀賞</span></h2>
+    <!-- ▼差し替え: 当日、dd にチーム名と受賞のひとことを書き込む -->
+    <dl class="award">
+      <dt>チーム名</dt><dd></dd>
+      <dt>受賞のひとこと</dt><dd></dd>
+    </dl>
+  </section>
+
+  <!-- ========== 37. アンケート ========== -->
+  <section class="slide" data-slide="37">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/awards</div>
+    <p class="kicker"><span>//</span> 06 AWARDS</p>
+    <h2 class="section-title">こちらにアンケートの記入をお願いします！</h2>
+    <div class="center-stack">
+      <!-- ▼差し替え: アンケートの QR 画像（images/ に置いて <img> にする） -->
+      <div class="qr-box">[ QR ]</div>
+    </div>
+  </section>
+
+  <!-- ========== 38. 交流会（扉） ========== -->
+  <section class="slide statement" data-slide="38">
+    <span class="bg-word" aria-hidden="true">PARTY</span>
+    <p class="kicker"><span>//</span> 07 PARTY</p>
+    <h1 class="title center"><span class="grad">交流会</span><span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <!-- ========== 39. 交流シール（交流会） ========== -->
+  <section class="slide" data-slide="39">
+    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/party</div>
+    <p class="kicker"><span>//</span> 07 PARTY</p>
+    <h2 class="section-title">交流シール</h2>
+    <div class="body list">
+      <p>交流したらお互いに相手の名札にシールを貼ってもらいましょう。</p>
+      <p>シールの数が多い人から順にグッズを配布します。(上位3名。入賞チームは除く)</p>
+    </div>
+    <div class="img-fill">
+      <div class="photo-card"><img src="images/goods.jpg" alt="Bluesky のトートバッグ・キャップ・T シャツ"></div>
+    </div>
+  </section>
+
+  <!-- ========== 40. おつかれさまでした！（扉） ========== -->
+  <section class="slide statement" data-slide="40">
+    <span class="bg-word" aria-hidden="true">PARTY</span>
+    <p class="kicker"><span>//</span> 07 PARTY</p>
+    <h1 class="title center"><span class="grad">おつかれさまでした！</span><span class="cursor" aria-hidden="true"></span></h1>
+    <p class="exit after"><span class="prompt">❯</span>Process finished with exit code <b>0</b></p>
+  </section>
+
+</div>
+
+<div class="toolbar" id="toolbar">
+  <button id="prevBtn" title="前のスライド (←)">←</button>
+  <span class="counter"><span id="curr">1</span> / <span id="total">1</span></span>
+  <button id="nextBtn" title="次のスライド (→)">→</button>
+  <button id="presentBtn" title="プレゼンモード切替 (F)">プレゼン</button>
+  <button id="fsBtn" title="全画面 (Shift+F)">全画面</button>
+  <button id="presenterBtn" title="発表者ビューを別ウィンドウで開く (P)">発表者</button>
+  <button id="printBtn" class="primary" title="PDF出力 (Ctrl/Cmd+P)">PDF出力</button>
+</div>
+
+<script>
+  // =============================================================
+  // スライドの仕組み（全デッキ共通。template から配っている）
+  //  ・各 .slide を .frame で包み、.frame の実測幅から倍率 --s を決める
+  //  ・投影モード（F / ボタン）: 1 枚ずつ表示
+  //  ・全画面（Shift+F / ボタン）: 投影モード + ブラウザの全画面。Esc で両方抜ける
+  //  ・発表者ビュー（P / ボタン）: 別ウィンドウに「いま」と「次」・時計・経過時間。
+  //    矢印キーは投影側と連動する（postMessage なので file:// でも動く）
+  //  ・data-key="x" のスライドはキー x で直接呼べる
+  //  ・[data-lineup] のリストは → で ● だけを進める（登壇順スライド用）
+  //  ・stage.html の iframe に入れられたときは投影モード固定になり、
+  //    キー操作はすべて親（ステージ）経由で受ける
+  //  ・?preview を付けて開くと閲覧モード（共有用）。PDF ビューワーのように
+  //    題名バーとページ番号が付き、プレゼン系の操作は出さない
+  // =============================================================
+  const isPresenter = location.hash === '#presenter';
+  const isPreview = new URLSearchParams(location.search).has('preview');
+  const body = document.body;
+  const embedded = window.parent !== window;
+  const bus = window.opener || (embedded ? window.parent : null);   // 状態やキーを送る相手
+
+  const slides = document.querySelectorAll('.slide');
+  slides.forEach((s) => {
+    const f = document.createElement('div');
+    f.className = 'frame';
+    s.parentNode.insertBefore(f, s);
+    f.appendChild(s);
+  });
+  const frames = document.querySelectorAll('.frame');
+  const total = slides.length;
+  document.getElementById('total').textContent = total;
+
+  if (isPreview) {
+    body.classList.add('preview');
+    frames.forEach((f, i) => {
+      const n = document.createElement('div');
+      n.className = 'pageno';
+      n.textContent = `${i + 1} / ${total}`;
+      f.appendChild(n);
+    });
+    const bar = document.createElement('div');
+    bar.className = 'preview-bar';
+    bar.innerHTML = `<span class="pv-title"></span><span class="pv-meta">${total} 枚</span>`;
+    bar.querySelector('.pv-title').textContent = document.title;
+    body.insertBefore(bar, body.firstChild);
+  }
+
+  const jumpKeys = {};
+  slides.forEach((s, i) => { const k = s.dataset.key; if (k) jumpKeys[k.toLowerCase()] = i; });
+  function lineupOf(i) { return slides[i].querySelector('[data-lineup]'); }
+  function lineupItems(el) { return el.querySelectorAll('li:not(.divider)'); }
+
+  let current = 0;
+  let present = false;
+  const currEl = document.getElementById('curr');
+
+  // 見えている .frame ごとに倍率を決める（発表者ビューでは「いま」と「次」で幅が違う）
+  function fitScale() {
+    frames.forEach((f) => {
+      const w = f.clientWidth;
+      if (w > 0) f.style.setProperty('--s', w / 1280);
+    });
+  }
+
+  function render() {
+    if (present || isPresenter) {
+      frames.forEach((f, i) => {
+        f.classList.toggle('active', i === current);
+        f.classList.toggle('next', isPresenter && i === current + 1);
+      });
+    }
+    document.querySelectorAll('[data-lineup]').forEach((el) => {
+      const idx = +el.dataset.idx;
+      lineupItems(el).forEach((li, i) => li.classList.toggle('on', i === idx));
+    });
+    fitScale();
+    currEl.textContent = current + 1;
+    if (isPresenter) renderPanel(); else broadcast();
+  }
+
+  function nearestSlide() {
+    const mid = window.scrollY + window.innerHeight / 2;
+    let best = 0, bestDist = Infinity;
+    frames.forEach((f, i) => {
+      const r = f.getBoundingClientRect();
+      const d = Math.abs(r.top + window.scrollY + r.height / 2 - mid);
+      if (d < bestDist) { bestDist = d; best = i; }
+    });
+    return best;
+  }
+
+  function goTo(i) {
+    if (isPresenter) return;
+    current = Math.max(0, Math.min(total - 1, i));
+    if (!present) frames[current].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    render();
+  }
+
+  function go(delta) {
+    if (isPresenter) return;
+    // 登壇順リストの上にいるあいだは、スライドではなく ● を動かす
+    const el = lineupOf(current);
+    if (el) {
+      const len = lineupItems(el).length;
+      const next = (+el.dataset.idx) + delta;
+      if (next >= 0 && next < len) { el.dataset.idx = next; render(); return; }
+    }
+    const target = current + delta;
+    if (target < 0 || target > total - 1) return;
+    const nel = lineupOf(target);
+    if (nel) nel.dataset.idx = delta > 0 ? 0 : lineupItems(nel).length - 1;
+    goTo(target);
+  }
+
+  function togglePresent() {
+    present = !present;
+    body.classList.toggle('present', present);
+    if (present) current = nearestSlide();
+    render();
+  }
+
+  // ---- 全画面 ----
+  function enterFullscreen() {
+    if (!present) togglePresent();
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+  }
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && present) togglePresent();
+  });
+
+  // ---- 発表者ビュー ----
+  let presenterWin = null;
+  function openPresenter() {
+    const url = location.href.split('#')[0] + '#presenter';
+    presenterWin = window.open(url, 'presenter', 'width=1100,height=680');
+    if (!presenterWin) alert('ポップアップがブロックされました。許可してからもう一度押してください。');
+  }
+  function stateMsg() {
+    return {
+      type: 'state',
+      title: document.title,
+      current,
+      total,
+      lineups: [...document.querySelectorAll('[data-lineup]')].map((el) => el.dataset.idx),
+    };
+  }
+  function broadcast() {
+    const m = stateMsg();
+    if (presenterWin && !presenterWin.closed) presenterWin.postMessage(m, '*');
+    if (embedded) window.parent.postMessage(m, '*');
+  }
+  function send(msg) { if (bus) bus.postMessage(msg, '*'); }
+  function applyState(m) {
+    current = m.current;
+    document.querySelectorAll('[data-lineup]').forEach((el, i) => {
+      if (m.lineups && m.lineups[i] != null) el.dataset.idx = m.lineups[i];
+    });
+    render();
+  }
+  window.addEventListener('message', (e) => {
+    const m = e.data || {};
+    if (isPresenter) { if (m.type === 'state') applyState(m); return; }
+    if (m.type === 'key') handleKey(m.key, !!m.shiftKey);
+    else if (m.type === 'hello') { if (!embedded) presenterWin = e.source; broadcast(); }
+  });
+
+  let panel = null, startedAt = Date.now();
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function tick() {
+    if (!panel) return;
+    const d = new Date();
+    panel.querySelector('.pp-clock').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    const e = Math.floor((Date.now() - startedAt) / 1000);
+    panel.querySelector('.pp-elapsed span').textContent = `経過 ${pad(Math.floor(e / 60))}:${pad(e % 60)}`;
+  }
+  function renderPanel() {
+    if (!panel) {
+      body.classList.add('presenter');
+      panel = document.createElement('div');
+      panel.className = 'presenter-panel';
+      panel.innerHTML =
+        '<div class="pp-count"></div>' +
+        '<div class="pp-clock"></div>' +
+        '<div class="pp-elapsed"><span></span><button type="button">リセット</button></div>' +
+        '<div class="pp-help">← → で進む（投影側も動く）</div>';
+      document.getElementById('deck').appendChild(panel);
+      panel.querySelector('button').addEventListener('click', () => { startedAt = Date.now(); tick(); });
+      setInterval(tick, 1000);
+    }
+    panel.querySelector('.pp-count').innerHTML =
+      `<b>${current + 1}</b> / ${total}` + (current + 1 < total ? '' : ' ・ 最後');
+    tick();
+  }
+
+  // ---- 操作 ----
+  window.addEventListener('scroll', () => {
+    if (present || isPresenter) return;
+    const best = nearestSlide();
+    if (best !== current) { current = best; currEl.textContent = current + 1; }
+  }, { passive: true });
+  window.addEventListener('resize', fitScale);
+  if (window.ResizeObserver) { const ro = new ResizeObserver(fitScale); frames.forEach((f) => ro.observe(f)); }
+
+  document.getElementById('prevBtn').addEventListener('click', () => go(-1));
+  document.getElementById('nextBtn').addEventListener('click', () => go(1));
+  document.getElementById('presentBtn').addEventListener('click', togglePresent);
+  document.getElementById('fsBtn').addEventListener('click', enterFullscreen);
+  document.getElementById('presenterBtn').addEventListener('click', openPresenter);
+  document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+  // キーの意味づけは 1 か所に。発表者ビューと iframe 内では自分で処理せず親へ送る
+  function handleKey(key, shift) {
+    const k = key.toLowerCase();
+    if (key === 'ArrowRight' || key === ' ' || key === 'PageDown') go(1);
+    else if (key === 'ArrowLeft' || key === 'PageUp') go(-1);
+    else if (k in jumpKeys) goTo(jumpKeys[k]);
+    else if (embedded || isPreview) return;          // F / P / Esc はステージ側が扱う。閲覧モードでは無効
+    else if (k === 'f' && shift) enterFullscreen();
+    else if (k === 'f') togglePresent();
+    else if (k === 'p') openPresenter();
+    else if (key === 'Escape' && present) togglePresent();
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (['ArrowRight', 'ArrowLeft', ' ', 'PageDown', 'PageUp'].includes(e.key)) e.preventDefault();
+    if (isPresenter || embedded) { send({ type: 'key', key: e.key, shiftKey: e.shiftKey }); return; }
+    handleKey(e.key, e.shiftKey);
+  });
+
+  if (isPresenter) body.classList.add('presenter');
+  if (embedded && !isPresenter) { present = true; body.classList.add('present', 'embedded'); }
+  if (bus) send({ type: 'hello' });
+  render();
+</script>
+
+</body>
+</html>
