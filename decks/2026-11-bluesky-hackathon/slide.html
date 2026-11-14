@@ -1232,10 +1232,10 @@
       <div class="body">
         <p class="lead">ハッカソンの投票は events lab で行います。<br>Wi-Fi につないで一度開いてみてください</p>
         <!-- ▼差し替え: events lab の投票ページの URL（.url の中身）。後ろの「投票」スライドと同じものにする -->
-        <p class="cmd"><span class="prompt">$</span><span class="verb">open</span><span class="url">（差し替え）</span></p>
+        <p class="cmd"><span class="prompt">$</span><span class="verb">open</span><span class="url">https://events.kojira.io/events/0c03b127-c47f-42bd-8463-1440a2f75613</span></p>
       </div>
       <!-- ▼差し替え: events lab の投票ページの QR。後ろの「投票」スライドと同じ images/vote-qr.png を使う -->
-      <div class="qr-box">[ QR ]</div>
+      <div class="qr-box"><img src="images/vote-qr.png" alt="投票ページの QR コード"></div>
     </div>
   </section>
 
@@ -1461,41 +1461,23 @@
       <div class="body">
         <p class="lead">発表を聞きながら、events lab のページで随時採点してください</p>
         <!-- ▼差し替え: events lab の投票ページの URL（.url の中身）。出さないなら <p class="cmd"> ごと消す -->
-        <p class="cmd"><span class="prompt">$</span><span class="verb">open</span><span class="url">（差し替え）</span></p>
+        <p class="cmd"><span class="prompt">$</span><span class="verb">open</span><span class="url">https://events.kojira.io/events/0c03b127-c47f-42bd-8463-1440a2f75613</span></p>
         <p class="note">※Wi-Fi はお手元の紙をご覧ください</p>
       </div>
-      <!-- ▼差し替え: events lab の投票ページの QR。images/vote-qr.png を置いて、中身を
-           <img src="images/vote-qr.png" alt="投票ページの QR コード"> に替える -->
-      <div class="qr-box">[ QR ]</div>
-    </div>
-  </section>
-
-  <!-- ========== 投票（予備フォーム） ========== -->
-  <section class="slide" data-slide="38">
-    <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/demo-and-vote</div>
-    <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE <span class="fallback-tag">FALLBACK</span></p>
-    <h2 class="section-title">投票（予備）</h2>
-    <div class="two-col vote">
-      <div class="body">
-        <p class="lead">events lab のページが開けない場合は、こちらのフォームから投票してください</p>
-        <!-- ▼差し替え: 予備フォームの URL（.url の中身）。出さないなら <p class="cmd"> ごと消す -->
-        <p class="cmd"><span class="prompt">$</span><span class="verb">open</span><span class="url">（差し替え）</span></p>
-      </div>
-      <!-- ▼差し替え: 予備フォームの QR。images/vote-qr-backup.png を置いて、中身を
-           <img src="images/vote-qr-backup.png" alt="予備の投票フォームの QR コード"> に替える -->
-      <div class="qr-box alt">[ QR ]</div>
+      <!-- ▼差し替え: events lab の投票ページの QR（images/vote-qr.png） -->
+      <div class="qr-box"><img src="images/vote-qr.png" alt="投票ページの QR コード"></div>
     </div>
   </section>
 
   <!-- ========== ハッカソンプレゼン（扉） ========== -->
-  <section class="slide statement" data-slide="39">
+  <section class="slide statement" data-slide="38">
     <span class="bg-word" aria-hidden="true">DEMO &amp; VOTE</span>
     <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE</p>
     <h1 class="title center"><span class="grad">ハッカソンプレゼン</span><span class="cursor" aria-hidden="true"></span></h1>
   </section>
 
   <!-- ========== 集計中（扉） ========== -->
-  <section class="slide statement" data-slide="40">
+  <section class="slide statement" data-slide="39">
     <span class="bg-word" aria-hidden="true">DEMO &amp; VOTE</span>
     <p class="kicker"><span>//</span> 05 DEMO &amp; VOTE</p>
     <h1 class="title center"><span class="grad">集計中</span><span class="cursor" aria-hidden="true"></span></h1>
@@ -1507,7 +1489,7 @@
 
   <!-- ========== 結果発表！（扉） ==========
        このあと events lab の結果画面に切り替えて発表する -->
-  <section class="slide statement glow-result" data-slide="41">
+  <section class="slide statement glow-result" data-slide="40">
     <span class="rays" aria-hidden="true"></span>
     <span class="bg-word" aria-hidden="true">AWARDS</span>
     <p class="kicker"><span>//</span> 06 AWARDS</p>
@@ -1515,7 +1497,7 @@
   </section>
 
   <!-- ========== アンケート ========== -->
-  <section class="slide" data-slide="42">
+  <section class="slide" data-slide="41">
     <div class="win" aria-hidden="true"><i></i><i></i><i></i>~/bsky-hackathon/awards</div>
     <p class="kicker"><span>//</span> 06 AWARDS</p>
     <h2 class="section-title">こちらにアンケートの記入をお願いします！</h2>
@@ -1526,14 +1508,14 @@
   </section>
 
   <!-- ========== 交流会（扉） ========== -->
-  <section class="slide statement" data-slide="43">
+  <section class="slide statement" data-slide="42">
     <span class="bg-word" aria-hidden="true">PARTY</span>
     <p class="kicker"><span>//</span> 07 PARTY</p>
     <h1 class="title center"><span class="grad">交流会</span><span class="cursor" aria-hidden="true"></span></h1>
   </section>
 
   <!-- ========== おつかれさまでした！（扉） ========== -->
-  <section class="slide statement" data-slide="44">
+  <section class="slide statement" data-slide="43">
     <span class="bg-word" aria-hidden="true">PARTY</span>
     <p class="kicker"><span>//</span> 07 PARTY</p>
     <h1 class="title center"><span class="grad">おつかれさまでした！</span><span class="cursor" aria-hidden="true"></span></h1>
