@@ -817,7 +817,7 @@
   body.presenter { background: #0b1426; overflow: hidden; }
   body.presenter .deck {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 380px;
+    grid-template-columns: minmax(0, 1fr) clamp(380px, 28vw, 760px);
     grid-template-rows: auto 1fr;
     gap: 20px;
     height: 100vh;
@@ -840,7 +840,7 @@
     top: 8px;
     left: 8px;
     z-index: 5;
-    font-size: 12px;
+    font-size: clamp(12px, 0.75vw, 22px);
     font-weight: 900;
     letter-spacing: 0.12em;
     color: #fff;
@@ -851,12 +851,12 @@
   body.presenter .frame.next::after { content: "NEXT"; }
   body.presenter .toolbar { display: none; }
   .presenter-panel { grid-column: 2; grid-row: 2; color: #fff; display: flex; flex-direction: column; gap: 14px; }
-  .pp-count { font-size: 22px; font-weight: 700; opacity: 0.85; }
-  .pp-count b { font-size: 44px; font-weight: 900; }
-  .pp-clock { font-size: 40px; font-weight: 900; font-variant-numeric: tabular-nums; }
-  .pp-elapsed { font-size: 20px; font-variant-numeric: tabular-nums; display: flex; gap: 12px; align-items: center; }
-  .pp-elapsed button { font: inherit; font-size: 13px; color: #fff; background: rgba(255,255,255,0.14); border: none; border-radius: 999px; padding: 4px 12px; cursor: pointer; }
-  .pp-help { font-size: 13px; opacity: 0.6; }
+  .pp-count { font-size: clamp(22px, 1.4vw, 40px); font-weight: 700; opacity: 0.85; }
+  .pp-count b { font-size: clamp(44px, 2.8vw, 88px); font-weight: 900; }
+  .pp-clock { font-size: clamp(40px, 2.6vw, 84px); font-weight: 900; font-variant-numeric: tabular-nums; }
+  .pp-elapsed { font-size: clamp(20px, 1.3vw, 40px); font-variant-numeric: tabular-nums; display: flex; gap: 12px; align-items: center; }
+  .pp-elapsed button { font: inherit; font-size: clamp(13px, 0.8vw, 24px); color: #fff; background: rgba(255,255,255,0.14); border: none; border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+  .pp-help { font-size: clamp(13px, 0.85vw, 24px); opacity: 0.6; }
 
   /* 動きを減らす設定では、扉の出現・カーソル点滅・ローディングを止める */
   @media (prefers-reduced-motion: reduce) {
@@ -1688,7 +1688,8 @@
   function openPresenter() {
     const url = location.href.split('#')[0] + '#presenter';
     presenterWin = window.open(url, 'presenter', 'width=1100,height=680');
-    if (!presenterWin) alert('ポップアップがブロックされました。許可してからもう一度押してください。');
+    if (!presenterWin) { alert('ポップアップがブロックされました。許可してからもう一度押してください。'); return; }
+    broadcast();
   }
   function stateMsg() {
     return {
@@ -1778,13 +1779,20 @@
   document.addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (['ArrowRight', 'ArrowLeft', ' ', 'PageDown', 'PageUp'].includes(e.key)) e.preventDefault();
-    if (isPresenter || embedded) { send({ type: 'key', key: e.key, shiftKey: e.shiftKey }); return; }
+    // 発表者ウィンドウからはページ送りのキーだけを投影側へ送る（F / Esc / P で投影側のモードが変わらないように）
+    if (isPresenter) {
+      if (['ArrowRight', 'ArrowLeft', ' ', 'PageDown', 'PageUp'].includes(e.key) || e.key.toLowerCase() in jumpKeys) send({ type: 'key', key: e.key, shiftKey: e.shiftKey });
+      return;
+    }
+    if (embedded) { send({ type: 'key', key: e.key, shiftKey: e.shiftKey }); return; }
     handleKey(e.key, e.shiftKey);
   });
 
   if (isPresenter) body.classList.add('presenter');
   if (embedded && !isPresenter) { present = true; body.classList.add('present', 'embedded'); }
   if (bus) send({ type: 'hello' });
+  // 投影側を再読み込みしても発表者ビューが止まらないよう、3 秒ごとに hello を送り直して状態をもらう
+  if (isPresenter && bus) setInterval(() => send({ type: 'hello' }), 3000);
   render();
 </script>
 
