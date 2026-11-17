@@ -1,0 +1,13 @@
+{
+  "name": "slides-relay",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --ip 127.0.0.1 --port 8791",
+    "test": "node test/relay.test.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "4.162.0",
+    "ws": "8.23.0"
+  }
+}
