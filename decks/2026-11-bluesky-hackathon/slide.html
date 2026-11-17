@@ -1541,7 +1541,8 @@
   //  ・投影モード（F / ボタン）: 1 枚ずつ表示
   //  ・全画面（Shift+F / ボタン）: 投影モード + ブラウザの全画面。Esc で両方抜ける
   //  ・発表者ビュー（P / ボタン）: 別ウィンドウに「いま」と「次」・時計・経過時間。
-  //    矢印キーは投影側と連動する（postMessage なので file:// でも動く）
+  //    矢印キーは投影側と連動する（postMessage なので file:// でも動く）。
+  //    同じブラウザなら別タブで #presenter を直接開いても BroadcastChannel で連動する
   //  ・data-key="x" のスライドはキー x で直接呼べる
   //  ・[data-lineup] のリストは → で ● だけを進める（登壇順スライド用）
   //  ・stage.html の iframe に入れられたときは投影モード固定になり、
@@ -1682,12 +1683,33 @@
       lineups: [...document.querySelectorAll('[data-lineup]')].map((el) => el.dataset.idx),
     };
   }
+  // 同じブラウザの別タブで #presenter を直接開いたときのための経路。
+  // postMessage（opener / presenterWin）と両方に流し、key だけは id で重複を捨てる
+  let chan = null;
+  if (!embedded && !isPreview && typeof BroadcastChannel !== 'undefined') {
+    try { chan = new BroadcastChannel('slides:' + location.pathname); } catch (err) { chan = null; }
+  }
+  const msgSrc = Math.random().toString(36).slice(2);
+  let msgSeq = 0;
+  const seenKeys = [];
+  function seenKey(id) {
+    if (!id) return false;
+    if (seenKeys.includes(id)) return true;
+    seenKeys.push(id);
+    if (seenKeys.length > 50) seenKeys.shift();
+    return false;
+  }
   function broadcast() {
     const m = stateMsg();
     if (presenterWin && !presenterWin.closed) presenterWin.postMessage(m, '*');
+    if (chan) chan.postMessage(m);
     if (embedded) window.parent.postMessage(m, '*');
   }
-  function send(msg) { if (bus) bus.postMessage(msg, '*'); }
+  function send(msg) {
+    if (msg.type === 'key' && !embedded) msg = Object.assign({ id: msgSrc + ':' + (++msgSeq) }, msg);
+    if (bus) bus.postMessage(msg, '*');
+    if (chan) chan.postMessage(msg);
+  }
   function applyState(m) {
     current = m.current;
     document.querySelectorAll('[data-lineup]').forEach((el, i) => {
@@ -1695,12 +1717,15 @@
     });
     render();
   }
-  window.addEventListener('message', (e) => {
-    const m = e.data || {};
+  // source はチャンネル経由のとき null（presenterWin は書き換えず、チャンネルへ state を返す）
+  function onMessage(m, source) {
+    m = m || {};
     if (isPresenter) { if (m.type === 'state') applyState(m); return; }
-    if (m.type === 'key') handleKey(m.key, !!m.shiftKey);
-    else if (m.type === 'hello') { if (!embedded) presenterWin = e.source; broadcast(); }
-  });
+    if (m.type === 'key') { if (!seenKey(m.id)) handleKey(m.key, !!m.shiftKey); }
+    else if (m.type === 'hello') { if (!embedded && source) presenterWin = source; broadcast(); }
+  }
+  window.addEventListener('message', (e) => onMessage(e.data, e.source));
+  if (chan) chan.onmessage = (e) => onMessage(e.data, null);
 
   let panel = null, startedAt = Date.now();
   function pad(n) { return String(n).padStart(2, '0'); }
@@ -1762,7 +1787,7 @@
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (['ArrowRight', 'ArrowLeft', ' ', 'PageDown', 'PageUp'].includes(e.key)) e.preventDefault();
     // 発表者ウィンドウからはページ送りのキーだけを投影側へ送る（F / Esc / P で投影側のモードが変わらないように）
-    if (isPresenter) {
+    if (isPresenter && !embedded) {
       if (['ArrowRight', 'ArrowLeft', ' ', 'PageDown', 'PageUp'].includes(e.key) || e.key.toLowerCase() in jumpKeys) send({ type: 'key', key: e.key, shiftKey: e.shiftKey });
       return;
     }
@@ -1772,9 +1797,9 @@
 
   if (isPresenter) body.classList.add('presenter');
   if (embedded && !isPresenter) { present = true; body.classList.add('present', 'embedded'); }
-  if (bus) send({ type: 'hello' });
+  if (bus || (isPresenter && chan)) send({ type: 'hello' });
   // 投影側を再読み込みしても発表者ビューが止まらないよう、3 秒ごとに hello を送り直して状態をもらう
-  if (isPresenter && bus) setInterval(() => send({ type: 'hello' }), 3000);
+  if (isPresenter && (bus || chan)) setInterval(() => send({ type: 'hello' }), 3000);
   render();
 </script>
 
