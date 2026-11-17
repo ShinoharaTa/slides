@@ -1,0 +1,17 @@
+name = "slides-relay"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+[[durable_objects.bindings]]
+name = "ROOM"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]
+
+[vars]
+# ルームの寿命（ミリ秒）。6 時間
+ROOM_TTL_MS = "21600000"
+# 追加で許可する Origin（カンマ区切り、完全一致）
+EXTRA_ORIGINS = ""

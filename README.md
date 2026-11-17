@@ -175,3 +175,63 @@ stage.html?d=decks/2026-10-example-conf/mc/slide.html,decks/2026-10-example-conf
 - 背景写真の上は白いベールと文字のハロで読めるようにしてある。
   濃さを変えたいときは `.bg-photo` の `opacity` と `.bg-photo::after` の `background` を調整する
 - 元画像は 1〜2MB 程度まで。それ以上は投影でもPDFでも見た目が変わらないので縮めてから入れる
+
+## 別端末操作の中継（relay/）
+
+スマホなど別の端末からスライドを操作するための WebSocket 中継。
+Cloudflare Worker + Durable Object（1 ルーム = 1 オブジェクト）で動く。
+**まだ program.html（投影側）/ control.html（操作側）は無い。** 今あるのは中継サーバだけ。
+
+```sh
+cd relay
+npm install
+npm run dev    # → http://127.0.0.1:8791
+npm test       # wrangler dev を 127.0.0.1:8791 で起動して受け入れテストを流し、終わったら止める
+```
+
+- 投影側（program）がルームを作り、ペアリングコードを操作側（control）に渡す（QR など）
+- control はコードと引き換えに deviceToken を受け取り、それで WebSocket に繋ぐ
+- ID・トークン・コードはすべて 128bit の乱数（base64url）
+
+### HTTP API
+
+すべてのリクエストに許可 Origin が必要。
+
+| メソッド / パス | 認証 | 応答 |
+|---|---|---|
+| `POST /rooms` | なし | 201 `{room, hostToken, pairCode, expiresAt}` |
+| `POST /rooms/:room/pair-codes` | `Bearer` hostToken / deviceToken | 201 `{pairCode}`。端末 4 台で 409 |
+| `POST /rooms/:room/pair` body `{"code"}` | なし | 201 `{deviceId, deviceToken}`。使用済み・不正 403、端末 4 台で 409 |
+| `DELETE /rooms/:room` | `Bearer` hostToken | 204。全接続を 4000 `closed` で切る |
+| `GET /rooms/:room/ws` | `Sec-WebSocket-Protocol: slides-relay.v1, t.<token>` | 101。hostToken → program、deviceToken → control、それ以外 401 |
+
+存在しないルームは 404、失効・削除済みは 410。
+
+### WebSocket メッセージ
+
+JSON の文字列で、`type` 必須。転送時にサーバが `from`（`"program"` か deviceId）を上書きで付ける。
+
+| 向き | type |
+|---|---|
+| control → program | `hello` `key` `pvw` `take` `reload` |
+| program → 全 control | `state` `tally` `stale` |
+| サーバ → 全員 | `relay`（`event`: `welcome` / `join` / `leave`、`controls` 接続中の control 数、`program` 接続有無） |
+
+- control 同士には届かない。program 不在のときの control のメッセージは捨てる
+- program は 1 本だけ。新しい program が繋ぐと古い方は 4001 `replaced` で切れる
+- 2048 バイト超・JSON でない・許可外の type・1 接続 20 件/秒を超えた分は黙って捨てる（接続は切らない）
+
+### セキュリティ
+
+- ペアリングコードは使い切り。未使用コードは同時に 4 個まで（古いものから無効）
+- 操作端末は 1 ルーム 4 台まで
+- ルームは作成から 6 時間で失効（`ROOM_TTL_MS`）。全接続が 4000 `expired` で切れ、以後 410
+- `key` で送れるのは `ArrowLeft` `ArrowRight` `ArrowUp` `ArrowDown` `" "` `PageUp` `PageDown` `Home` `End` と
+  1 文字の `0-9` `a-z`（`f` `p` `s` を除く）だけ。全画面・発表者ビュー・保存系は遠隔から操作できない
+- 許可 Origin は `https://bluesky-meetup-slide2026.pages.dev` とそのサブドメイン 1 段、`http://127.0.0.1:<port>`、
+  `http://localhost:<port>`、`EXTRA_ORIGINS`（カンマ区切りの完全一致）。Origin なし・許可外は 403
+- トークンは URL に入れない（HTTP は `Authorization`、WebSocket はサブプロトコル）
+
+### デプロイ
+
+`wrangler login` してから `cd relay && npx wrangler deploy`。**まだデプロイしていない。**
