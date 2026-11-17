@@ -770,6 +770,42 @@
     text-align: center;
     font-variant-numeric: tabular-nums;
   }
+  /* スライドショーの案内。ツールバーの上に出る短いメモと、投影側の上端に出る帯 */
+  .show-note {
+    position: fixed;
+    bottom: 76px;
+    left: 50%;
+    transform: translate(-50%, 6px);
+    opacity: 0;
+    pointer-events: none;
+    background: rgba(11, 20, 38, 0.92);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 999px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    z-index: 100;
+    font-size: 13px;
+    white-space: nowrap;
+    transition: opacity 200ms cubic-bezier(0.23, 1, 0.32, 1), transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .show-note.on { opacity: 1; transform: translate(-50%, 0); }
+  .show-band {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 101;
+    padding: 14px 20px;
+    background: var(--accent);
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+  }
+  @media (max-width: 640px) {
+    .show-note { bottom: 56px; font-size: 12px; }
+    .show-band { padding: 10px 14px; font-size: 14px; }
+  }
 
   /* プレゼンモード（1枚ずつ全画面表示） */
   body.present {
@@ -812,7 +848,7 @@
     font-size: 12px; font-weight: 700; color: #6b7280; font-variant-numeric: tabular-nums;
   }
   body.preview .slide { box-shadow: 0 2px 12px rgba(0,0,0,0.12); }
-  body.preview #presentBtn, body.preview #fsBtn, body.preview #presenterBtn { display: none; }
+  body.preview #showBtn, body.preview #presentBtn, body.preview #fsBtn, body.preview #presenterBtn { display: none; }
   /* ---- 発表者ビュー（#presenter 付きで開いた別ウィンドウ）---- */
   body.presenter { background: #0b1426; overflow: hidden; }
   body.presenter .deck {
@@ -875,7 +911,7 @@
     }
     html, body { background: var(--bg); }
     .slide *, .slide *::before, .slide *::after { animation: none !important; }
-    .toolbar { display: none !important; }
+    .toolbar, .show-note, .show-band { display: none !important; }
     .deck {
       padding: 0;
       gap: 0;
@@ -1528,6 +1564,7 @@
   <button id="prevBtn" title="前のスライド (←)">←</button>
   <span class="counter"><span id="curr">1</span> / <span id="total">1</span></span>
   <button id="nextBtn" title="次のスライド (→)">→</button>
+  <button id="showBtn" title="投影先に全画面、手元に発表者ビュー (S)">スライドショー</button>
   <button id="presentBtn" title="プレゼンモード切替 (F)">プレゼン</button>
   <button id="fsBtn" title="全画面 (Shift+F)">全画面</button>
   <button id="presenterBtn" title="発表者ビューを別ウィンドウで開く (P)">発表者</button>
@@ -1540,6 +1577,8 @@
   //  ・各 .slide を .frame で包み、.frame の実測幅から倍率 --s を決める
   //  ・投影モード（F / ボタン）: 1 枚ずつ表示
   //  ・全画面（Shift+F / ボタン）: 投影モード + ブラウザの全画面。Esc で両方抜ける
+  //  ・スライドショー（S / ボタン）: 投影先の画面に全画面、手元に発表者ビュー。
+  //    画面の並びがわかるとき（Chrome / Edge でウィンドウ管理を許可済み）は 1 回で両方出す
   //  ・発表者ビュー（P / ボタン）: 別ウィンドウに「いま」と「次」・時計・経過時間。
   //    矢印キーは投影側と連動する（postMessage なので file:// でも動く）。
   //    同じブラウザなら別タブで #presenter を直接開いても BroadcastChannel で連動する
@@ -1664,13 +1703,14 @@
   }
   document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement && present) togglePresent();
+    if (!document.fullscreenElement && showFs) endShow();
   });
 
   // ---- 発表者ビュー ----
   let presenterWin = null;
-  function openPresenter() {
+  function openPresenter(features) {
     const url = location.href.split('#')[0] + '#presenter';
-    presenterWin = window.open(url, 'presenter', 'width=1100,height=680');
+    presenterWin = window.open(url, 'presenter', features || 'width=1100,height=680');
     if (!presenterWin) { alert('ポップアップがブロックされました。許可してからもう一度押してください。'); return; }
     broadcast();
   }
@@ -1727,6 +1767,96 @@
   window.addEventListener('message', (e) => onMessage(e.data, e.source));
   if (chan) chan.onmessage = (e) => onMessage(e.data, null);
 
+  // ---- スライドショー（投影先に全画面 + 手元に発表者ビュー）----
+  // Window Management API（Chrome / Edge）で画面の並びがわかれば 1 回で両方を出す。
+  // わからないときは発表者ビューだけ開き、投影側に「プロジェクタへ移して全画面に」の帯を出す
+  let screens = null;      // getScreenDetails() の結果。許可済みのときだけ持つ
+  let homeScreen = null;   // スライドショーを始めたときに手元だった画面
+  let showWin = null;      // スライドショーで開いた発表者ウィンドウ。全画面を抜けたら閉じる
+  let showFs = false;      // スライドショーで全画面にした（している）
+  let waitFs = false;      // 帯を出して、次の操作で全画面にする待ち
+  let showNote = null, showBand = null, noteTimer = 0;
+  function keepScreens(d) {
+    screens = d;
+    d.onscreenschange = () => { window.getScreenDetails().then(keepScreens).catch(() => {}); };
+  }
+  if (!embedded && !isPreview && !isPresenter && window.getScreenDetails && navigator.permissions) {
+    try {
+      navigator.permissions.query({ name: 'window-management' })
+        .then((st) => { if (st.state === 'granted') return window.getScreenDetails().then(keepScreens); })
+        .catch(() => {});
+    } catch (err) { /* window-management を知らないブラウザ */ }
+  }
+  function winRect(s) { return `left=${s.availLeft},top=${s.availTop},width=${s.availWidth},height=${s.availHeight}`; }
+  function noteShow(text) {
+    if (!showNote) { showNote = document.createElement('div'); showNote.className = 'show-note'; body.appendChild(showNote); }
+    showNote.textContent = text;
+    requestAnimationFrame(() => showNote.classList.add('on'));
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(() => showNote.classList.remove('on'), 4000);
+  }
+  function bandShow(text) {
+    if (!showBand) { showBand = document.createElement('div'); showBand.className = 'show-band'; body.appendChild(showBand); }
+    showBand.textContent = text;
+    showBand.hidden = false;
+  }
+  function startShow() {
+    if (embedded || isPreview || isPresenter) return;
+    // 画面が 1 枚だけ: このウィンドウを全画面にするだけ
+    if (screen.isExtended === false) { enterFullscreen(); return; }
+    if (screens && screens.screens.length >= 2) {
+      const cur = screens.currentScreen;
+      const others = screens.screens.filter((s) => s !== cur);
+      const target = others.find((s) => s.isInternal === false) || others[0];
+      homeScreen = cur;
+      if (!present) togglePresent();
+      // 全画面 → ポップアップの順で、あいだに await を挟まない（ユーザー操作の扱いが切れないように）
+      const el = document.documentElement;
+      showFs = true;
+      if (el.requestFullscreen) el.requestFullscreen({ screen: target }).catch(() => { showFs = false; });
+      openPresenter(winRect(cur));
+      showWin = presenterWin;
+      return;
+    }
+    if (window.getScreenDetails && !screens) {
+      window.getScreenDetails()
+        .then((d) => { keepScreens(d); noteShow('もう一度押すと開始します'); })
+        .catch(() => showFallback());
+      return;
+    }
+    showFallback();
+  }
+  // 画面の並びがわからないとき。発表者ビューを開き、このウィンドウは手で投影先へ移してもらう
+  function showFallback() {
+    openPresenter();
+    if (!presenterWin) return;
+    showWin = presenterWin;
+    waitFs = true;
+    bandShow('このウィンドウをプロジェクタへ移し、F キーかクリックで全画面');
+  }
+  function armFs(e) {
+    if (!waitFs) return;
+    if (e.type === 'keydown' && ['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) return;
+    waitFs = false;
+    if (showBand) showBand.hidden = true;
+    e.preventDefault();
+    e.stopImmediatePropagation();   // そのキー / クリック本来の操作（F でプレゼン解除など）はさせない
+    showFs = true;
+    enterFullscreen();
+  }
+  window.addEventListener('keydown', armFs, true);
+  window.addEventListener('click', armFs, true);
+  function endShow() {
+    showFs = false;
+    if (showWin && !showWin.closed) showWin.close();
+    showWin = null;
+  }
+  // 全画面中の P は、画面の並びがわかれば手元の画面に開く
+  function openPresenterKey() {
+    if (document.fullscreenElement && screens) openPresenter(winRect(homeScreen || screens.currentScreen));
+    else openPresenter();
+  }
+
   let panel = null, startedAt = Date.now();
   function pad(n) { return String(n).padStart(2, '0'); }
   function tick() {
@@ -1766,9 +1896,10 @@
 
   document.getElementById('prevBtn').addEventListener('click', () => go(-1));
   document.getElementById('nextBtn').addEventListener('click', () => go(1));
+  document.getElementById('showBtn').addEventListener('click', startShow);
   document.getElementById('presentBtn').addEventListener('click', togglePresent);
   document.getElementById('fsBtn').addEventListener('click', enterFullscreen);
-  document.getElementById('presenterBtn').addEventListener('click', openPresenter);
+  document.getElementById('presenterBtn').addEventListener('click', () => openPresenter());
   document.getElementById('printBtn').addEventListener('click', () => window.print());
 
   // キーの意味づけは 1 か所に。発表者ビューと iframe 内では自分で処理せず親へ送る
@@ -1780,7 +1911,8 @@
     else if (embedded || isPreview) return;          // F / P / Esc はステージ側が扱う。閲覧モードでは無効
     else if (k === 'f' && shift) enterFullscreen();
     else if (k === 'f') togglePresent();
-    else if (k === 'p') openPresenter();
+    else if (k === 'p') openPresenterKey();
+    else if (k === 's' && !shift) startShow();
     else if (key === 'Escape' && present) togglePresent();
   }
   document.addEventListener('keydown', (e) => {
