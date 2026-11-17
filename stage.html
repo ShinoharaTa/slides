@@ -11,6 +11,7 @@
      ・各デッキを iframe で持ち、表示を切り替えるだけなので全画面が解除されない
      ・キー 1〜9 でデッキ切り替え。それ以外のキーは表示中のデッキへ転送
      ・「発表者」で stage.html#presenter を別ウィンドウに開く。デッキも一緒に切り替わる
+       （同じブラウザなら別タブで #presenter を直接開いても BroadcastChannel で連動する）
      ========================================================= */
   html, body { margin: 0; height: 100%; background: #0b1426; overflow: hidden;
     font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #fff; }
@@ -76,6 +77,23 @@
   let presenterWin = null;
   if (isPresenter) document.body.classList.add('presenter');
 
+  // 投影側と発表者側のあいだは postMessage（opener / presenterWin）と BroadcastChannel の両方に流す。
+  // key だけは id で重複を捨てる（switch / titles / state は何度来ても同じ結果になる）
+  let chan = null;
+  if (typeof BroadcastChannel !== 'undefined') {
+    try { chan = new BroadcastChannel('stage:' + location.pathname + location.search); } catch (err) { chan = null; }
+  }
+  const msgSrc = Math.random().toString(36).slice(2);
+  let msgSeq = 0;
+  const seenKeys = [];
+  function seenKey(id) {
+    if (!id) return false;
+    if (seenKeys.includes(id)) return true;
+    seenKeys.push(id);
+    if (seenKeys.length > 50) seenKeys.shift();
+    return false;
+  }
+
   function renderBar() {
     if (!frames.length) return;
     bar.innerHTML = '';
@@ -105,10 +123,20 @@
     renderBar();
     if (isPresenter) { if (tell) send({ type: 'key', key: String(i + 1) }); return; }
     frames[i].contentWindow.postMessage({ type: 'hello' }, '*');   // 状態を送り直させる
-    if (presenterWin && !presenterWin.closed) presenterWin.postMessage({ type: 'switch', deck: i }, '*');
+    toPresenter({ type: 'switch', deck: i });
   }
 
-  function send(msg) { if (window.opener) window.opener.postMessage(msg, '*'); }
+  // 発表者側 → 投影側
+  function send(msg) {
+    if (msg.type === 'key' && !msg.id) msg = Object.assign({ id: msgSrc + ':' + (++msgSeq) }, msg);
+    if (window.opener) window.opener.postMessage(msg, '*');
+    if (chan) chan.postMessage(msg);
+  }
+  // 投影側 → 発表者側
+  function toPresenter(msg) {
+    if (presenterWin && !presenterWin.closed) presenterWin.postMessage(msg, '*');
+    if (chan) chan.postMessage(msg);
+  }
 
   // 投影側でのキー処理。数字はデッキ切り替え、それ以外は表示中のデッキへ
   function handleKey(key, shift) {
@@ -137,9 +165,9 @@
       if (m.type === 'state') {
         if (m.title) titles[idx] = m.title.split(' - ')[0];
         renderBar();
-        if (!isPresenter && presenterWin && !presenterWin.closed) {
-          presenterWin.postMessage({ type: 'titles', titles }, '*');
-          if (idx === active) presenterWin.postMessage(Object.assign({}, m, { deck: idx }), '*');
+        if (!isPresenter) {
+          toPresenter({ type: 'titles', titles });
+          if (idx === active) toPresenter(Object.assign({}, m, { deck: idx }));
         }
       } else if (m.type === 'key') {
         // iframe 内にフォーカスがあるときのキー。投影側なら自分で処理、発表者側なら投影側へ
@@ -149,15 +177,21 @@
       }
       return;
     }
+    fromPeer(m, e.source);
+  });
+
+  // 相手のウィンドウから（source はチャンネル経由のとき null。そのときは presenterWin を書き換えない）
+  function fromPeer(m, source) {
+    m = m || {};
     if (!isPresenter) {
       // 発表者ウィンドウから
       if (m.type === 'hello') {
-        presenterWin = e.source;
-        presenterWin.postMessage({ type: 'titles', titles }, '*');
-        presenterWin.postMessage({ type: 'switch', deck: active }, '*');
+        if (source) presenterWin = source;
+        toPresenter({ type: 'titles', titles });
+        toPresenter({ type: 'switch', deck: active });
         frames[active].contentWindow.postMessage({ type: 'hello' }, '*');
       }
-      else if (m.type === 'key') handleKey(m.key, m.shiftKey);
+      else if (m.type === 'key') { if (!seenKey(m.id)) handleKey(m.key, m.shiftKey); }
     } else {
       // 投影側（opener）から
       if (m.type === 'switch') switchTo(m.deck, false);
@@ -167,7 +201,8 @@
         frames[active].contentWindow.postMessage(m, '*');
       }
     }
-  });
+  }
+  if (chan) chan.onmessage = (e) => fromPeer(e.data, null);
 
   document.addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -178,6 +213,8 @@
 
   if (frames.length) switchTo(0, false);
   if (isPresenter) send({ type: 'hello' });
+  // 投影側を再読み込みしても止まらないよう、3 秒ごとに hello を送り直して状態をもらう
+  if (isPresenter) setInterval(() => send({ type: 'hello' }), 3000);
 </script>
 
 </body>
